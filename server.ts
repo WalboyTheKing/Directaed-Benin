@@ -33,10 +33,12 @@ app.use((req, res, next) => {
 
 // Configuration
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY || '';
-const YOUTUBE_CHANNEL_ID = process.env.YOUTUBE_CHANNEL_ID || '';
+const YOUTUBE_CHANNEL_ID = process.env.YOUTUBE_CHANNEL_ID || 'UCN0WZndfRXylOspFwildeMg';
+const YOUTUBE_OFFICIAL_CHANNEL_URL = 'https://www.youtube.com/@Madjid-r3c';
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || '';
 const SYNC_INTERVAL_MINUTES = parseInt(process.env.SYNC_INTERVAL_MINUTES || '15', 10);
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'directaid2026';
 
 // Initialize Supabase if configured
 let supabase: SupabaseClient | null = null;
@@ -519,30 +521,61 @@ async function syncYouTubeVideos(): Promise<{
         };
 
         if (supabase) {
-          // Idempotence Supabase
-          const { data: existing } = await supabase
+          // Idempotence Supabase sécurisée avec maybeSingle et gestion UUID
+          const { data: existing, error: selectErr } = await supabase
             .from('videos')
-            .select('id, title, thumbnail_url, status')
+            .select('id, youtube_id, status')
             .eq('youtube_id', videoId)
-            .single();
+            .maybeSingle();
+
+          const dbPayload = {
+            youtube_id: videoId,
+            youtube_url: `https://www.youtube.com/watch?v=${videoId}`,
+            title: snippet.title,
+            description: snippet.description || '',
+            thumbnail_url: thumbnailUrl,
+            published_at: snippet.publishedAt,
+            channel_id: resolvedChannelId,
+            playlist_id: associatedPlaylistTitle || null,
+            category,
+            duration: formattedDuration,
+            status: videoStatus,
+            updated_at: new Date().toISOString(),
+          };
 
           if (existing) {
-            await supabase
+            const { error: updateErr } = await supabase
               .from('videos')
-              .update({
-                title: videoRecord.title,
-                description: videoRecord.description,
-                thumbnail_url: videoRecord.thumbnail_url,
-                duration: videoRecord.duration,
-                category: videoRecord.category,
-                status: videoRecord.status,
-                updated_at: new Date().toISOString(),
-              })
+              .update(dbPayload)
               .eq('youtube_id', videoId);
-            updatedCount++;
+
+            if (updateErr) {
+              console.error('[Supabase Update Error]', updateErr);
+            } else {
+              updatedCount++;
+            }
           } else {
-            await supabase.from('videos').insert(videoRecord);
-            addedCount++;
+            // Insertion sans forcer de champ id non-UUID
+            const { error: insertErr } = await supabase
+              .from('videos')
+              .insert({
+                ...dbPayload,
+                created_at: new Date().toISOString(),
+              });
+
+            if (insertErr) {
+              console.error('[Supabase Insert Error]', insertErr);
+              // Si la table avait été créée sans auto-id UUID
+              if (insertErr.message?.includes('id') || insertErr.code === '23502') {
+                await supabase.from('videos').insert({
+                  ...dbPayload,
+                  id: `yt-${videoId}`,
+                  created_at: new Date().toISOString(),
+                });
+              }
+            } else {
+              addedCount++;
+            }
           }
         } else {
           // Idempotence magasin local
@@ -566,39 +599,26 @@ async function syncYouTubeVideos(): Promise<{
         }
       }
 
-      // Gestion des vidéos supprimées ou devenues inaccessibles (Section 11)
-      if (supabase) {
-        const { data: existingDbVideos } = await supabase
-          .from('videos')
-          .select('id, youtube_id, status')
-          .eq('channel_id', resolvedChannelId);
+      // Comptage direct et fiable
+      let totalCount = 0;
+      let activeCount = 0;
 
-        if (existingDbVideos) {
-          for (const ev of existingDbVideos) {
-            if (!seenVideoIds.has(ev.youtube_id) && ev.status === 'ACTIVE') {
-              await supabase
-                .from('videos')
-                .update({ status: 'UNAVAILABLE', updated_at: new Date().toISOString() })
-                .eq('youtube_id', ev.youtube_id);
-            }
-          }
+      if (supabase) {
+        const { data: allDbVideos, error: countErr } = await supabase
+          .from('videos')
+          .select('id, status');
+
+        if (!countErr && allDbVideos) {
+          totalCount = allDbVideos.length;
+          activeCount = allDbVideos.filter((v: any) => v.status === 'ACTIVE').length;
+        } else {
+          totalCount = localVideosStore.length;
+          activeCount = localVideosStore.filter((v) => v.status === 'ACTIVE').length;
         }
       } else {
-        for (const lv of localVideosStore) {
-          if (lv.channel_id === resolvedChannelId && !seenVideoIds.has(lv.youtube_id) && lv.status === 'ACTIVE') {
-            lv.status = 'UNAVAILABLE';
-            lv.updated_at = new Date().toISOString();
-          }
-        }
+        totalCount = localVideosStore.length;
+        activeCount = localVideosStore.filter((v) => v.status === 'ACTIVE').length;
       }
-
-      const totalCount = supabase
-        ? (await supabase.from('videos').select('*', { count: 'exact', head: true })).count || 0
-        : localVideosStore.length;
-
-      const activeCount = supabase
-        ? (await supabase.from('videos').select('*', { count: 'exact', head: true }).eq('status', 'ACTIVE')).count || 0
-        : localVideosStore.filter((v) => v.status === 'ACTIVE').length;
 
       syncStatusState = {
         ...syncStatusState,
@@ -828,8 +848,23 @@ app.get('/api/sync/status', (_req: Request, res: Response) => {
   });
 });
 
-// 3. POST /api/sync - Déclenche une synchronisation manuelle UNIQUEMENT pour le diagnostic technique (Section 7 & 10)
-app.post('/api/sync', async (_req: Request, res: Response) => {
+// 3. POST /api/admin/login - Authentification pour l'espace d'administration et diagnostic
+app.post('/api/admin/login', (req: Request, res: Response) => {
+  const { password } = req.body;
+  if (!password || password !== ADMIN_PASSWORD) {
+    res.status(401).json({ error: 'Mot de passe administrateur incorrect.' });
+    return;
+  }
+  // Authentification réussie
+  res.json({
+    authenticated: true,
+    token: Buffer.from(`admin_${Date.now()}`).toString('base64'),
+    message: 'Authentification réussie.',
+  });
+});
+
+// 4. POST /api/sync - Déclenche une synchronisation manuelle réservée au diagnostic technique
+app.post('/api/sync', async (req: Request, res: Response) => {
   try {
     const result = await syncYouTubeVideos();
     res.json({

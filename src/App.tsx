@@ -125,22 +125,19 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-stone-50 font-sans text-stone-900">
-      {/* 3-Zone Institutional Navbar */}
+      {/* Barre de navigation publique et institutionnelle */}
       <Navbar
         currentTab={currentTab}
         onSelectTab={handleSelectTab}
-        syncStatus={syncStatus}
-        onOpenSyncModal={() => setIsSyncModalOpen(true)}
       />
 
-      {/* Main Content Pages */}
+      {/* Pages publiques */}
       <main className="flex-1">
         {currentTab === 'accueil' && (
           <HomeView
             onSelectTab={handleSelectTab}
             latestVideos={videos}
             onSelectVideo={(v) => setSelectedVideo(v)}
-            onOpenSyncModal={() => setIsSyncModalOpen(true)}
           />
         )}
 
@@ -165,12 +162,6 @@ export default function App() {
             onSortChange={(sort) => setSortOrder(sort)}
             isLoading={isLoadingVideos}
             onSelectVideo={(v) => setSelectedVideo(v)}
-            onOpenSyncModal={() => setIsSyncModalOpen(true)}
-            syncStatus={syncStatus}
-            onRefresh={() => {
-              fetchVideos();
-              fetchSyncStatus();
-            }}
           />
         )}
 
@@ -181,19 +172,19 @@ export default function App() {
         {currentTab === 'contact' && <ContactView />}
       </main>
 
-      {/* Institutional Footer */}
+      {/* Footer institutionnel avec accès admin sécurisé */}
       <Footer
         onSelectTab={handleSelectTab}
-        onOpenSyncModal={() => setIsSyncModalOpen(true)}
+        onOpenAdmin={() => setIsSyncModalOpen(true)}
       />
 
-      {/* YouTube Player Video Modal */}
+      {/* Lecteur vidéo YouTube intégré */}
       <VideoModal
         video={selectedVideo}
         onClose={() => setSelectedVideo(null)}
       />
 
-      {/* Synchronization & Architecture Admin Modal */}
+      {/* Espace administration & diagnostic sécurisé */}
       <SyncAdminModal
         isOpen={isSyncModalOpen}
         onClose={() => setIsSyncModalOpen(false)}

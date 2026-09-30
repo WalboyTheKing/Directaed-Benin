@@ -7,11 +7,10 @@ import {
   Award,
   Users,
   Compass,
-  CheckCircle2,
   Calendar,
   Youtube,
   Clock,
-  Sparkles
+  Film
 } from 'lucide-react';
 import { SCHOOL_IMAGES } from '../assets/images.ts';
 import { useLanguage } from '../context/LanguageContext.tsx';
@@ -21,14 +20,12 @@ interface HomeViewProps {
   onSelectTab: (tab: string, categoryFilter?: string) => void;
   latestVideos: Video[];
   onSelectVideo: (video: Video) => void;
-  onOpenSyncModal: () => void;
 }
 
 export const HomeView: React.FC<HomeViewProps> = ({
   onSelectTab,
   latestVideos,
   onSelectVideo,
-  onOpenSyncModal,
 }) => {
   const { t, isRTL, language } = useLanguage();
   const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
@@ -64,7 +61,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
               {t('hero_desc')}
             </p>
 
-            <div className="pt-4 flex flex-wrap items-center gap-4">
+            {/* Boutons distincts avec séparation nette */}
+            <div className="pt-4 flex flex-wrap items-center gap-4 sm:gap-5">
               <button
                 onClick={() => onSelectTab('contact')}
                 className="px-6 py-3.5 bg-[#16A34A] hover:bg-[#15803D] text-white rounded-xl text-sm font-bold shadow-lg transition-all cursor-pointer inline-flex items-center gap-2"
@@ -85,13 +83,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
       </section>
 
-      {/* 2. Automated YouTube Video Showcase */}
+      {/* 2. Section Vidéos Publique */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-stone-200 pb-6 mb-8">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold text-red-600 uppercase tracking-wider">
-              <Youtube className="w-4 h-4" />
-              <span>{t('hero_badge_sync')}</span>
+            <div className="flex items-center gap-2 text-xs font-bold text-[#16A34A] uppercase tracking-wider">
+              <Film className="w-4 h-4" />
+              <span>{t('hero_badge_editorial')}</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900 mt-1">
               {t('section_videos_title')}
@@ -112,76 +110,97 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
         </div>
 
-        {/* Video Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {latestVideos.slice(0, 3).map((video) => (
-            <div
-              key={video.id}
-              onClick={() => onSelectVideo(video)}
-              className="group bg-white rounded-2xl overflow-hidden border border-stone-200/90 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer hover:-translate-y-1"
-            >
-              <div className="relative aspect-video bg-stone-900 overflow-hidden">
-                <img
-                  src={video.thumbnail_url}
-                  alt={video.title}
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-stone-950/20 group-hover:bg-stone-950/40 transition-colors" />
+        {/* Video Cards Grid ou message élégant */}
+        {latestVideos.length === 0 ? (
+          <div className="bg-white rounded-2xl border border-stone-200 p-12 text-center max-w-lg mx-auto space-y-3 shadow-xs">
+            <div className="w-12 h-12 rounded-full bg-emerald-50 text-[#16A34A] flex items-center justify-center mx-auto">
+              <Youtube className="w-6 h-6 text-red-500" />
+            </div>
+            <h3 className="font-bold text-stone-800 text-base">
+              {t('section_videos_empty')}
+            </h3>
+            <p className="text-xs text-stone-500">
+              {language === 'ar'
+                ? 'تابعوا أنشطتنا وفعالياتنا المدرسية عبر صفحة الفيديوهات وقناتنا الرسمية.'
+                : 'Consultez régulièrement notre page pour découvrir les derniers reportages de l\'école.'}
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {latestVideos.slice(0, 3).map((video) => (
+              <div
+                key={video.id}
+                onClick={() => onSelectVideo(video)}
+                className="group bg-white rounded-2xl overflow-hidden border border-stone-200/90 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer hover:-translate-y-1"
+              >
+                <div className="relative aspect-video bg-stone-900 overflow-hidden">
+                  <img
+                    src={video.thumbnail_url}
+                    alt={video.title}
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-stone-950/20 group-hover:bg-stone-950/40 transition-colors" />
 
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-12 h-12 rounded-full bg-red-600/95 text-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
-                    <Play className="w-5 h-5 fill-white translate-x-0.5" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full bg-red-600/95 text-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
+                      <Play className="w-5 h-5 fill-white translate-x-0.5" />
+                    </div>
                   </div>
+
+                  {video.duration && (
+                    <div className={`absolute bottom-2.5 ${isRTL ? 'right-2.5' : 'left-2.5'} px-2 py-0.5 rounded bg-black/80 text-white text-[11px] font-mono font-medium flex items-center gap-1`}>
+                      <Clock className="w-3 h-3 text-stone-300" />
+                      <span>{video.duration}</span>
+                    </div>
+                  )}
+
+                  {video.category && (
+                    <div className={`absolute top-2.5 ${isRTL ? 'left-2.5' : 'right-2.5'}`}>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/90 text-stone-800 backdrop-blur-xs shadow-xs">
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                        {video.category}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
-                {video.duration && (
-                  <div className={`absolute bottom-2.5 ${isRTL ? 'right-2.5' : 'left-2.5'} px-2 py-0.5 rounded bg-black/80 text-white text-[11px] font-mono font-medium flex items-center gap-1`}>
-                    <Clock className="w-3 h-3 text-stone-300" />
-                    <span>{video.duration}</span>
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-xs text-stone-500">
+                      {video.category && (
+                        <>
+                          <span className="font-semibold text-emerald-700">{video.category}</span>
+                          <span>·</span>
+                        </>
+                      )}
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {new Date(video.published_at).toLocaleDateString(language === 'ar' ? 'ar-EG' : language === 'fr' ? 'fr-FR' : 'en-US', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </span>
+                    </div>
+
+                    <h3 className="font-bold text-base text-stone-900 group-hover:text-[#16A34A] transition-colors line-clamp-2 leading-snug">
+                      {video.title}
+                    </h3>
                   </div>
-                )}
 
-                <div className={`absolute top-2.5 ${isRTL ? 'left-2.5' : 'right-2.5'}`}>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/90 text-stone-800 backdrop-blur-xs shadow-xs">
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                    {video.category}
-                  </span>
-                </div>
-              </div>
-
-              <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-xs text-stone-500">
-                    <span className="font-semibold text-emerald-700">{video.category}</span>
-                    <span>·</span>
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
-                      {new Date(video.published_at).toLocaleDateString(language === 'ar' ? 'ar-EG' : language === 'fr' ? 'fr-FR' : 'en-US', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric',
-                      })}
+                  <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-stone-500">
+                    <span className="text-emerald-700 font-bold group-hover:underline flex items-center gap-1">
+                      <span>{t('videos_watch_btn')}</span>
+                      <ArrowIcon className="w-3 h-3" />
                     </span>
                   </div>
-
-                  <h3 className="font-bold text-base text-stone-900 group-hover:text-[#16A34A] transition-colors line-clamp-2 leading-snug">
-                    {video.title}
-                  </h3>
-                </div>
-
-                <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-stone-500">
-                  <span className="text-emerald-700 font-bold group-hover:underline flex items-center gap-1">
-                    <span>{t('videos_watch_btn')}</span>
-                    <ArrowIcon className="w-3 h-3" />
-                  </span>
-                  <span className="text-[11px] text-stone-400">YouTube Player</span>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* 3. Educational Vision Section */}
@@ -338,7 +357,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
       </section>
 
-      {/* 5. Key Statistics */}
+      {/* 5. Key Statistics vérifiées */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-stone-900 text-white rounded-3xl p-8 sm:p-12 shadow-xl border border-stone-800">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center divide-y lg:divide-y-0 lg:divide-x divide-stone-800">

@@ -9,10 +9,7 @@ export interface Translations {
   nav_gallery: string;
   nav_news: string;
   nav_contact: string;
-  nav_auto_sync: string;
-  nav_sync_btn: string;
   nav_enroll_btn: string;
-  nav_sync_tooltip: string;
 
   // Hero Section
   hero_org: string;
@@ -21,7 +18,7 @@ export interface Translations {
   hero_desc: string;
   hero_btn_enroll: string;
   hero_btn_videos: string;
-  hero_badge_sync: string;
+  hero_badge_editorial: string;
 
   // Stats
   stat_success_rate: string;
@@ -37,6 +34,7 @@ export interface Translations {
   section_videos_title: string;
   section_videos_subtitle: string;
   section_videos_btn: string;
+  section_videos_empty: string;
   section_vision_tag: string;
   section_vision_title: string;
   section_vision_subtitle: string;
@@ -59,13 +57,11 @@ export interface Translations {
   cta_join_btn: string;
 
   // Videos View
-  videos_badge: string;
   videos_hero_title: string;
   videos_hero_desc: string;
   videos_search_placeholder: string;
   videos_sort_recent: string;
   videos_sort_oldest: string;
-  videos_active_count: string;
   videos_empty: string;
   videos_watch_btn: string;
 
@@ -104,7 +100,6 @@ export interface Translations {
 
   // Footer
   footer_desc: string;
-  footer_sync_link: string;
   footer_quick_links: string;
   footer_contact_info: string;
   footer_address: string;
@@ -125,19 +120,16 @@ export const translations: Record<Language, Translations> = {
     nav_gallery: 'معرض الصور',
     nav_news: 'الأخبار',
     nav_contact: 'تواصل معنا',
-    nav_auto_sync: 'مزامنة تلقائية',
-    nav_sync_btn: 'مزامنة يوتيوب',
     nav_enroll_btn: 'التسجيل والزيارة',
-    nav_sync_tooltip: 'حالة المزامنة التلقائية مع يوتيوب وسوبابيس',
 
     // Hero Section
     hero_org: 'جمعية العون المباشر · جمهورية بنين',
     hero_title_line1: 'نعلّم لنرتقي،',
     hero_title_line2: 'ونبني مستقبلاً يليق بأبنائنا.',
     hero_desc: 'في مجمع العون المباشر التعليمي في بنين، نوفر بيئة تربوية رائدة تجمع بين التفوق الأكاديمي، إتقان اللغتين العربية والفرنسية، والتربية الأخلاقية ورعاية المواهب من مرحلة الروضة إلى الثانوية والتأهيل المهني.',
-    hero_btn_enroll: 'طلب تسجيل واستفسار',
-    hero_btn_videos: 'شاهد أنشطتنا المصورة',
-    hero_badge_sync: 'مزامنة حيّة من قناة يوتيوب',
+    hero_btn_enroll: 'طلب التسجيل والمعلومات',
+    hero_btn_videos: 'مشاهدة أنشطتنا المصورة',
+    hero_badge_editorial: 'أنشطة وفعاليات المجمع',
 
     // Stats
     stat_success_rate: '100%',
@@ -150,9 +142,10 @@ export const translations: Record<Language, Translations> = {
     stat_languages_label: 'تعليم ثنائي وثلاثي اللغة (العربية، الفرنسية، الإنجليزية)',
 
     // Home Sections
-    section_videos_title: 'أحدث التغطيات المصورة من المجمع',
-    section_videos_subtitle: 'يتم تحديث هذه القائمة تلقائياً بأحدث مقاطع الفيديو المنشورة على قناة يوتيوب الرسمية.',
+    section_videos_title: 'أحدث التغطيات المصورة',
+    section_videos_subtitle: 'اكتشف أحدث الأنشطة والمناسبات والفعاليات التربوية لمجمع العون المباشر التعليمي في بنين.',
     section_videos_btn: 'مشاهدة جميع الفيديوهات',
+    section_videos_empty: 'التقارير والفيديوهات المصورة ستكون متاحة قريباً.',
     section_vision_tag: 'الرؤية التربوية',
     section_vision_title: 'ركائز التعليم في مجمع العون المباشر',
     section_vision_subtitle: 'منهج تعليمي متكامل يجمع بين التحصيل العلمي الرصين وغرس القيم واكتشاف إبداع كل طالب.',
@@ -175,14 +168,12 @@ export const translations: Record<Language, Translations> = {
     cta_join_btn: 'استمارة التسجيل وطلب الزيارة',
 
     // Videos View
-    videos_badge: 'مكتبة يوتيوب المزامنة تلقائياً',
-    videos_hero_title: 'فيديوهات وأنشطة المجمع التعليمي',
-    videos_hero_desc: 'تصفح كافة الفعاليات، البطولات الرياضية، الحفلات القرآنية، والأنشطة التربوية المنشورة على قناة يوتيوب الرسمية لمجمع العون المباشر بنين.',
+    videos_hero_title: 'مكتبة الفيديوهات والأنشطة',
+    videos_hero_desc: 'شاهد الفعاليات الرسمية، البطولات الرياضية، الحفلات القرآنية، والأنشطة التربوية لمجمع العون المباشر التعليمي بنين.',
     videos_search_placeholder: 'ابحث في عناوين الفيديوهات والأنشطة...',
     videos_sort_recent: 'الأحدث أولاً',
     videos_sort_oldest: 'الأقدم أولاً',
-    videos_active_count: 'فيديو نشط متاح للمشاهدة',
-    videos_empty: 'لم يتم العثور على فيديوهات تطابق معايير البحث الحالية.',
+    videos_empty: 'التقارير والفيديوهات المصورة ستكون متاحة قريباً.',
     videos_watch_btn: 'شاهد الآن',
 
     // Video Categories
@@ -220,14 +211,13 @@ export const translations: Record<Language, Translations> = {
 
     // Footer
     footer_desc: 'جمعية إنسانية وتنموية رائدة تعمل في بنين على نشر التعليم النوعي، ورعاية الأيتام، وتوفير بيئة تربوية ثنائية اللغة لتمكين الأجيال وصناعة المستقبل.',
-    footer_sync_link: 'بنية النظام وحالة مزامنة يوتيوب',
     footer_quick_links: 'روابط سريعة',
     footer_contact_info: 'المراكز الإدارية والتعليمية',
     footer_address: 'المكتب الوطني ومجمع العون المباشر التعليمي: كوتونو / بورتو نوفو — جمهورية بنين',
     footer_hours: 'من الإثنين إلى الجمعة: 8:00 صباحاً – 5:30 مساءً',
     footer_rights: '© 2026 مجمع العون المباشر بنين. جميع الحقوق محفوظة.',
     footer_youtube_title: 'قناة يوتيوب الرسمية',
-    footer_youtube_desc: 'جميع التقارير والفيديوهات المنشورة على القناة الرسمية للمجمع تُنشر تلقائياً هنا عبر نظام الربط الذكي.',
+    footer_youtube_desc: 'شاهد جميع الفيديوهات والتقارير الميدانية المصورة عبر القناة الرسمية للمجمع.',
     footer_youtube_btn: 'زيارة قناة يوتيوب الرسمية',
   },
 
@@ -240,10 +230,7 @@ export const translations: Record<Language, Translations> = {
     nav_gallery: 'Galerie Photos',
     nav_news: 'Actualités',
     nav_contact: 'Contact',
-    nav_auto_sync: 'Sync Automatique',
-    nav_sync_btn: 'Sync YouTube',
     nav_enroll_btn: 'Inscription & Visite',
-    nav_sync_tooltip: 'État de la synchronisation automatique YouTube & Supabase',
 
     // Hero Section
     hero_org: 'Direct Aid International · République du Bénin',
@@ -252,7 +239,7 @@ export const translations: Record<Language, Translations> = {
     hero_desc: 'Au sein du Complexe Éducatif DirectAid Bénin, nous offrons un environnement pédagogique d\'excellence alliant réussite académique, maîtrise de l\'arabe et du français, éducation aux valeurs et formation de la maternelle au lycée.',
     hero_btn_enroll: 'Demande d\'inscription',
     hero_btn_videos: 'Découvrir nos vidéos',
-    hero_badge_sync: 'Synchronisation en direct depuis YouTube',
+    hero_badge_editorial: 'Activités & Événements',
 
     // Stats
     stat_success_rate: '100%',
@@ -265,9 +252,10 @@ export const translations: Record<Language, Translations> = {
     stat_languages_label: 'Éducation bilingue et trilingue (Arabe, Français, Anglais)',
 
     // Home Sections
-    section_videos_title: 'Derniers reportages vidéo du Complexe',
-    section_videos_subtitle: 'Cette liste est synchronisée automatiquement avec la chaîne YouTube officielle de l\'école.',
+    section_videos_title: 'Derniers reportages vidéo',
+    section_videos_subtitle: 'Découvrez les dernières activités et événements du Complexe Éducatif DirectAid Bénin.',
     section_videos_btn: 'Voir toutes les vidéos',
+    section_videos_empty: 'Les derniers reportages vidéo seront bientôt disponibles.',
     section_vision_tag: 'Vision Pédagogique',
     section_vision_title: 'Les piliers de l\'éducation à DirectAid Bénin',
     section_vision_subtitle: 'Un programme complet combinant rigueur académique, ancrage éthique et épanouissement personnel.',
@@ -290,14 +278,12 @@ export const translations: Record<Language, Translations> = {
     cta_join_btn: 'Formulaire d\'inscription & visite',
 
     // Videos View
-    videos_badge: 'Médiathèque YouTube Synchronisée',
     videos_hero_title: 'Vidéos & Événements Scolaires',
-    videos_hero_desc: 'Retrouvez toutes les cérémonies officielles, tournois sportifs, concours coraniques et projets pédagogiques publiés sur notre chaîne officielle.',
+    videos_hero_desc: 'Retrouvez les cérémonies officielles, tournois sportifs, concours coraniques et projets pédagogiques du Complexe Éducatif DirectAid Bénin.',
     videos_search_placeholder: 'Rechercher une vidéo ou une activité...',
     videos_sort_recent: 'Plus récentes',
     videos_sort_oldest: 'Plus anciennes',
-    videos_active_count: 'vidéos disponibles en streaming officiel',
-    videos_empty: 'Aucune vidéo ne correspond à votre recherche actuelle.',
+    videos_empty: 'Les derniers reportages vidéo seront bientôt disponibles.',
     videos_watch_btn: 'Regarder la vidéo',
 
     // Video Categories
@@ -335,14 +321,13 @@ export const translations: Record<Language, Translations> = {
 
     // Footer
     footer_desc: 'Organisation humanitaire et éducative de référence au Bénin, dédiée à la diffusion du savoir, au parrainage des orphelins et à l\'émancipation de la jeunesse.',
-    footer_sync_link: 'Architecture & État de la synchronisation YouTube',
     footer_quick_links: 'Liens Rapides',
     footer_contact_info: 'Administration & Campus',
     footer_address: 'Siège National & Complexe Scolaire : Cotonou / Porto-Novo — République du Bénin',
     footer_hours: 'Du Lundi au Vendredi : 08h00 – 17h30',
     footer_rights: '© 2026 DirectAid Bénin. Tous droits réservés.',
     footer_youtube_title: 'Chaîne YouTube Officielle',
-    footer_youtube_desc: 'Tous les reportages publiés sur la chaîne officielle sont automatiquement indexés ici sans aucune intervention manuelle.',
+    footer_youtube_desc: 'Visionnez tous les reportages officiels du complexe sur notre chaîne YouTube.',
     footer_youtube_btn: 'Accéder à la chaîne YouTube',
   },
 
@@ -355,10 +340,7 @@ export const translations: Record<Language, Translations> = {
     nav_gallery: 'Photo Gallery',
     nav_news: 'News',
     nav_contact: 'Contact',
-    nav_auto_sync: 'Auto Sync',
-    nav_sync_btn: 'YouTube Sync',
     nav_enroll_btn: 'Admissions & Visit',
-    nav_sync_tooltip: 'Automatic sync status with YouTube & Supabase',
 
     // Hero Section
     hero_org: 'Direct Aid International · Republic of Benin',
@@ -367,7 +349,7 @@ export const translations: Record<Language, Translations> = {
     hero_desc: 'At DirectAid Benin Educational Complex, we provide a leading educational environment combining academic excellence, Arabic and French mastery, moral upbringing, and talent development from kindergarten to high school.',
     hero_btn_enroll: 'Request Enrollment',
     hero_btn_videos: 'Watch Our Videos',
-    hero_badge_sync: 'Live Sync from YouTube Channel',
+    hero_badge_editorial: 'Campus Events & Activities',
 
     // Stats
     stat_success_rate: '100%',
@@ -380,9 +362,10 @@ export const translations: Record<Language, Translations> = {
     stat_languages_label: 'Trilingual curriculum (Arabic, French, English)',
 
     // Home Sections
-    section_videos_title: 'Latest Video Highlights from Campus',
-    section_videos_subtitle: 'This library is automatically updated with the latest uploads from our official YouTube channel.',
+    section_videos_title: 'Latest Video Highlights',
+    section_videos_subtitle: 'Explore recent activities, celebrations, and campus life at DirectAid Benin Educational Complex.',
     section_videos_btn: 'View All Videos',
+    section_videos_empty: 'Latest video reports will be available soon.',
     section_vision_tag: 'Educational Vision',
     section_vision_title: 'Core Pillars of DirectAid Education',
     section_vision_subtitle: 'A holistic curriculum uniting academic rigor, character building, and individual talent development.',
@@ -405,14 +388,12 @@ export const translations: Record<Language, Translations> = {
     cta_join_btn: 'Enrollment & Visit Form',
 
     // Videos View
-    videos_badge: 'Auto-Synchronized YouTube Library',
     videos_hero_title: 'Videos & Campus Highlights',
-    videos_hero_desc: 'Watch sports tournaments, Quran recitations, graduation ceremonies, and academic projects directly through our official YouTube feed.',
+    videos_hero_desc: 'Watch sports tournaments, Quran recitations, graduation ceremonies, and academic projects at DirectAid Benin.',
     videos_search_placeholder: 'Search video titles and descriptions...',
     videos_sort_recent: 'Most recent first',
     videos_sort_oldest: 'Oldest first',
-    videos_active_count: 'active videos available to stream',
-    videos_empty: 'No videos found matching your search criteria.',
+    videos_empty: 'Latest video reports will be available soon.',
     videos_watch_btn: 'Watch Now',
 
     // Video Categories
@@ -450,14 +431,13 @@ export const translations: Record<Language, Translations> = {
 
     // Footer
     footer_desc: 'A premier humanitarian and educational organization working in Benin to spread quality learning, care for orphans, and build a brighter future.',
-    footer_sync_link: 'System Architecture & YouTube Sync Status',
     footer_quick_links: 'Quick Links',
     footer_contact_info: 'Administration & Campuses',
     footer_address: 'National Office & Educational Complex: Cotonou / Porto-Novo — Republic of Benin',
     footer_hours: 'Monday to Friday: 8:00 AM – 5:30 PM',
     footer_rights: '© 2026 DirectAid Benin. All rights reserved.',
     footer_youtube_title: 'Official YouTube Channel',
-    footer_youtube_desc: 'All official video releases are automatically indexed here in real time using the YouTube Data API v3.',
+    footer_youtube_desc: 'Watch official reports and ceremony highlights directly on our official YouTube channel.',
     footer_youtube_btn: 'Visit Official YouTube Channel',
   },
 };

@@ -1,22 +1,17 @@
 import React, { useState } from 'react';
-import { Video as VideoIcon, RefreshCw, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { DirectAidLogo } from './DirectAidLogo.tsx';
 import { LanguageSelector } from './LanguageSelector.tsx';
 import { useLanguage } from '../context/LanguageContext.tsx';
-import type { SyncStatus } from '../types/video.ts';
 
 interface NavbarProps {
   currentTab: string;
   onSelectTab: (tab: string) => void;
-  syncStatus: SyncStatus | null;
-  onOpenSyncModal: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   currentTab,
   onSelectTab,
-  syncStatus,
-  onOpenSyncModal,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { t, isRTL } = useLanguage();
@@ -25,7 +20,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'accueil', label: t('nav_home') },
     { id: 'ecole', label: t('nav_school') },
     { id: 'activites', label: t('nav_activities') },
-    { id: 'videos', label: t('nav_videos'), hasBadge: true },
+    { id: 'videos', label: t('nav_videos') },
     { id: 'galerie', label: t('nav_gallery') },
     { id: 'actualites', label: t('nav_news') },
     { id: 'contact', label: t('nav_contact') },
@@ -35,7 +30,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          {/* Zone 1: Brand Zone with Official DirectAid Benin Logo */}
+          {/* Zone 1: Logo officiel DirectAid Bénin */}
           <button
             onClick={() => {
               onSelectTab('accueil');
@@ -48,8 +43,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             <DirectAidLogo />
           </button>
 
-          {/* Zone 2: Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-stone-700">
+          {/* Zone 2: Navigation publique propre */}
+          <nav className="hidden lg:flex items-center gap-7 text-sm font-medium text-stone-700">
             {navLinks.map((link) => {
               const isActive = currentTab === link.id;
               return (
@@ -60,14 +55,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     isActive ? 'text-[#16A34A] font-bold' : 'text-stone-600'
                   }`}
                 >
-                  <span className="inline-flex items-center gap-1.5">
-                    {link.label}
-                    {link.hasBadge && (
-                      <span className="inline-flex items-center px-1.5 py-0.2 text-[10px] font-bold bg-emerald-50 text-[#16A34A] rounded border border-emerald-200">
-                        {t('nav_auto_sync')}
-                      </span>
-                    )}
-                  </span>
+                  <span>{link.label}</span>
                   {isActive && (
                     <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#16A34A] rounded-full" />
                   )}
@@ -76,35 +64,20 @@ export const Navbar: React.FC<NavbarProps> = ({
             })}
           </nav>
 
-          {/* Zone 3: Actions & Language Selector */}
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            {/* Language Selector Component */}
+          {/* Zone 3: Sélecteur de langue & Action Inscription */}
+          <div className="flex items-center gap-3">
+            {/* Sélecteur de langue propre (Arabe par défaut, Français, Anglais) */}
             <LanguageSelector />
 
-            {/* Status & Sync Drawer Button */}
-            <button
-              onClick={onOpenSyncModal}
-              title={t('nav_sync_tooltip')}
-              className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-stone-700 bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors border border-stone-200/80 cursor-pointer"
-            >
-              <RefreshCw
-                className={`w-3.5 h-3.5 text-stone-600 ${
-                  syncStatus?.isSyncing ? 'animate-spin text-emerald-600' : ''
-                }`}
-              />
-              <span className="hidden sm:inline">{t('nav_sync_btn')}</span>
-              <span className="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-emerald-200" />
-            </button>
-
-            {/* Inscription CTA */}
+            {/* Bouton d'inscription institutionnel */}
             <button
               onClick={() => onSelectTab('contact')}
-              className="px-3.5 sm:px-4 py-2 text-xs font-bold text-white bg-[#16A34A] hover:bg-[#15803D] rounded-lg shadow-xs transition-colors cursor-pointer whitespace-nowrap"
+              className="px-4 py-2 text-xs font-bold text-white bg-[#16A34A] hover:bg-[#15803D] rounded-lg shadow-xs transition-colors cursor-pointer whitespace-nowrap"
             >
               {t('nav_enroll_btn')}
             </button>
 
-            {/* Mobile Hamburger */}
+            {/* Menu Hamburger Mobile */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="lg:hidden p-2 text-stone-700 hover:text-stone-900 rounded-md focus:outline-none cursor-pointer"
@@ -116,7 +89,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown */}
+      {/* Menu Mobile */}
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-stone-200 bg-white px-4 pt-3 pb-6 space-y-2 shadow-lg">
           <div className="pb-2 mb-2 border-b border-stone-100 flex items-center justify-between">
@@ -142,11 +115,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }`}
               >
                 <span>{link.label}</span>
-                {link.hasBadge && (
-                  <span className="text-xs bg-emerald-50 text-[#16A34A] px-2 py-0.5 rounded border border-emerald-200 font-medium">
-                    {t('nav_auto_sync')}
-                  </span>
-                )}
               </button>
             );
           })}
@@ -154,13 +122,12 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="pt-3 border-t border-stone-200">
             <button
               onClick={() => {
-                onOpenSyncModal();
+                onSelectTab('contact');
                 setMobileMenuOpen(false);
               }}
-              className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200 transition-colors"
+              className="w-full py-3 text-center text-sm font-bold text-white bg-[#16A34A] rounded-lg hover:bg-[#15803D] transition-colors"
             >
-              <RefreshCw className="w-4 h-4 text-stone-600" />
-              <span>{t('nav_sync_btn')}</span>
+              {t('nav_enroll_btn')}
             </button>
           </div>
         </div>

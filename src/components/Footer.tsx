@@ -1,15 +1,15 @@
 import React from 'react';
-import { Youtube, MapPin, Phone, Mail, Clock, ExternalLink } from 'lucide-react';
+import { Youtube, MapPin, Phone, Mail, Clock, Lock } from 'lucide-react';
 import { DirectAidLogo } from './DirectAidLogo.tsx';
 import { useLanguage } from '../context/LanguageContext.tsx';
 
 interface FooterProps {
   onSelectTab: (tab: string) => void;
-  onOpenSyncModal: () => void;
+  onOpenAdmin: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onSelectTab, onOpenSyncModal }) => {
-  const { t, isRTL } = useLanguage();
+export const Footer: React.FC<FooterProps> = ({ onSelectTab, onOpenAdmin }) => {
+  const { t, isRTL, language } = useLanguage();
 
   return (
     <footer className="bg-stone-900 text-stone-300 border-t border-stone-800">
@@ -21,15 +21,6 @@ export const Footer: React.FC<FooterProps> = ({ onSelectTab, onOpenSyncModal }) 
             <p className="text-sm text-stone-400 leading-relaxed pt-2">
               {t('footer_desc')}
             </p>
-            <div className="pt-2">
-              <button
-                onClick={onOpenSyncModal}
-                className="inline-flex items-center gap-2 text-xs text-emerald-400 hover:text-emerald-300 transition-colors underline cursor-pointer"
-              >
-                <span>{t('footer_sync_link')}</span>
-                <ExternalLink className="w-3 h-3" />
-              </button>
-            </div>
           </div>
 
           {/* Col 2: Navigation rapide */}
@@ -65,12 +56,9 @@ export const Footer: React.FC<FooterProps> = ({ onSelectTab, onOpenSyncModal }) 
               <li>
                 <button
                   onClick={() => onSelectTab('videos')}
-                  className="hover:text-stone-100 transition-colors cursor-pointer text-emerald-400 font-semibold flex items-center gap-1.5"
+                  className="hover:text-stone-100 transition-colors cursor-pointer"
                 >
-                  <span>{t('nav_videos')}</span>
-                  <span className="text-[10px] bg-emerald-950 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-800">
-                    {t('nav_auto_sync')}
-                  </span>
+                  {t('nav_videos')}
                 </button>
               </li>
               <li>
@@ -89,10 +77,18 @@ export const Footer: React.FC<FooterProps> = ({ onSelectTab, onOpenSyncModal }) 
                   {t('nav_news')}
                 </button>
               </li>
+              <li>
+                <button
+                  onClick={() => onSelectTab('contact')}
+                  className="hover:text-stone-100 transition-colors cursor-pointer"
+                >
+                  {t('nav_contact')}
+                </button>
+              </li>
             </ul>
           </div>
 
-          {/* Col 3: Coordinates */}
+          {/* Col 3: Coordinates avec liens tel: et mailto: */}
           <div className="space-y-4">
             <h3 className="font-bold text-sm text-stone-100 tracking-wider">
               {t('footer_contact_info')}
@@ -104,11 +100,25 @@ export const Footer: React.FC<FooterProps> = ({ onSelectTab, onOpenSyncModal }) 
               </li>
               <li className="flex items-center gap-2.5" dir="ltr">
                 <Phone className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>+229 21 30 18 45 / +229 97 00 12 34</span>
+                <div className="flex gap-2">
+                  <a href="tel:+22921301845" className="hover:text-stone-100 transition-colors">
+                    +229 21 30 18 45
+                  </a>
+                  <span>/</span>
+                  <a href="tel:+22997001234" className="hover:text-stone-100 transition-colors">
+                    +229 97 00 12 34
+                  </a>
+                </div>
               </li>
               <li className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span dir="ltr">contact@directaid-benin.org</span>
+                <a
+                  href="mailto:contact@directaid-benin.org"
+                  dir="ltr"
+                  className="hover:text-stone-100 transition-colors underline"
+                >
+                  contact@directaid-benin.org
+                </a>
               </li>
               <li className="flex items-center gap-2.5">
                 <Clock className="w-4 h-4 text-emerald-500 shrink-0" />
@@ -117,18 +127,22 @@ export const Footer: React.FC<FooterProps> = ({ onSelectTab, onOpenSyncModal }) 
             </ul>
           </div>
 
-          {/* Col 4: Official YouTube Banner */}
+          {/* Col 4: Chaîne YouTube Officielle exacte (@Madjid-r3c) */}
           <div className="space-y-4">
             <h3 className="font-bold text-sm text-stone-100 tracking-wider flex items-center gap-2">
               <Youtube className="w-4 h-4 text-red-500" />
               <span>{t('footer_youtube_title')}</span>
             </h3>
             <p className="text-xs text-stone-400 leading-relaxed">
-              {t('footer_youtube_desc')}
+              {language === 'ar'
+                ? 'تابعوا أحدث التغطيات المصورة والمناسبات الرسمية عبر قناتنا الرسمية على يوتيوب.'
+                : language === 'fr'
+                ? 'Retrouvez toutes les cérémonies et activités scolaires sur notre chaîne YouTube officielle.'
+                : 'Follow all academic ceremonies and events on our official YouTube channel.'}
             </p>
             <div className="pt-2">
               <a
-                href="https://www.youtube.com"
+                href="https://www.youtube.com/@Madjid-r3c"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-colors shadow-xs"
@@ -137,20 +151,23 @@ export const Footer: React.FC<FooterProps> = ({ onSelectTab, onOpenSyncModal }) 
                 <span>{t('footer_youtube_btn')}</span>
               </a>
             </div>
-            <div className="p-3 bg-stone-800/80 rounded-lg border border-stone-700/60 text-[11px] text-stone-400 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-              <span>YouTube Data API v3 & Supabase</span>
-            </div>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-stone-800 text-center sm:flex sm:items-center sm:justify-between text-xs text-stone-400">
+        {/* Bottom Bar avec lien discret pour l'espace administration */}
+        <div className="mt-12 pt-8 border-t border-stone-800 flex flex-col sm:flex-row sm:items-center sm:justify-between text-xs text-stone-500 gap-4">
           <p>{t('footer_rights')}</p>
-          <div className="mt-4 sm:mt-0 flex justify-center gap-6">
-            <span className="text-stone-400 hover:text-stone-300">DirectAid International</span>
+          <div className="flex items-center gap-4">
+            <span className="text-stone-400">DirectAid International · Bénin</span>
             <span>·</span>
-            <span className="text-stone-400 hover:text-stone-300">Bénin</span>
+            <button
+              onClick={onOpenAdmin}
+              className="inline-flex items-center gap-1.5 text-stone-500 hover:text-stone-300 transition-colors cursor-pointer"
+              title="Espace administration"
+            >
+              <Lock className="w-3 h-3" />
+              <span>{language === 'ar' ? 'الإدارة' : language === 'fr' ? 'Administration' : 'Admin'}</span>
+            </button>
           </div>
         </div>
       </div>
