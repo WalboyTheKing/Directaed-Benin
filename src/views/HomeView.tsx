@@ -2,6 +2,7 @@ import React from 'react';
 import {
   Play,
   ArrowLeft,
+  ArrowRight,
   BookOpen,
   Award,
   Users,
@@ -13,6 +14,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { SCHOOL_IMAGES } from '../assets/images.ts';
+import { useLanguage } from '../context/LanguageContext.tsx';
 import type { Video } from '../types/video.ts';
 
 interface HomeViewProps {
@@ -28,35 +30,38 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onSelectVideo,
   onOpenSyncModal,
 }) => {
+  const { t, isRTL, language } = useLanguage();
+  const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
+
   return (
-    <div className="space-y-20 pb-20 text-right">
+    <div className={`space-y-20 pb-20 ${isRTL ? 'text-right' : 'text-left'}`}>
       {/* 1. Hero Section */}
       <section className="relative bg-stone-900 text-stone-100 overflow-hidden">
-        {/* Background photo with measured contrast scrim */}
+        {/* Background photo */}
         <div className="absolute inset-0">
           <img
             src={SCHOOL_IMAGES.heroCampus}
-            alt="حرم مجمع العون المباشر التعليمي في بنين"
+            alt="Campus DirectAid Bénin"
             referrerPolicy="no-referrer"
             className="w-full h-full object-cover object-center opacity-45 scale-105 animate-fade-in"
           />
-          <div className="absolute inset-0 bg-gradient-to-l from-stone-950/95 via-stone-950/80 to-transparent" />
+          <div className={`absolute inset-0 bg-gradient-to-${isRTL ? 'l' : 'r'} from-stone-950/95 via-stone-950/80 to-transparent`} />
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 lg:py-36">
           <div className="max-w-3xl space-y-6">
             <div className="inline-flex items-center gap-2.5 text-xs font-bold tracking-widest uppercase text-emerald-400">
               <span className="w-6 h-0.5 bg-[#16A34A]" />
-              <span>جمعية العون المباشر · جمهورية بنين</span>
+              <span>{t('hero_org')}</span>
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
-              نعلّم لنرتقي، <br />
-              <span className="italic font-normal text-emerald-300">ونبني مستقبلاً يليق بأبنائنا.</span>
+              {t('hero_title_line1')} <br />
+              <span className="italic font-normal text-emerald-300">{t('hero_title_line2')}</span>
             </h1>
 
             <p className="text-base sm:text-lg text-stone-300 leading-relaxed max-w-2xl font-medium">
-              في مجمع العون المباشر التعليمي في بنين، نوفر بيئة تربوية رائدة تجمع بين التفوق الأكاديمي، إتقان اللغتين العربية والفرنسية، والتربية الأخلاقية ورعاية المواهب من مرحلة الروضة إلى الثانوية والتأهيل المهني.
+              {t('hero_desc')}
             </p>
 
             <div className="pt-4 flex flex-wrap items-center gap-4">
@@ -64,8 +69,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 onClick={() => onSelectTab('contact')}
                 className="px-6 py-3.5 bg-[#16A34A] hover:bg-[#15803D] text-white rounded-xl text-sm font-bold shadow-lg transition-all cursor-pointer inline-flex items-center gap-2"
               >
-                <span>طلب التسجيل والمعلومات</span>
-                <ArrowLeft className="w-4 h-4" />
+                <span>{t('hero_btn_enroll')}</span>
+                <ArrowIcon className="w-4 h-4" />
               </button>
 
               <button
@@ -73,7 +78,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 className="px-6 py-3.5 bg-stone-800/80 hover:bg-stone-700/90 text-white rounded-xl text-sm font-semibold border border-stone-700 transition-all cursor-pointer inline-flex items-center gap-2"
               >
                 <Youtube className="w-4 h-4 text-red-500" />
-                <span>مشاهدة أنشطتنا المصورة</span>
+                <span>{t('hero_btn_videos')}</span>
               </button>
             </div>
           </div>
@@ -86,13 +91,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div>
             <div className="flex items-center gap-2 text-xs font-bold text-red-600 uppercase tracking-wider">
               <Youtube className="w-4 h-4" />
-              <span>مزامنة مباشرة من قناة يوتيوب</span>
+              <span>{t('hero_badge_sync')}</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900 mt-1">
-              أحدث التغطيات المرئية من المجمع
+              {t('section_videos_title')}
             </h2>
             <p className="text-xs sm:text-sm text-stone-500 mt-1">
-              يتم تحديث هذه القائمة تلقائياً بأحدث الفيديوهات المنشورة على قناة يوتيوب الرسمية.
+              {t('section_videos_subtitle')}
             </p>
           </div>
 
@@ -101,335 +106,282 @@ export const HomeView: React.FC<HomeViewProps> = ({
               onClick={() => onSelectTab('videos')}
               className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#16A34A] hover:text-[#15803D] transition-colors cursor-pointer"
             >
-              <span>مشاهدة جميع الفيديوهات</span>
-              <ArrowLeft className="w-4 h-4" />
+              <span>{t('section_videos_btn')}</span>
+              <ArrowIcon className="w-4 h-4" />
             </button>
           </div>
         </div>
 
         {/* Video Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {latestVideos.slice(0, 3).map((video) => {
-            const formattedDate = new Date(video.published_at).toLocaleDateString('ar-EG', {
-              day: 'numeric',
-              month: 'short',
-              year: 'numeric',
-            });
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {latestVideos.slice(0, 3).map((video) => (
+            <div
+              key={video.id}
+              onClick={() => onSelectVideo(video)}
+              className="group bg-white rounded-2xl overflow-hidden border border-stone-200/90 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer hover:-translate-y-1"
+            >
+              <div className="relative aspect-video bg-stone-900 overflow-hidden">
+                <img
+                  src={video.thumbnail_url}
+                  alt={video.title}
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-stone-950/20 group-hover:bg-stone-950/40 transition-colors" />
 
-            return (
-              <div
-                key={video.id}
-                onClick={() => onSelectVideo(video)}
-                className="group bg-white rounded-xl border border-stone-200 overflow-hidden shadow-xs hover:shadow-md hover:border-emerald-500 transition-all cursor-pointer flex flex-col"
-              >
-                <div className="relative aspect-video bg-stone-950 overflow-hidden">
-                  <img
-                    src={video.thumbnail_url}
-                    alt={video.title}
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950/70 via-transparent to-transparent opacity-80" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-12 h-12 rounded-full bg-red-600/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                      <Play className="w-5 h-5 fill-current ml-0.5" />
-                    </div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-full bg-red-600/95 text-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
+                    <Play className="w-5 h-5 fill-white translate-x-0.5" />
                   </div>
-                  {video.duration && (
-                    <span className="absolute bottom-2.5 left-2.5 px-2 py-0.5 bg-black/80 text-white font-mono text-[11px] rounded">
-                      {video.duration}
-                    </span>
-                  )}
-                  <span className="absolute top-2.5 right-2.5 px-2 py-0.5 bg-white/90 text-[#16A34A] text-[10px] font-bold rounded">
+                </div>
+
+                {video.duration && (
+                  <div className={`absolute bottom-2.5 ${isRTL ? 'right-2.5' : 'left-2.5'} px-2 py-0.5 rounded bg-black/80 text-white text-[11px] font-mono font-medium flex items-center gap-1`}>
+                    <Clock className="w-3 h-3 text-stone-300" />
+                    <span>{video.duration}</span>
+                  </div>
+                )}
+
+                <div className={`absolute top-2.5 ${isRTL ? 'left-2.5' : 'right-2.5'}`}>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/90 text-stone-800 backdrop-blur-xs shadow-xs">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
                     {video.category}
                   </span>
                 </div>
+              </div>
 
-                <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-xs text-stone-500">
-                      <span className="font-bold text-[#16A34A]">{video.category}</span>
-                      <span aria-hidden="true">·</span>
-                      <span>{formattedDate}</span>
-                    </div>
-                    <h3 className="font-bold text-base text-stone-900 group-hover:text-[#16A34A] transition-colors line-clamp-2 leading-snug">
-                      {video.title}
-                    </h3>
-                  </div>
-
-                  <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-stone-500">
-                    <span className="text-red-600 font-bold group-hover:underline inline-flex items-center gap-1">
-                      <Play className="w-3 h-3 fill-current" />
-                      <span>مشاهدة الآن</span>
+              <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-xs text-stone-500">
+                    <span className="font-semibold text-emerald-700">{video.category}</span>
+                    <span>·</span>
+                    <span className="flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      {new Date(video.published_at).toLocaleDateString(language === 'ar' ? 'ar-EG' : language === 'fr' ? 'fr-FR' : 'en-US', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                      })}
                     </span>
-                    <span className="text-[11px] text-stone-400">مشغل يوتيوب</span>
                   </div>
+
+                  <h3 className="font-bold text-base text-stone-900 group-hover:text-[#16A34A] transition-colors line-clamp-2 leading-snug">
+                    {video.title}
+                  </h3>
+                </div>
+
+                <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-stone-500">
+                  <span className="text-emerald-700 font-bold group-hover:underline flex items-center gap-1">
+                    <span>{t('videos_watch_btn')}</span>
+                    <ArrowIcon className="w-3 h-3" />
+                  </span>
+                  <span className="text-[11px] text-stone-400">YouTube Player</span>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* 3. The 4 Educational Pillars */}
-      <section className="bg-stone-100/70 py-16 border-y border-stone-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
-            <span className="text-xs font-bold text-[#16A34A] uppercase tracking-widest">
-              الرؤية التربوية
+      {/* 3. Educational Vision Section */}
+      <section className="bg-stone-100/70 border-y border-stone-200 py-16 sm:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          <div className="max-w-2xl space-y-2">
+            <span className="text-xs font-bold text-[#16A34A] tracking-wider uppercase">
+              {t('section_vision_tag')}
             </span>
-            <h2 className="text-3xl font-extrabold text-stone-900">
-              ركائز التعليم في مجمع العون المباشر
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900">
+              {t('section_vision_title')}
             </h2>
             <p className="text-sm text-stone-600">
-              منهج متكامل يجمع بين التحصيل العلمي الرصين، وغرس الفضائل، واكتشاف إبداعات كل طالب.
+              {t('section_vision_subtitle')}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white p-6 rounded-xl border border-stone-200 shadow-xs space-y-3 text-right">
-              <div className="w-10 h-10 rounded-lg bg-[#16A34A]/10 text-[#16A34A] flex items-center justify-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#16A34A] flex items-center justify-center font-bold">
                 <BookOpen className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-bold text-stone-900">
-                التفوق الأكاديمي واللغات
-              </h3>
-              <p className="text-xs text-stone-600 leading-relaxed">
-                تدريس وفق المعايير الرسمية لوزارة التعليم في بنين، مع عناية فائقة بإتقان اللغات العربية والفرنسية والإنجليزية.
-              </p>
+              <h3 className="font-bold text-base text-stone-900">{t('vision_item1_title')}</h3>
+              <p className="text-xs text-stone-600 leading-relaxed">{t('vision_item1_desc')}</p>
             </div>
 
-            <div className="bg-white p-6 rounded-xl border border-stone-200 shadow-xs space-y-3 text-right">
-              <div className="w-10 h-10 rounded-lg bg-[#16A34A]/10 text-[#16A34A] flex items-center justify-center">
+            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#16A34A] flex items-center justify-center font-bold">
                 <Award className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-bold text-stone-900">
-                القرآن الكريم والآداب
-              </h3>
-              <p className="text-xs text-stone-600 leading-relaxed">
-                حلقات يومية لتحفيظ القرآن الكريم وتجويده، وتعليم الأخلاق السامية وفنون الخطابة والإلقاء.
-              </p>
+              <h3 className="font-bold text-base text-stone-900">{t('vision_item2_title')}</h3>
+              <p className="text-xs text-stone-600 leading-relaxed">{t('vision_item2_desc')}</p>
             </div>
 
-            <div className="bg-white p-6 rounded-xl border border-stone-200 shadow-xs space-y-3 text-right">
-              <div className="w-10 h-10 rounded-lg bg-[#16A34A]/10 text-[#16A34A] flex items-center justify-center">
+            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#16A34A] flex items-center justify-center font-bold">
                 <Users className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-bold text-stone-900">
-                كفالة الأيتام والعدالة
-              </h3>
-              <p className="text-xs text-stone-600 leading-relaxed">
-                رعاية شاملة للأيتام والمحتاجين تشمل التعليم المجاني، الزي المدرسي، التغذية والمتابعة الصحية المستمرة.
-              </p>
+              <h3 className="font-bold text-base text-stone-900">{t('vision_item3_title')}</h3>
+              <p className="text-xs text-stone-600 leading-relaxed">{t('vision_item3_desc')}</p>
             </div>
 
-            <div className="bg-white p-6 rounded-xl border border-stone-200 shadow-xs space-y-3 text-right">
-              <div className="w-10 h-10 rounded-lg bg-[#16A34A]/10 text-[#16A34A] flex items-center justify-center">
+            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#16A34A] flex items-center justify-center font-bold">
                 <Compass className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-bold text-stone-900">
-                العلوم والابتكار التقني
-              </h3>
-              <p className="text-xs text-stone-600 leading-relaxed">
-                مختبرات حاسوب متطورة وورش تطبيقية في الفيزياء والكيمياء وعلوم الروبوت لإعداد كوادر المستقبل.
-              </p>
+              <h3 className="font-bold text-base text-stone-900">{t('vision_item4_title')}</h3>
+              <p className="text-xs text-stone-600 leading-relaxed">{t('vision_item4_desc')}</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 4. Activities Teaser with Real Generated Photos */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-stone-200 pb-6">
+      {/* 4. Activities Showcase with Authentic Images */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            <span className="text-xs font-bold text-[#16A34A] uppercase tracking-widest">
-              الحياة المدرسية
+            <span className="text-xs font-bold text-[#16A34A] tracking-wider uppercase">
+              {t('section_activities_tag')}
             </span>
-            <h2 className="text-3xl font-extrabold text-stone-900 mt-1">
-              أنشطة غنية ومتنوعة
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900 mt-1">
+              {t('section_activities_title')}
             </h2>
           </div>
           <button
             onClick={() => onSelectTab('activites')}
-            className="text-xs sm:text-sm font-bold text-[#16A34A] hover:text-[#15803D] transition-colors inline-flex items-center gap-1 cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#16A34A] hover:text-[#15803D] transition-colors cursor-pointer"
           >
-            <span>استكشاف جميع الأنشطة المدرسية</span>
-            <ArrowLeft className="w-4 h-4" />
+            <span>{t('section_activities_btn')}</span>
+            <ArrowIcon className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div
-            onClick={() => onSelectTab('activites', 'الأنشطة التعليمية')}
-            className="group rounded-xl border border-stone-200 overflow-hidden bg-white hover:shadow-md transition-all cursor-pointer flex flex-col"
+            onClick={() => onSelectTab('activites', 'pedagogiques')}
+            className="group relative rounded-2xl overflow-hidden shadow-xs hover:shadow-xl transition-all cursor-pointer aspect-4/5"
           >
-            <div className="aspect-4/3 overflow-hidden bg-stone-100">
-              <img
-                src={SCHOOL_IMAGES.activityPedagogique}
-                alt="الأنشطة التعليمية"
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-            </div>
-            <div className="p-4 space-y-1.5 flex-1 flex flex-col justify-between">
-              <div>
-                <h3 className="font-bold text-stone-900 group-hover:text-[#16A34A] transition-colors">
-                  الأنشطة التعليمية
-                </h3>
-                <p className="text-xs text-stone-600 mt-1 leading-relaxed">
-                  مختبرات الحاسوب والعلوم ومسابقات الرياضيات واللغات.
-                </p>
-              </div>
-              <span className="text-[11px] font-bold text-[#16A34A] pt-2 inline-flex items-center gap-1">
-                المزيد <ArrowLeft className="w-3 h-3" />
-              </span>
+            <img
+              src={SCHOOL_IMAGES.activityPedagogique}
+              alt="Activités pédagogiques DirectAid Bénin"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-950/40 to-transparent p-5 flex flex-col justify-end text-white">
+              <span className="text-xs font-bold text-emerald-400">{t('cat_pedagogy')}</span>
+              <h3 className="text-lg font-bold mt-1">
+                {language === 'ar' ? 'الأنشطة التعليمية والمختبرات' : language === 'fr' ? 'Activités Pédagogiques & Labos' : 'Academic & Science Labs'}
+              </h3>
+              <p className="text-xs text-stone-300 line-clamp-2 mt-1">
+                {language === 'ar' ? 'معامل الحاسوب والعلوم ومسابقات الرياضيات واللغات.' : language === 'fr' ? 'Laboratoires de sciences, informatique et concours de langues.' : 'Computer labs, science workshops, and mathematics competitions.'}
+              </p>
             </div>
           </div>
 
           <div
-            onClick={() => onSelectTab('activites', 'الأنشطة الثقافية')}
-            className="group rounded-xl border border-stone-200 overflow-hidden bg-white hover:shadow-md transition-all cursor-pointer flex flex-col"
+            onClick={() => onSelectTab('activites', 'culturelles')}
+            className="group relative rounded-2xl overflow-hidden shadow-xs hover:shadow-xl transition-all cursor-pointer aspect-4/5"
           >
-            <div className="aspect-4/3 overflow-hidden bg-stone-100">
-              <img
-                src={SCHOOL_IMAGES.activityCulturelle}
-                alt="الأنشطة الثقافية"
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-            </div>
-            <div className="p-4 space-y-1.5 flex-1 flex flex-col justify-between">
-              <div>
-                <h3 className="font-bold text-stone-900 group-hover:text-[#16A34A] transition-colors">
-                  الأنشطة الثقافية والقرآنية
-                </h3>
-                <p className="text-xs text-stone-600 mt-1 leading-relaxed">
-                  حفظ القرآن الكريم، المسرح الهادف وفنون الخطابة.
-                </p>
-              </div>
-              <span className="text-[11px] font-bold text-[#16A34A] pt-2 inline-flex items-center gap-1">
-                المزيد <ArrowLeft className="w-3 h-3" />
-              </span>
+            <img
+              src={SCHOOL_IMAGES.activityCulturelle}
+              alt="Activités culturelles DirectAid Bénin"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-950/40 to-transparent p-5 flex flex-col justify-end text-white">
+              <span className="text-xs font-bold text-emerald-400">{t('cat_culture')}</span>
+              <h3 className="text-lg font-bold mt-1">
+                {language === 'ar' ? 'الأنشطة الثقافية والقرآنية' : language === 'fr' ? 'Activités Culturelles & Coran' : 'Cultural & Quranic Events'}
+              </h3>
+              <p className="text-xs text-stone-300 line-clamp-2 mt-1">
+                {language === 'ar' ? 'حفظ القرآن الكريم، المسرح الهادف وفنون الخطابة.' : language === 'fr' ? 'Mémorisation du Coran, théâtre et art oratoire.' : 'Quran memorization circles, theatre, and public speaking.'}
+              </p>
             </div>
           </div>
 
           <div
-            onClick={() => onSelectTab('activites', 'الأنشطة الرياضية')}
-            className="group rounded-xl border border-stone-200 overflow-hidden bg-white hover:shadow-md transition-all cursor-pointer flex flex-col"
+            onClick={() => onSelectTab('activites', 'sportives')}
+            className="group relative rounded-2xl overflow-hidden shadow-xs hover:shadow-xl transition-all cursor-pointer aspect-4/5"
           >
-            <div className="aspect-4/3 overflow-hidden bg-stone-100">
-              <img
-                src={SCHOOL_IMAGES.activitySportive}
-                alt="الأنشطة الرياضية"
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-            </div>
-            <div className="p-4 space-y-1.5 flex-1 flex flex-col justify-between">
-              <div>
-                <h3 className="font-bold text-stone-900 group-hover:text-[#16A34A] transition-colors">
-                  الأنشطة الرياضية
-                </h3>
-                <p className="text-xs text-stone-600 mt-1 leading-relaxed">
-                  دوري كرة القدم، ألعاب القوى والبطولات بين المراكز.
-                </p>
-              </div>
-              <span className="text-[11px] font-bold text-[#16A34A] pt-2 inline-flex items-center gap-1">
-                المزيد <ArrowLeft className="w-3 h-3" />
-              </span>
+            <img
+              src={SCHOOL_IMAGES.activitySportive}
+              alt="Activités sportives DirectAid Bénin"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-950/40 to-transparent p-5 flex flex-col justify-end text-white">
+              <span className="text-xs font-bold text-emerald-400">{t('cat_sports')}</span>
+              <h3 className="text-lg font-bold mt-1">
+                {language === 'ar' ? 'الأنشطة والبطولات الرياضية' : language === 'fr' ? 'Tournois Sportifs' : 'Sports & Athletics'}
+              </h3>
+              <p className="text-xs text-stone-300 line-clamp-2 mt-1">
+                {language === 'ar' ? 'دوري كرة القدم، ألعاب القوى والبطولات بين المراكز.' : language === 'fr' ? 'Ligue de football, athlétisme et championnats inter-centres.' : 'Football league, athletics, and inter-center championships.'}
+              </p>
             </div>
           </div>
 
           <div
-            onClick={() => onSelectTab('activites', 'الرحلات المدرسية')}
-            className="group rounded-xl border border-stone-200 overflow-hidden bg-white hover:shadow-md transition-all cursor-pointer flex flex-col"
+            onClick={() => onSelectTab('activites', 'sorties')}
+            className="group relative rounded-2xl overflow-hidden shadow-xs hover:shadow-xl transition-all cursor-pointer aspect-4/5"
           >
-            <div className="aspect-4/3 overflow-hidden bg-stone-100">
-              <img
-                src={SCHOOL_IMAGES.activitySortie}
-                alt="الرحلات المدرسية"
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-            </div>
-            <div className="p-4 space-y-1.5 flex-1 flex flex-col justify-between">
-              <div>
-                <h3 className="font-bold text-stone-900 group-hover:text-[#16A34A] transition-colors">
-                  الرحلات الاستكشافية
-                </h3>
-                <p className="text-xs text-stone-600 mt-1 leading-relaxed">
-                  زيارة المتاحف الوطنية والمعالم التاريخية والبيئية في بنين.
-                </p>
-              </div>
-              <span className="text-[11px] font-bold text-[#16A34A] pt-2 inline-flex items-center gap-1">
-                المزيد <ArrowLeft className="w-3 h-3" />
-              </span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. Key Numbers & Institutional Trust */}
-      <section className="bg-stone-900 text-stone-100 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-            <div className="space-y-1">
-              <p className="text-4xl sm:text-5xl font-extrabold text-[#16A34A] tabular-nums">
-                100%
-              </p>
-              <p className="text-xs sm:text-sm text-stone-400">
-                نسبة النجاح في الامتحانات الرسمية (BEPC & BAC)
-              </p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-4xl sm:text-5xl font-extrabold text-[#16A34A] tabular-nums">
-                +3,500
-              </p>
-              <p className="text-xs sm:text-sm text-stone-400">
-                طالب وطالبة يستفيدون من التعليم والرعاية
-              </p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-4xl sm:text-5xl font-extrabold text-[#16A34A] tabular-nums">
-                15
-              </p>
-              <p className="text-xs sm:text-sm text-stone-400">
-                مركزاً ومجمعاً تعليمياً تابعاً للعون المباشر
-              </p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-4xl sm:text-5xl font-extrabold text-[#16A34A] tabular-nums">
-                3 لغات
-              </p>
-              <p className="text-xs sm:text-sm text-stone-400">
-                تعليم ثنائي وثلاثي اللغة (عربي، فرنسي، إنجليزي)
+            <img
+              src={SCHOOL_IMAGES.activitySortie}
+              alt="Sorties scolaires DirectAid Bénin"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-950/40 to-transparent p-5 flex flex-col justify-end text-white">
+              <span className="text-xs font-bold text-emerald-400">{t('cat_trips')}</span>
+              <h3 className="text-lg font-bold mt-1">
+                {language === 'ar' ? 'الرحلات الاستكشافية' : language === 'fr' ? 'Excursions & Sorties' : 'Excursions & Field Trips'}
+              </h3>
+              <p className="text-xs text-stone-300 line-clamp-2 mt-1">
+                {language === 'ar' ? 'زيارات المتاحف الوطنية والمعالم التاريخية والبيئية في بنين.' : language === 'fr' ? 'Visites des musées, sites historiques et patrimoniaux du Bénin.' : 'Visits to national museums, historical sites, and eco-parks.'}
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 6. Call to Action / Admissions */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-        <h2 className="text-3xl font-extrabold text-stone-900">
-          انضموا إلى مجمع العون المباشر التعليمي في بنين
-        </h2>
-        <p className="text-stone-600 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
-          التسجيل متاح للأفواج الجديدة والمحولين. ندعوكم للتواصل مع الإدارة التعليمية للاطلاع على شروط القبول وبرامج المنح والكفالات المتاحة.
-        </p>
-        <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
-          <button
-            onClick={() => onSelectTab('contact')}
-            className="px-6 py-3.5 bg-[#16A34A] hover:bg-[#15803D] text-white rounded-xl text-sm font-bold shadow-xs transition-colors cursor-pointer"
-          >
-            استمارة طلب التسجيل والزيارة
-          </button>
-          <button
-            onClick={() => onSelectTab('ecole')}
-            className="px-6 py-3.5 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl text-sm font-semibold transition-colors cursor-pointer"
-          >
-            التعرف على رؤية العون المباشر
-          </button>
+      {/* 5. Key Statistics */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-stone-900 text-white rounded-3xl p-8 sm:p-12 shadow-xl border border-stone-800">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center divide-y lg:divide-y-0 lg:divide-x divide-stone-800">
+            <div className="space-y-1 pt-4 lg:pt-0">
+              <p className="text-3xl sm:text-4xl font-extrabold text-emerald-400 font-mono">{t('stat_success_rate')}</p>
+              <p className="text-xs sm:text-sm text-stone-400">{t('stat_success_label')}</p>
+            </div>
+            <div className="space-y-1 pt-4 lg:pt-0">
+              <p className="text-3xl sm:text-4xl font-extrabold text-emerald-400 font-mono">{t('stat_students_count')}</p>
+              <p className="text-xs sm:text-sm text-stone-400">{t('stat_students_label')}</p>
+            </div>
+            <div className="space-y-1 pt-4 lg:pt-0">
+              <p className="text-3xl sm:text-4xl font-extrabold text-emerald-400 font-mono">{t('stat_centers_count')}</p>
+              <p className="text-xs sm:text-sm text-stone-400">{t('stat_centers_label')}</p>
+            </div>
+            <div className="space-y-1 pt-4 lg:pt-0">
+              <p className="text-3xl sm:text-4xl font-extrabold text-emerald-400 font-mono">{t('stat_languages_count')}</p>
+              <p className="text-xs sm:text-sm text-stone-400">{t('stat_languages_label')}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Call to Action (Inscription) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative rounded-3xl bg-linear-to-r from-[#16A34A] to-emerald-700 text-white p-8 sm:p-12 overflow-hidden shadow-xl">
+          <div className="relative z-10 max-w-2xl space-y-4">
+            <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight">
+              {t('cta_join_title')}
+            </h2>
+            <p className="text-xs sm:text-sm text-emerald-100 leading-relaxed">
+              {t('cta_join_desc')}
+            </p>
+            <div className="pt-2">
+              <button
+                onClick={() => onSelectTab('contact')}
+                className="px-6 py-3.5 bg-white text-[#16A34A] hover:bg-stone-100 rounded-xl text-xs sm:text-sm font-bold shadow-md transition-colors cursor-pointer inline-flex items-center gap-2"
+              >
+                <span>{t('cta_join_btn')}</span>
+                <ArrowIcon className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
         </div>
       </section>
     </div>

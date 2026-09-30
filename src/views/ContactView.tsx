@@ -9,14 +9,17 @@ import {
   AlertCircle,
   HelpCircle
 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext.tsx';
 
 export const ContactView: React.FC = () => {
+  const { t, isRTL, language } = useLanguage();
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
-    childGrade: 'المرحلة الإعدادية (التعليم المتوسط)',
-    subject: 'طلب تسجيل طالب جديد',
+    childGrade: 'collège',
+    subject: 'admission',
     message: '',
   });
 
@@ -39,251 +42,239 @@ export const ContactView: React.FC = () => {
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || 'حدث خطأ أثناء الإرسال');
+        throw new Error(data.error || 'Erreur lors de l\'envoi');
       }
 
-      setSubmitSuccess(
-        'تم إرسال طلبكم بنجاح إلى إدارة مجمع العون المباشر بنين. سيتواصل معكم فريق القبول والتسجيل خلال 48 ساعة.'
-      );
+      setSubmitSuccess(t('contact_form_success'));
       setFormData({
         name: '',
         email: '',
         phone: '',
-        childGrade: 'المرحلة الإعدادية (التعليم المتوسط)',
-        subject: 'طلب تسجيل طالب جديد',
+        childGrade: 'collège',
+        subject: 'admission',
         message: '',
       });
     } catch (err: any) {
-      setSubmitError(err.message || 'تعذر إرسال الرسالة حالياً، يرجى المحاولة مرة أخرى.');
+      setSubmitError(
+        language === 'ar'
+          ? 'تعذر إرسال الرسالة حالياً، يرجى المحاولة مرة أخرى أو الاتصال بنا مباشرة.'
+          : 'Impossible d\'envoyer le message pour le moment, veuillez réessayer.'
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="py-12 bg-stone-50 min-h-screen space-y-16 text-right">
+    <div className={`py-12 bg-stone-50 min-h-screen ${isRTL ? 'text-right' : 'text-left'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        {/* Section Header */}
-        <div className="max-w-3xl space-y-3 border-b border-stone-200 pb-8">
-          <span className="text-xs font-bold text-[#16A34A] uppercase tracking-widest">
-            التواصل والتسجيل
+        {/* Header */}
+        <div className="max-w-3xl space-y-3">
+          <span className="text-xs font-bold text-[#16A34A] tracking-wider uppercase">
+            {t('contact_hero_tag')}
           </span>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-stone-900 tracking-tight">
-            التواصل مع إدارة المجمع
+            {t('contact_hero_title')}
           </h1>
           <p className="text-base text-stone-600 leading-relaxed">
-            يسعد فريق العمل واللجنة التعليمية في جمعية العون المباشر بنين باستقبال استفساراتكم وترتيب زياراتكم الميدانية للمجمع.
+            {t('contact_hero_desc')}
           </p>
         </div>
 
-        {/* 2-Columns: Info on Left, Form on Right */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          {/* Column: Coordinates */}
-          <div className="lg:col-span-5 space-y-8">
-            <div className="bg-white rounded-2xl border border-stone-200 p-8 shadow-xs space-y-6">
-              <h2 className="text-xl font-bold text-stone-900">
-                بيانات الاتصال الرسمية
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Coordinates & Info Card */}
+          <div className="lg:col-span-5 bg-stone-900 text-white p-8 rounded-3xl shadow-xl space-y-8">
+            <div>
+              <h2 className="text-xl font-bold text-white">
+                {language === 'ar' ? 'المكتب الوطني ومجمع بنين' : language === 'fr' ? 'Campus & Administration' : 'Administration & Campus'}
               </h2>
-
-              <ul className="space-y-4 text-sm text-stone-700">
-                <li className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-[#16A34A] shrink-0 mt-1" />
-                  <div>
-                    <span className="font-bold block text-stone-900">المقر الرئيسي والمجمع</span>
-                    <span>مكتب جمعية العون المباشر، كوتونو / بورتو نوفو — بنين</span>
-                    <span className="text-xs text-stone-500 block mt-0.5">
-                      فروع ومراكز تعليمية في باراكو، كاندي ودجوغو
-                    </span>
-                  </div>
-                </li>
-
-                <li className="flex items-start gap-3">
-                  <Phone className="w-5 h-5 text-[#16A34A] shrink-0 mt-1" />
-                  <div>
-                    <span className="font-bold block text-stone-900">الهاتف والواتساب المباشر</span>
-                    <span dir="ltr" className="block text-right font-mono font-bold text-stone-800">
-                      +229 21 30 18 45 / +229 97 00 12 34
-                    </span>
-                    <span className="text-xs text-stone-500 block mt-0.5">
-                      خدمة الاستقبال الهاتفي طيلة أيام الأسبوع
-                    </span>
-                  </div>
-                </li>
-
-                <li className="flex items-start gap-3">
-                  <Mail className="w-5 h-5 text-[#16A34A] shrink-0 mt-1" />
-                  <div>
-                    <span className="font-bold block text-stone-900">البريد الإلكتروني المعتمد</span>
-                    <span className="font-mono text-xs block text-stone-700">contact@directaid-benin.org</span>
-                  </div>
-                </li>
-
-                <li className="flex items-start gap-3">
-                  <Clock className="w-5 h-5 text-[#16A34A] shrink-0 mt-1" />
-                  <div>
-                    <span className="font-bold block text-stone-900">ساعات الدوام الرسمي</span>
-                    <span>من الإثنين إلى الجمعة: 08:00 ص — 05:30 م</span>
-                    <span className="text-xs text-stone-500 block mt-0.5">
-                      السبت: 08:30 ص — 12:30 م (شؤون القبول والتسجيل)
-                    </span>
-                  </div>
-                </li>
-              </ul>
+              <p className="text-xs text-stone-400 mt-1">
+                {language === 'ar'
+                  ? 'جمعية العون المباشر — جمهورية بنين'
+                  : 'Direct Aid International — République du Bénin'}
+              </p>
             </div>
 
-            {/* Quick FAQ Card */}
-            <div className="bg-emerald-50/70 rounded-xl p-6 border border-emerald-200/80 space-y-3">
-              <h3 className="font-bold text-sm text-[#16A34A] flex items-center gap-2">
-                <HelpCircle className="w-4 h-4 text-[#16A34A]" />
-                <span>برامج المنح ورعاية الأيتام</span>
-              </h3>
-              <p className="text-xs text-stone-700 leading-relaxed">
-                تولي جمعية العون المباشر اهتماماً خاصاً لرعاية الأيتام والمتفوقين دراسياً. تخضع طلبات الكفالة والمنح للجنة اجتماعية وتربوية مختصة لضمان وصول الرعاية لمستحقيها.
+            <div className="space-y-5 text-xs sm:text-sm">
+              <div className="flex items-start gap-3">
+                <MapPin className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-stone-200">{t('footer_contact_info')}</p>
+                  <p className="text-stone-400 mt-0.5">{t('footer_address')}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <Phone className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-stone-200">{language === 'ar' ? 'الهاتف والاستفسارات' : 'Téléphone & WhatsApp'}</p>
+                  <p className="text-stone-400 mt-0.5" dir="ltr">+229 21 30 18 45</p>
+                  <p className="text-stone-400" dir="ltr">+229 97 00 12 34</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <Mail className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-stone-200">{t('contact_form_email')}</p>
+                  <p className="text-stone-400 mt-0.5" dir="ltr">contact@directaid-benin.org</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <Clock className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-stone-200">{language === 'ar' ? 'أوقات العمل واستقبال الأولياء' : 'Horaires d\'ouverture'}</p>
+                  <p className="text-stone-400 mt-0.5">{t('footer_hours')}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 bg-stone-800/80 rounded-2xl border border-stone-700/60 text-xs text-stone-300 space-y-1">
+              <p className="font-bold text-emerald-400">
+                {language === 'ar' ? 'زيارة الحرم المدرسي :' : language === 'fr' ? 'Visite guidée du campus :' : 'Guided campus tour:'}
+              </p>
+              <p className="text-stone-400 leading-relaxed">
+                {language === 'ar'
+                  ? 'يمكنكم حجز موعد مسبق لمرافقة أبنائكم في جولة استكشافية للفصول والمختبرات والملاعب الرياضية.'
+                  : 'Prenez rendez-vous pour visiter nos salles de cours, laboratoires de sciences et complexes sportifs.'}
               </p>
             </div>
           </div>
 
-          {/* Column: Contact & Visit Form */}
-          <div className="lg:col-span-7">
-            <div className="bg-white rounded-2xl border border-stone-200 p-8 shadow-xs space-y-6">
-              <div className="space-y-1">
-                <h2 className="text-2xl font-bold text-stone-900">
-                  استمارة التواصل وطلب التسجيل
-                </h2>
-                <p className="text-xs text-stone-500">
-                  يرجى تعبئة الحقول التالية وسيتواصل معكم فريق القبول والتسجيل في أقرب وقت.
-                </p>
+          {/* Form Card */}
+          <div className="lg:col-span-7 bg-white p-8 sm:p-10 rounded-3xl border border-stone-200 shadow-xs">
+            <h2 className="text-xl font-bold text-stone-900 mb-6">
+              {language === 'ar' ? 'نموذج التسجيل والاستفسار' : language === 'fr' ? 'Formulaire d\'inscription & contact' : 'Enrollment & Inquiry Form'}
+            </h2>
+
+            {submitSuccess && (
+              <div className="mb-6 p-4 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-start gap-3 text-xs">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold">{language === 'ar' ? 'تم استلام طلبكم بنجاح' : 'Demande reçue avec succès'}</p>
+                  <p className="mt-1">{submitSuccess}</p>
+                </div>
+              </div>
+            )}
+
+            {submitError && (
+              <div className="mb-6 p-4 rounded-xl bg-red-50 text-red-800 border border-red-200 flex items-start gap-3 text-xs">
+                <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold">{language === 'ar' ? 'تعذر الإرسال' : 'Erreur d\'envoi'}</p>
+                  <p className="mt-1">{submitError}</p>
+                </div>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-5 text-xs sm:text-sm">
+              <div>
+                <label className="block font-bold text-stone-700 mb-1.5">
+                  {t('contact_form_name')} <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder={language === 'ar' ? 'مثال: محمد عبد الله / ولي أمر الطالب عمر' : 'Ex: Koffi Mensah / Parent'}
+                  className={`w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#16A34A] focus:border-[#16A34A] transition-all ${isRTL ? 'text-right' : 'text-left'}`}
+                />
               </div>
 
-              {submitSuccess && (
-                <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900 flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-[#16A34A] shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-bold">تم إرسال الطلب بنجاح!</p>
-                    <p className="mt-1 leading-relaxed">{submitSuccess}</p>
-                  </div>
-                </div>
-              )}
-
-              {submitError && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-xs text-red-900 flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-bold">تنبيه</p>
-                    <p className="mt-1 leading-relaxed">{submitError}</p>
-                  </div>
-                </div>
-              )}
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-stone-700 mb-1">
-                      اسم ولي الأمر أو المتقدم *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-3.5 py-2 text-sm border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#16A34A] text-right"
-                      placeholder="مثال: عبد الله أحمد"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-stone-700 mb-1">
-                      البريد الإلكتروني *
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full px-3.5 py-2 text-sm border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#16A34A] text-left"
-                      dir="ltr"
-                      placeholder="name@example.com"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-stone-700 mb-1">
-                      رقم الهاتف / الواتساب
-                    </label>
-                    <input
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full px-3.5 py-2 text-sm border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#16A34A] text-left"
-                      dir="ltr"
-                      placeholder="+229 97 00 00 00"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-stone-700 mb-1">
-                      المرحلة الدراسية
-                    </label>
-                    <select
-                      value={formData.childGrade}
-                      onChange={(e) => setFormData({ ...formData, childGrade: e.target.value })}
-                      className="w-full px-3.5 py-2 text-sm border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#16A34A] bg-white text-right"
-                    >
-                      <option value="مرحلة الروضة">مرحلة الروضة</option>
-                      <option value="المرحلة الابتدائية (من الأول إلى السادس)">المرحلة الابتدائية (من الأول إلى السادس)</option>
-                      <option value="المرحلة الإعدادية (التعليم المتوسط)">المرحلة الإعدادية (التعليم المتوسط)</option>
-                      <option value="المرحلة الثانوية (البكالوريا)">المرحلة الثانوية (البكالوريا)</option>
-                      <option value="شعبة التأهيل المهني والتقني">شعبة التأهيل المهني والتقني</option>
-                      <option value="استفسار عام">استفسار عام</option>
-                    </select>
-                  </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-bold text-stone-700 mb-1.5">
+                    {t('contact_form_email')} <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="contact@exemple.com"
+                    dir="ltr"
+                    className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#16A34A] focus:border-[#16A34A] transition-all text-left"
+                  />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">
-                    موضوع الرسالة
+                  <label className="block font-bold text-stone-700 mb-1.5">
+                    {t('contact_form_phone')}
+                  </label>
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    placeholder="+229 XX XX XX XX"
+                    dir="ltr"
+                    className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#16A34A] focus:border-[#16A34A] transition-all text-left"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-bold text-stone-700 mb-1.5">
+                    {t('contact_form_grade')}
                   </label>
                   <select
-                    value={formData.subject}
-                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                    className="w-full px-3.5 py-2 text-sm border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#16A34A] bg-white text-right"
+                    value={formData.childGrade}
+                    onChange={(e) => setFormData({ ...formData, childGrade: e.target.value })}
+                    className={`w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#16A34A] focus:border-[#16A34A] transition-all cursor-pointer ${isRTL ? 'text-right' : 'text-left'}`}
                   >
-                    <option value="طلب تسجيل طالب جديد">طلب تسجيل طالب جديد</option>
-                    <option value="الاستفسار عن برامج المنح وكفالة الأيتام">الاستفسار عن برامج المنح وكفالة الأيتام</option>
-                    <option value="طلب زيارة المجمع التعليمي">طلب زيارة المجمع التعليمي</option>
-                    <option value="استفسار عن المناهج واللغات">استفسار عن المناهج واللغات</option>
-                    <option value="موضوع آخر">موضوع آخر</option>
+                    <option value="maternelle">{language === 'ar' ? 'مرحلة الروضة والتمهيدي' : 'Maternelle'}</option>
+                    <option value="primaire">{language === 'ar' ? 'المرحلة الابتدائية' : 'Primaire (CI - CM2)'}</option>
+                    <option value="collège">{language === 'ar' ? 'المرحلة الإعدادية (المتوسطة)' : 'Collège (6ème - 3ème / BEPC)'}</option>
+                    <option value="lycée">{language === 'ar' ? 'المرحلة الثانوية (علمي / أدبي)' : 'Lycée (Seconde - Terminale / BAC)'}</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">
-                    تفاصيل الرسالة *
+                  <label className="block font-bold text-stone-700 mb-1.5">
+                    {t('contact_form_subject')}
                   </label>
-                  <textarea
-                    rows={4}
-                    required
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    className="w-full px-3.5 py-2 text-sm border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#16A34A] text-right"
-                    placeholder="يرجى كتابة تفاصيل استفساركم أو معلومات الطالب والمواعيد المناسبة للتواصل معكم..."
-                  />
-                </div>
-
-                <div className="pt-2">
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full sm:w-auto px-6 py-3 bg-[#16A34A] hover:bg-[#15803D] text-white rounded-xl text-xs font-bold shadow-xs transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2 cursor-pointer"
+                  <select
+                    value={formData.subject}
+                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                    className={`w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#16A34A] focus:border-[#16A34A] transition-all cursor-pointer ${isRTL ? 'text-right' : 'text-left'}`}
                   >
-                    <Send className="w-3.5 h-3.5 rotate-180" />
-                    <span>{isSubmitting ? 'جاري الإرسال...' : 'إرسال الرسالة الآن'}</span>
-                  </button>
+                    <option value="admission">{language === 'ar' ? 'طلب تسجيل طالب جديد' : 'Demande d\'inscription'}</option>
+                    <option value="bourse">{language === 'ar' ? 'الاستفسار عن كفالة الأيتام والمنح' : 'Bourses & Parrainage d\'orphelins'}</option>
+                    <option value="visite">{language === 'ar' ? 'حجز موعد لزيارة الحرم المدرسي' : 'Planifier une visite du campus'}</option>
+                    <option value="autre">{language === 'ar' ? 'استفسار عام آخر' : 'Autre renseignement'}</option>
+                  </select>
                 </div>
-              </form>
-            </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-stone-700 mb-1.5">
+                  {t('contact_form_msg')} <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  rows={4}
+                  required
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  placeholder={
+                    language === 'ar'
+                      ? 'يرجى كتابة تفاصيل استفساركم أو عمر الطالب وتاريخ الزيارة المفضلة...'
+                      : 'Précisez votre demande, niveau de l\'enfant ou date souhaitée de visite...'
+                  }
+                  className={`w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#16A34A] focus:border-[#16A34A] transition-all ${isRTL ? 'text-right' : 'text-left'}`}
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full sm:w-auto px-8 py-3.5 bg-[#16A34A] hover:bg-[#15803D] text-white font-bold rounded-xl shadow-md transition-colors disabled:opacity-50 cursor-pointer inline-flex items-center justify-center gap-2"
+              >
+                <Send className={`w-4 h-4 ${isSubmitting ? 'animate-pulse' : ''}`} />
+                <span>{isSubmitting ? (language === 'ar' ? 'جاري الإرسال...' : 'Envoi en cours...') : t('contact_form_submit')}</span>
+              </button>
+            </form>
           </div>
         </div>
       </div>
