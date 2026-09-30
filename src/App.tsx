@@ -17,41 +17,21 @@ export default function App() {
   const [currentTab, setCurrentTab] = useState<string>('accueil');
   const [activitiesFilter, setActivitiesFilter] = useState<string>('all');
 
-  // Video State with instant fallback data
-  const [videos, setVideos] = useState<Video[]>(initialVideos);
+  // Video State: commence vide pour afficher uniquement les vraies vidéos de la chaîne
+  const [videos, setVideos] = useState<Video[]>([]);
   const [categories, setCategories] = useState<{ name: string; count: number }[]>(initialCategories);
   const [selectedCategory, setSelectedCategory] = useState<VideoCategory>('الكل');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortOrder, setSortOrder] = useState<'recent' | 'oldest'>('recent');
-  const [isLoadingVideos, setIsLoadingVideos] = useState<boolean>(false);
+  const [isLoadingVideos, setIsLoadingVideos] = useState<boolean>(true);
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
 
-  // Sync state with instant fallback
+  // Sync state
   const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(initialSyncStatus);
   const [isSyncModalOpen, setIsSyncModalOpen] = useState<boolean>(false);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
 
-  // Local filter helper for resilience
-  const filterLocalVideos = useCallback(() => {
-    let filtered = [...initialVideos].filter((v) => v.status === 'ACTIVE');
-    if (selectedCategory && selectedCategory !== 'الكل' && selectedCategory !== 'Toutes') {
-      filtered = filtered.filter((v) => v.category === selectedCategory);
-    }
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter(
-        (v) => v.title.toLowerCase().includes(q) || v.description.toLowerCase().includes(q)
-      );
-    }
-    filtered.sort((a, b) => {
-      const dateA = new Date(a.published_at).getTime();
-      const dateB = new Date(b.published_at).getTime();
-      return sortOrder === 'oldest' ? dateA - dateB : dateB - dateA;
-    });
-    setVideos(filtered);
-  }, [selectedCategory, searchQuery, sortOrder]);
-
-  // Fetch videos from server API with resilient fallback
+  // Fetch videos from server API
   const fetchVideos = useCallback(async () => {
     try {
       setIsLoadingVideos(true);
@@ -70,7 +50,7 @@ export default function App() {
       });
       if (res.ok) {
         const data: VideosResponse = await res.json();
-        if (data && Array.isArray(data.videos) && data.videos.length > 0) {
+        if (data && Array.isArray(data.videos)) {
           setVideos(data.videos);
           if (data.categories && data.categories.length > 0) {
             setCategories(data.categories);
@@ -78,13 +58,12 @@ export default function App() {
           return;
         }
       }
-      filterLocalVideos();
-    } catch {
-      filterLocalVideos();
+    } catch (err) {
+      console.warn('[Videos] Erreur lors du chargement des vidéos:', err);
     } finally {
       setIsLoadingVideos(false);
     }
-  }, [selectedCategory, searchQuery, sortOrder, filterLocalVideos]);
+  }, [selectedCategory, searchQuery, sortOrder]);
 
   // Fetch sync status quietly
   const fetchSyncStatus = useCallback(async () => {

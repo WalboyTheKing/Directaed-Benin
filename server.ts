@@ -296,6 +296,29 @@ function determineCategory(title: string, description: string, playlistTitle?: s
   return 'عام';
 }
 
+// Nettoyage intelligent de la cible de chaîne YouTube (URL complète, @handle, ID UC...)
+function parseYouTubeChannelTarget(rawInput: string): { type: 'id' | 'handle'; param: string } {
+  let cleaned = rawInput.trim();
+  // Suppression des slashes de fin et paramètres de tracking
+  cleaned = cleaned.replace(/\/+$/, '');
+
+  if (cleaned.includes('youtube.com/channel/')) {
+    cleaned = cleaned.split('youtube.com/channel/')[1].split('/')[0].split('?')[0];
+  } else if (cleaned.includes('youtube.com/@')) {
+    cleaned = cleaned.split('youtube.com/@')[1].split('/')[0].split('?')[0];
+  } else if (cleaned.includes('youtube.com/c/')) {
+    cleaned = cleaned.split('youtube.com/c/')[1].split('/')[0].split('?')[0];
+  }
+
+  if (cleaned.startsWith('UC') && cleaned.length >= 20) {
+    return { type: 'id', param: `id=${encodeURIComponent(cleaned)}` };
+  }
+
+  // Handle avec ou sans @
+  const handle = cleaned.replace(/^@/, '');
+  return { type: 'handle', param: `forHandle=${encodeURIComponent(handle)}` };
+}
+
 /**
  * Service de synchronisation automatique avec YouTube Data API v3
  * Méthode optimisée basée sur la chaîne YouTube et ses uploads (Section 3 & 14)
@@ -328,13 +351,28 @@ async function syncYouTubeVideos(): Promise<{
       console.log(`[YouTube Sync] Interrogation de YouTube Data API v3 pour la chaîne: ${YOUTUBE_CHANNEL_ID}`);
 
       // 1. Récupération des informations de la chaîne et de la playlist "uploads" (1 quota unit)
-      const channelParam = YOUTUBE_CHANNEL_ID.startsWith('UC')
-        ? `id=${encodeURIComponent(YOUTUBE_CHANNEL_ID)}`
-        : `forHandle=${encodeURIComponent(YOUTUBE_CHANNEL_ID.replace('@', ''))}`;
-
-      const channelRes = await fetch(
-        `https://www.googleapis.com/youtube/v3/channels?part=contentDetails,snippet&${channelParam}&key=${YOUTUBE_API_KEY}`
+      const target = parseYouTubeChannelTarget(YOUTUBE_CHANNEL_ID);
+      let channelRes = await fetch(
+        `https://www.googleapis.com/youtube/v3/channels?part=contentDetails,snippet&${target.param}&key=${YOUTUBE_API_KEY}`
       );
+
+      // Si recherche par forHandle a échoué et que c'était un handle, essayer forUsername de secours
+      if (channelRes.ok) {
+        const testData = (await channelRes.clone().json()) as any;
+        if (!testData.items || testData.items.length === 0) {
+          const rawCleaned = YOUTUBE_CHANNEL_ID.trim().replace(/^@/, '');
+          console.log(`[YouTube Sync] Repli sur forUsername pour: ${rawCleaned}`);
+          const fallbackRes = await fetch(
+            `https://www.googleapis.com/youtube/v3/channels?part=contentDetails,snippet&forUsername=${encodeURIComponent(rawCleaned)}&key=${YOUTUBE_API_KEY}`
+          );
+          if (fallbackRes.ok) {
+            const fallbackData = (await fallbackRes.clone().json()) as any;
+            if (fallbackData.items && fallbackData.items.length > 0) {
+              channelRes = fallbackRes;
+            }
+          }
+        }
+      }
 
       if (!channelRes.ok) {
         const errText = await channelRes.text();
@@ -345,7 +383,7 @@ async function syncYouTubeVideos(): Promise<{
       const channelItem = channelData.items?.[0];
 
       if (!channelItem) {
-        throw new Error(`Chaîne YouTube introuvable avec l'identifiant: ${YOUTUBE_CHANNEL_ID}`);
+        throw new Error(`Chaîne YouTube introuvable avec l'identifiant: ${YOUTUBE_CHANNEL_ID}. Vérifiez que l'identifiant est bien le Channel ID (commençant par UC...) ou le handle @officiel.`);
       }
 
       syncStatusState.channelTitle = channelItem.snippet?.title || syncStatusState.channelTitle;
@@ -655,6 +693,13 @@ app.get('/api/videos', async (req: Request, res: Response) => {
 
     let allVideos: Video[] = [];
 
+    const hasConfiguredKeys = Boolean(
+      YOUTUBE_API_KEY &&
+      !YOUTUBE_API_KEY.includes('AIzaSyXXXXX') &&
+      YOUTUBE_CHANNEL_ID &&
+      !YOUTUBE_CHANNEL_ID.includes('UC_x5XG1OV2P6uZZ5FSM9Ttw')
+    );
+
     if (supabase) {
       let query = supabase.from('videos').select('*').eq('status', 'ACTIVE');
       if (category && category !== 'الكل' && category !== 'Toutes') {
@@ -666,15 +711,29 @@ app.get('/api/videos', async (req: Request, res: Response) => {
         query = query.order('published_at', { ascending: false });
       }
 
-      const { data, error } = await query;
+      let { data, error } = await query;
+
+      // Si Supabase est vide alors que les clés sont configurées, déclencher la synchro YouTube immédiatement
+      if ((!data || data.length === 0) && hasConfiguredKeys && !syncStatusState.isSyncing) {
+        console.log('[Auto-Sync] Première visite ou base vide : synchronisation immédiate de la chaîne YouTube...');
+        await syncYouTubeVideos();
+        const retryRes = await query;
+        data = retryRes.data;
+      }
+
       if (error) {
         console.error('[Supabase Error]', error);
-        allVideos = localVideosStore;
+        allVideos = hasConfiguredKeys ? [] : localVideosStore;
       } else {
         allVideos = (data as Video[]) || [];
       }
     } else {
-      allVideos = [...localVideosStore];
+      if (hasConfiguredKeys && localVideosStore.length === 0 && !syncStatusState.isSyncing) {
+        await syncYouTubeVideos();
+      }
+      allVideos = hasConfiguredKeys
+        ? localVideosStore.filter((v) => v.channel_id === YOUTUBE_CHANNEL_ID || !v.id.startsWith('vid-00'))
+        : [...localVideosStore];
     }
 
     // Filtre strict : vidéos actives uniquement
