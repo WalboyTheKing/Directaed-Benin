@@ -847,6 +847,11 @@ async function startServer() {
   });
 }
 
-startServer().catch((err) => {
-  console.error('[Server Fatal]', err);
-});
+// Sur Vercel Serverless, app est exportée sans lancer app.listen
+if (!process.env.VERCEL) {
+  startServer().catch((err) => {
+    console.error('[Server Fatal]', err);
+  });
+}
+
+export default app;
