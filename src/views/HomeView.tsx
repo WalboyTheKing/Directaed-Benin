@@ -4,17 +4,22 @@ import {
   ArrowLeft,
   ArrowRight,
   BookOpen,
-  Award,
+  Sparkles,
   Users,
   Compass,
+  Heart,
+  MessageSquare,
   Calendar,
   Youtube,
   Clock,
-  Film
+  Film,
+  CheckCircle2,
+  ShieldCheck,
+  Award
 } from 'lucide-react';
-import { SCHOOL_IMAGES } from '../assets/images.ts';
 import { useLanguage } from '../context/LanguageContext.tsx';
 import type { Video } from '../types/video.ts';
+import heroBgImage from '../assets/images/hero_ajmc_culture_bg_1790847624430.jpg';
 
 interface HomeViewProps {
   onSelectTab: (tab: string, categoryFilter?: string) => void;
@@ -32,97 +37,400 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
   return (
     <div className={`space-y-20 pb-20 ${isRTL ? 'text-right' : 'text-left'}`}>
-      {/* 1. Hero Section */}
-      <section className="relative bg-stone-900 text-stone-100 overflow-hidden">
-        {/* Background photo */}
-        <div className="absolute inset-0">
+      {/* 1. HERO SECTION AVEC FOND VISUEL MAJESTUEUX & AMBIANCE ÉMERAUDE */}
+      <section className="relative bg-[#061e14] text-stone-100 overflow-hidden border-b border-emerald-950/80">
+        {/* Arrière-plan photographique et lumineux authentique */}
+        <div className="absolute inset-0 z-0 select-none pointer-events-none">
           <img
-            src={SCHOOL_IMAGES.heroCampus}
-            alt="Campus DirectAid Bénin"
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-cover object-center opacity-45 scale-105 animate-fade-in"
+            src={heroBgImage}
+            alt="Arrière-plan A.J.M.C"
+            className="w-full h-full object-cover object-center scale-105 filter brightness-90 contrast-105"
           />
-          <div className={`absolute inset-0 bg-gradient-to-${isRTL ? 'l' : 'r'} from-stone-950/95 via-stone-950/80 to-transparent`} />
+          {/* Dégradés superposés pour profondeur et lisibilité sans égal */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#041a11]/96 via-[#07281b]/88 to-[#041a11]/92" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#04170f] via-transparent to-[#04170f]/70" />
+          <div className="absolute inset-0 bg-[radial-gradient(#16A34A_1px,transparent_1px)] [background-size:28px_28px] opacity-20" />
+          {/* Lueurs chaleureuses ambrées et émeraude */}
+          <div className="absolute -top-24 right-1/4 w-[32rem] h-[32rem] bg-amber-400/12 rounded-full blur-3xl" />
+          <div className="absolute -bottom-24 left-1/4 w-[36rem] h-[36rem] bg-emerald-500/18 rounded-full blur-3xl" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 lg:py-36">
-          <div className="max-w-3xl space-y-6">
-            <div className="inline-flex items-center gap-2.5 text-xs font-bold tracking-widest uppercase text-emerald-400">
-              <span className="w-6 h-0.5 bg-[#16A34A]" />
-              <span>{t('hero_org')}</span>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 lg:py-32">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            {/* Colonne Principale : Titres, Message & CTA */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-700/60 text-xs font-bold tracking-widest uppercase text-emerald-300 backdrop-blur-xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>{t('org_name')} · {t('org_location')}</span>
+              </div>
+
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
+                {t('hero_title_line1')} <br />
+                <span className="italic font-normal text-emerald-300 drop-shadow-md">{t('hero_title_line2')}</span>
+              </h1>
+
+              <p className="text-base sm:text-lg text-stone-200 leading-relaxed max-w-2xl font-medium drop-shadow-xs">
+                {t('hero_desc')}
+              </p>
+
+              {/* Deux CTA distincts avec espacement net */}
+              <div className="pt-3 flex flex-wrap items-center gap-4 sm:gap-5">
+                <button
+                  onClick={() => onSelectTab('a-propos')}
+                  className="px-7 py-3.5 bg-[#0F5132] hover:bg-[#16A34A] text-white rounded-xl text-sm font-bold shadow-xl shadow-emerald-950/50 hover:shadow-emerald-700/30 transition-all cursor-pointer inline-flex items-center gap-2 transform hover:-translate-y-0.5"
+                >
+                  <span>{t('hero_btn_about')}</span>
+                  <ArrowIcon className="w-4 h-4" />
+                </button>
+
+                <button
+                  onClick={() => onSelectTab('activites')}
+                  className="px-6 py-3.5 bg-emerald-950/70 hover:bg-emerald-900/80 text-emerald-100 rounded-xl text-sm font-semibold border border-emerald-700/50 backdrop-blur-md transition-all cursor-pointer inline-flex items-center gap-2"
+                >
+                  <span>{t('hero_btn_activities')}</span>
+                </button>
+              </div>
+
+              {/* Repères d'impact associatif */}
+              <div className="pt-6 border-t border-emerald-900/50 grid grid-cols-3 gap-4 max-w-lg text-stone-300">
+                <div>
+                  <div className="text-xl sm:text-2xl font-black text-white">6</div>
+                  <div className="text-[11px] text-emerald-300/90 font-medium">
+                    {language === 'ar' ? 'مجالات عمل رئيسية' : 'Pôles d\'activités'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xl sm:text-2xl font-black text-white">100%</div>
+                  <div className="text-[11px] text-emerald-300/90 font-medium">
+                    {language === 'ar' ? 'مبادرات تطوعية' : 'Engagement bénévole'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xl sm:text-2xl font-black text-white">Kandi</div>
+                  <div className="text-[11px] text-emerald-300/90 font-medium">
+                    {language === 'ar' ? 'الجمهورية البنينية' : 'République du Bénin'}
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
-              {t('hero_title_line1')} <br />
-              <span className="italic font-normal text-emerald-300">{t('hero_title_line2')}</span>
-            </h1>
+            {/* Colonne Droite : Carte institutionnelle valorisante */}
+            <div className="lg:col-span-5 hidden lg:block">
+              <div className="relative bg-gradient-to-b from-emerald-900/40 to-stone-900/60 border border-emerald-600/30 rounded-3xl p-7 backdrop-blur-md shadow-2xl shadow-emerald-950/60 space-y-6">
+                <div className="flex items-center justify-between pb-4 border-b border-emerald-800/40">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full bg-emerald-400" />
+                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-300">
+                      {language === 'ar' ? 'ميثاق ورسالة الجمعية' : 'Mission & Valeurs'}
+                    </span>
+                  </div>
+                  <span className="text-[11px] font-mono text-stone-400">A.J.M.C</span>
+                </div>
 
-            <p className="text-base sm:text-lg text-stone-300 leading-relaxed max-w-2xl font-medium">
-              {t('hero_desc')}
-            </p>
+                <div className="space-y-4 text-xs text-stone-200 leading-relaxed">
+                  <div className="p-3.5 rounded-2xl bg-emerald-950/60 border border-emerald-800/50 flex items-start gap-3">
+                    <BookOpen className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="font-bold text-white text-sm">
+                        {language === 'ar' ? 'الثقافة والمعرفة' : 'Culture & Éducation'}
+                      </h4>
+                      <p className="text-stone-300 mt-0.5">
+                        {language === 'ar'
+                          ? 'بناء جيل واعٍ متسلح بالعلم والأخلاق الفاضلة.'
+                          : 'Former une jeunesse épanouie, éclairée par le savoir et l\'éthique.'}
+                      </p>
+                    </div>
+                  </div>
 
-            {/* Boutons distincts avec séparation nette */}
-            <div className="pt-4 flex flex-wrap items-center gap-4 sm:gap-5">
-              <button
-                onClick={() => onSelectTab('contact')}
-                className="px-6 py-3.5 bg-[#16A34A] hover:bg-[#15803D] text-white rounded-xl text-sm font-bold shadow-lg transition-all cursor-pointer inline-flex items-center gap-2"
-              >
-                <span>{t('hero_btn_enroll')}</span>
-                <ArrowIcon className="w-4 h-4" />
-              </button>
+                  <div className="p-3.5 rounded-2xl bg-emerald-950/60 border border-emerald-800/50 flex items-start gap-3">
+                    <Users className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="font-bold text-white text-sm">
+                        {language === 'ar' ? 'التآخي والتكافل' : 'Fraternité & Solidarité'}
+                      </h4>
+                      <p className="text-stone-300 mt-0.5">
+                        {language === 'ar'
+                          ? 'تعزيز روح المبادرة والعمل التطوعي لخدمة المجتمع في كاندي.'
+                          : 'Unir les énergies pour le rayonnement solidaire de notre communauté.'}
+                      </p>
+                    </div>
+                  </div>
 
-              <button
-                onClick={() => onSelectTab('videos')}
-                className="px-6 py-3.5 bg-stone-800/80 hover:bg-stone-700/90 text-white rounded-xl text-sm font-semibold border border-stone-700 transition-all cursor-pointer inline-flex items-center gap-2"
-              >
-                <Youtube className="w-4 h-4 text-red-500" />
-                <span>{t('hero_btn_videos')}</span>
-              </button>
+                  <div className="p-3.5 rounded-2xl bg-emerald-950/60 border border-emerald-800/50 flex items-start gap-3">
+                    <Sparkles className="w-5 h-5 text-amber-300 shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="font-bold text-white text-sm">
+                        {language === 'ar' ? 'التميز والريادة' : 'Épanouissement & Jeunesse'}
+                      </h4>
+                      <p className="text-stone-300 mt-0.5">
+                        {language === 'ar'
+                          ? 'مسابقات، ملتقيات ومحاضرات توجيهية هادفة على مدار العام.'
+                          : 'Conférences, concours d\'éloquence et projets communautaires durables.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-2 text-center">
+                  <span className="text-[11px] text-emerald-300/80 font-medium">
+                    {language === 'ar'
+                      ? 'مرحباً بكم في الموقع الرسمي لجمعية الشباب المسلم للثقافة'
+                      : 'Bienvenue sur le portail institutionnel de l\'A.J.M.C Kandi'}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 2. Section Vidéos Publique */}
+      {/* 2. PRÉSENTATION COURTE : QUI SOMMES-NOUS ? */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-3xl border border-stone-200 p-8 sm:p-12 shadow-sm space-y-6">
+          <div className="max-w-3xl space-y-2">
+            <span className="text-xs font-bold text-[#0F5132] tracking-wider uppercase">
+              {t('about_summary_title')}
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900">
+              {t('about_summary_subtitle')}
+            </h2>
+            <p className="text-base text-stone-600 leading-relaxed pt-2">
+              {t('about_summary_text')}
+            </p>
+          </div>
+
+          <div className="pt-4 grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-stone-100">
+            <div className="flex items-center gap-3 p-3 bg-stone-50 rounded-xl">
+              <div className="w-10 h-10 rounded-lg bg-emerald-50 text-[#0F5132] flex items-center justify-center font-bold shrink-0">
+                <Users className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-stone-900">
+                  {language === 'ar' ? 'شباب واعٍ ومبادر' : 'Jeunesse engagée'}
+                </h4>
+                <p className="text-xs text-stone-500">
+                  {language === 'ar' ? 'طاقات تطوعية في خدمة المجتمع' : 'Énergie bénévole au service de tous'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 p-3 bg-stone-50 rounded-xl">
+              <div className="w-10 h-10 rounded-lg bg-emerald-50 text-[#0F5132] flex items-center justify-center font-bold shrink-0">
+                <BookOpen className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-stone-900">
+                  {language === 'ar' ? 'ثقافة وعلم نافع' : 'Culture & Savoir'}
+                </h4>
+                <p className="text-xs text-stone-500">
+                  {language === 'ar' ? 'محاضرات، دورات وندوات توعوية' : 'Conférences et formations éthiques'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 p-3 bg-stone-50 rounded-xl">
+              <div className="w-10 h-10 rounded-lg bg-emerald-50 text-[#0F5132] flex items-center justify-center font-bold shrink-0">
+                <Heart className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-stone-900">
+                  {language === 'ar' ? 'تضامن وعمل اجتماعي' : 'Solidarité active'}
+                </h4>
+                <p className="text-xs text-stone-500">
+                  {language === 'ar' ? 'مبادرات إنسانية وتكافل مجتمعي' : 'Actions d\'entraide à Kandi'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. DOMAINES D'ACTION ASSOCIATIFS */}
+      <section className="bg-stone-100/70 border-y border-stone-200 py-16 sm:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          <div className="max-w-2xl space-y-2">
+            <span className="text-xs font-bold text-[#0F5132] tracking-wider uppercase">
+              {language === 'ar' ? 'محاور عمل الجمعية' : 'Nos Domaines d\'Action'}
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900">
+              {language === 'ar' ? 'رسالة شاملة في خدمة الشباب والمجتمع' : 'Un champ d\'action complet et structuré'}
+            </h2>
+            <p className="text-sm text-stone-600">
+              {language === 'ar'
+                ? 'تعمل الجمعية على تفعيل محاور رئيسية تعزز حضور الشباب الإيجابي وتسهم في ترسيخ القيم والأخلاق.'
+                : 'L\'A.J.M.C déploie ses initiatives à travers des commissions et des projets adaptés aux besoins locaux.'}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* 1. Éducation */}
+            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3 hover:shadow-md transition-shadow">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#0F5132] flex items-center justify-center">
+                <BookOpen className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-base text-stone-900">{t('domain_education_title')}</h3>
+              <p className="text-xs text-stone-600 leading-relaxed">{t('domain_education_desc')}</p>
+            </div>
+
+            {/* 2. Culture */}
+            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3 hover:shadow-md transition-shadow">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#0F5132] flex items-center justify-center">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-base text-stone-900">{t('domain_culture_title')}</h3>
+              <p className="text-xs text-stone-600 leading-relaxed">{t('domain_culture_desc')}</p>
+            </div>
+
+            {/* 3. Jeunesse */}
+            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3 hover:shadow-md transition-shadow">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#0F5132] flex items-center justify-center">
+                <Users className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-base text-stone-900">{t('domain_youth_title')}</h3>
+              <p className="text-xs text-stone-600 leading-relaxed">{t('domain_youth_desc')}</p>
+            </div>
+
+            {/* 4. Religieux */}
+            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3 hover:shadow-md transition-shadow">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#0F5132] flex items-center justify-center">
+                <Compass className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-base text-stone-900">{t('domain_religious_title')}</h3>
+              <p className="text-xs text-stone-600 leading-relaxed">{t('domain_religious_desc')}</p>
+            </div>
+
+            {/* 5. Social */}
+            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3 hover:shadow-md transition-shadow">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#0F5132] flex items-center justify-center">
+                <Heart className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-base text-stone-900">{t('domain_social_title')}</h3>
+              <p className="text-xs text-stone-600 leading-relaxed">{t('domain_social_desc')}</p>
+            </div>
+
+            {/* 6. Conférences */}
+            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3 hover:shadow-md transition-shadow">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#0F5132] flex items-center justify-center">
+                <MessageSquare className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-base text-stone-900">{t('domain_conferences_title')}</h3>
+              <p className="text-xs text-stone-600 leading-relaxed">{t('domain_conferences_desc')}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. DERNIÈRES ACTUALITÉS DE L'ASSOCIATION */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <span className="text-xs font-bold text-[#0F5132] tracking-wider uppercase">
+              {language === 'ar' ? 'متابعة ميدانية' : 'Informations Récentes'}
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900 mt-1">
+              {t('news_page_title')}
+            </h2>
+          </div>
+          <button
+            onClick={() => onSelectTab('actualites')}
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#0F5132] hover:text-[#16A34A] transition-colors cursor-pointer"
+          >
+            <span>{language === 'ar' ? 'عرض كافة الأخبار' : 'Voir toutes les actualités'}</span>
+            <ArrowIcon className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-[#0F5132] border border-emerald-200">
+              {language === 'ar' ? 'نشاط ثقافي' : 'Activité culturelle'}
+            </span>
+            <h3 className="font-bold text-base text-stone-900">
+              {language === 'ar'
+                ? 'تنظيم ملتقى الشباب الثقافي السنوي بمدينة كاندي'
+                : 'Tenue de la rencontre culturelle annuelle des jeunes à Kandi'}
+            </h3>
+            <p className="text-xs text-stone-600 leading-relaxed">
+              {language === 'ar'
+                ? 'مناقشة دور الثقافة الإسلامية في ترسيخ قيم التسامح والمسؤولية المجتمعية لدى الأجيال الصاعدة.'
+                : 'Échanges fraternels et ateliers sur le rôle de la culture dans l\'engagement civique et moral de la jeunesse.'}
+            </p>
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-[#0F5132] border border-emerald-200">
+              {language === 'ar' ? 'عمل اجتماعي' : 'Action sociale'}
+            </span>
+            <h3 className="font-bold text-base text-stone-900">
+              {language === 'ar'
+                ? 'مبادرة التضامن والتكافل لمساندة الأسر المحتاجة'
+                : 'Initiative de solidarité communautaire en faveur des familles'}
+            </h3>
+            <p className="text-xs text-stone-600 leading-relaxed">
+              {language === 'ar'
+                ? 'حملة ميدانية لتوزيع المساعدات وتعزيز روابط الأخوة والتراحم بين أبناء المنطقة.'
+                : 'Mobilisation des membres bénévoles pour apporter une assistance matérielle et morale aux plus vulnérables.'}
+            </p>
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-[#0F5132] border border-emerald-200">
+              {language === 'ar' ? 'محاضرة عامة' : 'Conférence'}
+            </span>
+            <h3 className="font-bold text-base text-stone-900">
+              {language === 'ar'
+                ? 'سلسلة لقاءات فكرية وتوجيهية لفائدة الشباب'
+                : 'Cycle de conférences et débats sur les enjeux de l\'éducation'}
+            </h3>
+            <p className="text-xs text-stone-600 leading-relaxed">
+              {language === 'ar'
+                ? 'استضافة أساتذة ومربين لتناول قضايا النجاح في الحياة والتمسك بالقيم النبيلة.'
+                : 'Des interventions inspirantes d\'universitaires et de guides communautaires pour orienter les jeunes vers la réussite.'}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. DERNIÈRES VIDÉOS YOUTUBE (SYNCHRONISÉES AUTOMATIQUEMENT) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-stone-200 pb-6 mb-8">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold text-[#16A34A] uppercase tracking-wider">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#0F5132] uppercase tracking-wider">
               <Film className="w-4 h-4" />
-              <span>{t('hero_badge_editorial')}</span>
+              <span>{language === 'ar' ? 'توثيق مرئي ومحاضرات' : 'Médiathèque officielle'}</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900 mt-1">
-              {t('section_videos_title')}
+              {t('media_section_title')}
             </h2>
             <p className="text-xs sm:text-sm text-stone-500 mt-1">
-              {t('section_videos_subtitle')}
+              {t('media_section_subtitle')}
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() => onSelectTab('videos')}
-              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#16A34A] hover:text-[#15803D] transition-colors cursor-pointer"
+              onClick={() => onSelectTab('mediatheque')}
+              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#0F5132] hover:text-[#16A34A] transition-colors cursor-pointer"
             >
-              <span>{t('section_videos_btn')}</span>
+              <span>{t('media_section_btn')}</span>
               <ArrowIcon className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        {/* Video Cards Grid ou message élégant */}
+        {/* Grille de vidéos ou message sobre */}
         {latestVideos.length === 0 ? (
           <div className="bg-white rounded-2xl border border-stone-200 p-12 text-center max-w-lg mx-auto space-y-3 shadow-xs">
-            <div className="w-12 h-12 rounded-full bg-emerald-50 text-[#16A34A] flex items-center justify-center mx-auto">
+            <div className="w-12 h-12 rounded-full bg-emerald-50 text-[#0F5132] flex items-center justify-center mx-auto">
               <Youtube className="w-6 h-6 text-red-500" />
             </div>
             <h3 className="font-bold text-stone-800 text-base">
-              {t('section_videos_empty')}
+              {t('media_empty')}
             </h3>
             <p className="text-xs text-stone-500">
               {language === 'ar'
-                ? 'تابعوا أنشطتنا وفعالياتنا المدرسية عبر صفحة الفيديوهات وقناتنا الرسمية.'
-                : 'Consultez régulièrement notre page pour découvrir les derniers reportages de l\'école.'}
+                ? 'تابعوا أنشطتنا وندواتنا عبر القناة الرسمية للجمعية على يوتيوب.'
+                : 'Retrouvez prochainement les enregistrements vidéo de nos conférences et événements sur notre chaîne.'}
             </p>
           </div>
         ) : (
@@ -131,7 +439,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <div
                 key={video.id}
                 onClick={() => onSelectVideo(video)}
-                className="group bg-white rounded-2xl overflow-hidden border border-stone-200/90 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer hover:-translate-y-1"
+                className="group bg-white rounded-2xl overflow-hidden border border-stone-200 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer hover:-translate-y-1"
               >
                 <div className="relative aspect-video bg-stone-900 overflow-hidden">
                   <img
@@ -177,7 +485,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                       )}
                       <span className="flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
-                        {new Date(video.published_at).toLocaleDateString(language === 'ar' ? 'ar-EG' : language === 'fr' ? 'fr-FR' : 'en-US', {
+                        {new Date(video.published_at).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'fr-FR', {
                           day: 'numeric',
                           month: 'short',
                           year: 'numeric',
@@ -185,14 +493,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
                       </span>
                     </div>
 
-                    <h3 className="font-bold text-base text-stone-900 group-hover:text-[#16A34A] transition-colors line-clamp-2 leading-snug">
+                    <h3 className="font-bold text-base text-stone-900 group-hover:text-[#0F5132] transition-colors line-clamp-2 leading-snug">
                       {video.title}
                     </h3>
                   </div>
 
                   <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-stone-500">
                     <span className="text-emerald-700 font-bold group-hover:underline flex items-center gap-1">
-                      <span>{t('videos_watch_btn')}</span>
+                      <span>{t('media_watch_btn')}</span>
                       <ArrowIcon className="w-3 h-3" />
                     </span>
                   </div>
@@ -203,200 +511,22 @@ export const HomeView: React.FC<HomeViewProps> = ({
         )}
       </section>
 
-      {/* 3. Educational Vision Section */}
-      <section className="bg-stone-100/70 border-y border-stone-200 py-16 sm:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-          <div className="max-w-2xl space-y-2">
-            <span className="text-xs font-bold text-[#16A34A] tracking-wider uppercase">
-              {t('section_vision_tag')}
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900">
-              {t('section_vision_title')}
-            </h2>
-            <p className="text-sm text-stone-600">
-              {t('section_vision_subtitle')}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#16A34A] flex items-center justify-center font-bold">
-                <BookOpen className="w-5 h-5" />
-              </div>
-              <h3 className="font-bold text-base text-stone-900">{t('vision_item1_title')}</h3>
-              <p className="text-xs text-stone-600 leading-relaxed">{t('vision_item1_desc')}</p>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#16A34A] flex items-center justify-center font-bold">
-                <Award className="w-5 h-5" />
-              </div>
-              <h3 className="font-bold text-base text-stone-900">{t('vision_item2_title')}</h3>
-              <p className="text-xs text-stone-600 leading-relaxed">{t('vision_item2_desc')}</p>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#16A34A] flex items-center justify-center font-bold">
-                <Users className="w-5 h-5" />
-              </div>
-              <h3 className="font-bold text-base text-stone-900">{t('vision_item3_title')}</h3>
-              <p className="text-xs text-stone-600 leading-relaxed">{t('vision_item3_desc')}</p>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#16A34A] flex items-center justify-center font-bold">
-                <Compass className="w-5 h-5" />
-              </div>
-              <h3 className="font-bold text-base text-stone-900">{t('vision_item4_title')}</h3>
-              <p className="text-xs text-stone-600 leading-relaxed">{t('vision_item4_desc')}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. Activities Showcase with Authentic Images */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-          <div>
-            <span className="text-xs font-bold text-[#16A34A] tracking-wider uppercase">
-              {t('section_activities_tag')}
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900 mt-1">
-              {t('section_activities_title')}
-            </h2>
-          </div>
-          <button
-            onClick={() => onSelectTab('activites')}
-            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#16A34A] hover:text-[#15803D] transition-colors cursor-pointer"
-          >
-            <span>{t('section_activities_btn')}</span>
-            <ArrowIcon className="w-4 h-4" />
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div
-            onClick={() => onSelectTab('activites', 'pedagogiques')}
-            className="group relative rounded-2xl overflow-hidden shadow-xs hover:shadow-xl transition-all cursor-pointer aspect-4/5"
-          >
-            <img
-              src={SCHOOL_IMAGES.activityPedagogique}
-              alt="Activités pédagogiques DirectAid Bénin"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-950/40 to-transparent p-5 flex flex-col justify-end text-white">
-              <span className="text-xs font-bold text-emerald-400">{t('cat_pedagogy')}</span>
-              <h3 className="text-lg font-bold mt-1">
-                {language === 'ar' ? 'الأنشطة التعليمية والمختبرات' : language === 'fr' ? 'Activités Pédagogiques & Labos' : 'Academic & Science Labs'}
-              </h3>
-              <p className="text-xs text-stone-300 line-clamp-2 mt-1">
-                {language === 'ar' ? 'معامل الحاسوب والعلوم ومسابقات الرياضيات واللغات.' : language === 'fr' ? 'Laboratoires de sciences, informatique et concours de langues.' : 'Computer labs, science workshops, and mathematics competitions.'}
-              </p>
-            </div>
-          </div>
-
-          <div
-            onClick={() => onSelectTab('activites', 'culturelles')}
-            className="group relative rounded-2xl overflow-hidden shadow-xs hover:shadow-xl transition-all cursor-pointer aspect-4/5"
-          >
-            <img
-              src={SCHOOL_IMAGES.activityCulturelle}
-              alt="Activités culturelles DirectAid Bénin"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-950/40 to-transparent p-5 flex flex-col justify-end text-white">
-              <span className="text-xs font-bold text-emerald-400">{t('cat_culture')}</span>
-              <h3 className="text-lg font-bold mt-1">
-                {language === 'ar' ? 'الأنشطة الثقافية والقرآنية' : language === 'fr' ? 'Activités Culturelles & Coran' : 'Cultural & Quranic Events'}
-              </h3>
-              <p className="text-xs text-stone-300 line-clamp-2 mt-1">
-                {language === 'ar' ? 'حفظ القرآن الكريم، المسرح الهادف وفنون الخطابة.' : language === 'fr' ? 'Mémorisation du Coran, théâtre et art oratoire.' : 'Quran memorization circles, theatre, and public speaking.'}
-              </p>
-            </div>
-          </div>
-
-          <div
-            onClick={() => onSelectTab('activites', 'sportives')}
-            className="group relative rounded-2xl overflow-hidden shadow-xs hover:shadow-xl transition-all cursor-pointer aspect-4/5"
-          >
-            <img
-              src={SCHOOL_IMAGES.activitySportive}
-              alt="Activités sportives DirectAid Bénin"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-950/40 to-transparent p-5 flex flex-col justify-end text-white">
-              <span className="text-xs font-bold text-emerald-400">{t('cat_sports')}</span>
-              <h3 className="text-lg font-bold mt-1">
-                {language === 'ar' ? 'الأنشطة والبطولات الرياضية' : language === 'fr' ? 'Tournois Sportifs' : 'Sports & Athletics'}
-              </h3>
-              <p className="text-xs text-stone-300 line-clamp-2 mt-1">
-                {language === 'ar' ? 'دوري كرة القدم، ألعاب القوى والبطولات بين المراكز.' : language === 'fr' ? 'Ligue de football, athlétisme et championnats inter-centres.' : 'Football league, athletics, and inter-center championships.'}
-              </p>
-            </div>
-          </div>
-
-          <div
-            onClick={() => onSelectTab('activites', 'sorties')}
-            className="group relative rounded-2xl overflow-hidden shadow-xs hover:shadow-xl transition-all cursor-pointer aspect-4/5"
-          >
-            <img
-              src={SCHOOL_IMAGES.activitySortie}
-              alt="Sorties scolaires DirectAid Bénin"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-950/40 to-transparent p-5 flex flex-col justify-end text-white">
-              <span className="text-xs font-bold text-emerald-400">{t('cat_trips')}</span>
-              <h3 className="text-lg font-bold mt-1">
-                {language === 'ar' ? 'الرحلات الاستكشافية' : language === 'fr' ? 'Excursions & Sorties' : 'Excursions & Field Trips'}
-              </h3>
-              <p className="text-xs text-stone-300 line-clamp-2 mt-1">
-                {language === 'ar' ? 'زيارات المتاحف الوطنية والمعالم التاريخية والبيئية في بنين.' : language === 'fr' ? 'Visites des musées, sites historiques et patrimoniaux du Bénin.' : 'Visits to national museums, historical sites, and eco-parks.'}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. Key Statistics vérifiées */}
+      {/* 6. APPEL À PARTICIPATION */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-stone-900 text-white rounded-3xl p-8 sm:p-12 shadow-xl border border-stone-800">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center divide-y lg:divide-y-0 lg:divide-x divide-stone-800">
-            <div className="space-y-1 pt-4 lg:pt-0">
-              <p className="text-3xl sm:text-4xl font-extrabold text-emerald-400 font-mono">{t('stat_success_rate')}</p>
-              <p className="text-xs sm:text-sm text-stone-400">{t('stat_success_label')}</p>
-            </div>
-            <div className="space-y-1 pt-4 lg:pt-0">
-              <p className="text-3xl sm:text-4xl font-extrabold text-emerald-400 font-mono">{t('stat_students_count')}</p>
-              <p className="text-xs sm:text-sm text-stone-400">{t('stat_students_label')}</p>
-            </div>
-            <div className="space-y-1 pt-4 lg:pt-0">
-              <p className="text-3xl sm:text-4xl font-extrabold text-emerald-400 font-mono">{t('stat_centers_count')}</p>
-              <p className="text-xs sm:text-sm text-stone-400">{t('stat_centers_label')}</p>
-            </div>
-            <div className="space-y-1 pt-4 lg:pt-0">
-              <p className="text-3xl sm:text-4xl font-extrabold text-emerald-400 font-mono">{t('stat_languages_count')}</p>
-              <p className="text-xs sm:text-sm text-stone-400">{t('stat_languages_label')}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. Call to Action (Inscription) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative rounded-3xl bg-linear-to-r from-[#16A34A] to-emerald-700 text-white p-8 sm:p-12 overflow-hidden shadow-xl">
+        <div className="relative rounded-3xl bg-linear-to-r from-[#0F5132] via-[#16A34A] to-emerald-800 text-white p-8 sm:p-12 overflow-hidden shadow-xl">
           <div className="relative z-10 max-w-2xl space-y-4">
             <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight">
-              {t('cta_join_title')}
+              {t('call_action_title')}
             </h2>
             <p className="text-xs sm:text-sm text-emerald-100 leading-relaxed">
-              {t('cta_join_desc')}
+              {t('call_action_desc')}
             </p>
             <div className="pt-2">
               <button
                 onClick={() => onSelectTab('contact')}
-                className="px-6 py-3.5 bg-white text-[#16A34A] hover:bg-stone-100 rounded-xl text-xs sm:text-sm font-bold shadow-md transition-colors cursor-pointer inline-flex items-center gap-2"
+                className="px-6 py-3.5 bg-white text-[#0F5132] hover:bg-stone-100 rounded-xl text-xs sm:text-sm font-bold shadow-md transition-colors cursor-pointer inline-flex items-center gap-2"
               >
-                <span>{t('cta_join_btn')}</span>
+                <span>{t('call_action_btn')}</span>
                 <ArrowIcon className="w-4 h-4" />
               </button>
             </div>

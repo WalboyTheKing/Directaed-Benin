@@ -1,22 +1,26 @@
 /**
- * تعريف الأنواع لنظام الفيديو والمزامنة التلقائية مع يوتيوب وسوبابيس
+ * Types pour le système de médiathèque et synchronisation YouTube de l'A.J.M.C — Kandi
  */
 
 export type VideoCategory =
   | 'الكل'
   | 'الأنشطة التعليمية'
   | 'الأنشطة الثقافية'
-  | 'الأنشطة الرياضية'
-  | 'الرحلات المدرسية'
-  | 'الحفلات والمناسبات'
+  | 'الأنشطة الدينية'
+  | 'أنشطة الشباب'
+  | 'الأنشطة الاجتماعية'
+  | 'المحاضرات واللقاءات'
+  | 'الفعاليات والمناسبات'
   | 'عام'
-  // Compatibilité de repli
+  // Compatibilité de repli en français
   | 'Toutes'
-  | 'Activités pédagogiques'
+  | 'Activités éducatives'
   | 'Activités culturelles'
-  | 'Activités sportives'
-  | 'Sorties scolaires'
-  | 'Cérémonies'
+  | 'Activités religieuses'
+  | 'Activités de jeunesse'
+  | 'Actions sociales'
+  | 'Conférences et rencontres'
+  | 'Événements et célébrations'
   | 'Général';
 
 export type VideoStatus = 'ACTIVE' | 'UNAVAILABLE' | 'PRIVATE';

@@ -11,18 +11,17 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Arabe par défaut comme demandé formellement
   const [language, setLanguageState] = useState<Language>(() => {
-    const saved = localStorage.getItem('directaid_language');
-    if (saved === 'ar' || saved === 'fr' || saved === 'en') {
+    const saved = localStorage.getItem('ajmc_language');
+    if (saved === 'ar' || saved === 'fr') {
       return saved;
     }
-    return 'ar'; // Défaut absolu: Arabe
+    return 'fr'; // Français par défaut pour un accès naturel au Bénin, avec bascule immédiate vers l'Arabe
   });
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    localStorage.setItem('directaid_language', lang);
+    localStorage.setItem('ajmc_language', lang);
   };
 
   const isRTL = language === 'ar';
@@ -37,8 +36,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (currentDict && currentDict[key]) {
       return currentDict[key];
     }
-    // Fallback vers l'arabe si clé manquante
-    return translations.ar[key] || '';
+    return translations.fr[key] || '';
   };
 
   return (

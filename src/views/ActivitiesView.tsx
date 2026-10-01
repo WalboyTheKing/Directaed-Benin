@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
 import {
-  Play,
-  ArrowLeft,
   BookOpen,
-  Music,
-  Trophy,
-  Compass,
-  Check,
-  Calendar,
   Sparkles,
-  Youtube
+  Compass,
+  Users,
+  Heart,
+  MessageSquare,
+  Calendar,
+  ArrowRight,
+  ArrowLeft,
+  Film,
+  Layers,
+  CheckCircle2
 } from 'lucide-react';
-import { SCHOOL_IMAGES } from '../assets/images.ts';
+import { useLanguage } from '../context/LanguageContext.tsx';
 import type { VideoCategory } from '../types/video.ts';
+import { PageHeader } from '../components/PageHeader.tsx';
 
 interface ActivitiesViewProps {
   onSelectTab: (tab: string, categoryFilter?: string) => void;
@@ -23,263 +26,199 @@ export const ActivitiesView: React.FC<ActivitiesViewProps> = ({
   onSelectTab,
   defaultSubCategory = 'all',
 }) => {
+  const { t, isRTL, language } = useLanguage();
   const [selectedSubTab, setSelectedSubTab] = useState<string>(defaultSubCategory || 'all');
+  const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
 
-  const subCategories = [
-    { id: 'all', label: 'جميع الأنشطة' },
-    { id: 'pedagogique', label: 'الأنشطة التعليمية', categoryName: 'الأنشطة التعليمية' },
-    { id: 'culturelle', label: 'الأنشطة الثقافية والقرآنية', categoryName: 'الأنشطة الثقافية' },
-    { id: 'sportive', label: 'الأنشطة الرياضية', categoryName: 'الأنشطة الرياضية' },
-    { id: 'sortie', label: 'الرحلات المدرسية', categoryName: 'الرحلات المدرسية' },
+  const categories = [
+    {
+      id: 'all',
+      label: t('cat_all'),
+      title: language === 'ar' ? 'كافة أنشطة الجمعية' : 'Toutes nos activités associatives',
+      desc: language === 'ar'
+        ? 'برامج وأنشطة متنوعة تهدف لخدمة شباب كاندي وتنمية المجتمع.'
+        : 'Un éventail complet d\'initiatives éducatives, culturelles, sociales et communautaires.',
+    },
+    {
+      id: 'education',
+      label: t('cat_education'),
+      filterKey: 'الأنشطة التعليمية',
+      icon: BookOpen,
+      title: t('domain_education_title'),
+      desc: t('domain_education_desc'),
+      points: language === 'ar'
+        ? ['دورات تقوية ومساندة دراسية مجانية للطلاب', 'ورش تدريبية في المعلوميات وتطوير الذات', 'مكتبة للمطالعة وقاعات مجهزة للبحث']
+        : ['Cours de soutien et tutorat scolaire gratuit', 'Ateliers méthodologiques et compétences numériques', 'Espaces de lecture et d\'apprentissage partagé'],
+    },
+    {
+      id: 'culture',
+      label: t('cat_culture'),
+      filterKey: 'الأنشطة الثقافية',
+      icon: Sparkles,
+      title: t('domain_culture_title'),
+      desc: t('domain_culture_desc'),
+      points: language === 'ar'
+        ? ['ملتقيات ثقافية ومهرجانات أدبية سنوية', 'مسابقات في الخطابة والشعر والإنشاد الهادف', 'معارض للتعريف بالحضارة والتراث الإسلامي']
+        : ['Grandes rencontres et forums culturels annuels', 'Concours d\'éloquence et compétitions littéraires', 'Expositions thématiques sur les valeurs et le patrimoine'],
+    },
+    {
+      id: 'religious',
+      label: t('cat_religious'),
+      filterKey: 'الأنشطة الدينية',
+      icon: Compass,
+      title: t('domain_religious_title'),
+      desc: t('domain_religious_desc'),
+      points: language === 'ar'
+        ? ['دروس دورية في الفقه، العقيدة والسيرة النبوية', 'مسابقات سنوية لحفظ وتجويد القرآن الكريم', 'إحياء المناسبات الدينية وبرامج رمضانية مميزة']
+        : ['Enseignements réguliers sur les fondamentaux éthiques', 'Concours annuel de mémorisation du Saint Coran', 'Conférences spirituelles et programmes fraternels'],
+    },
+    {
+      id: 'youth',
+      label: t('cat_youth'),
+      filterKey: 'أنشطة الشباب',
+      icon: Users,
+      title: t('domain_youth_title'),
+      desc: t('domain_youth_desc'),
+      points: language === 'ar'
+        ? ['دوريات رياضية لتعزيز الأخوة والروح الرياضية', 'خرجات ترفيهية ومخيمات شبابية هادفة', 'حلقات نقاش وتبادل تجارب ملهمة']
+        : ['Tournois sportifs et cohésion fraternelle', 'Sorties de découverte et retraites شباب', 'Espaces d\'échange et mentorat entre jeunes'],
+    },
+    {
+      id: 'social',
+      label: t('cat_social'),
+      filterKey: 'الأنشطة الاجتماعية',
+      icon: Heart,
+      title: t('domain_social_title'),
+      desc: t('domain_social_desc'),
+      points: language === 'ar'
+        ? ['قوافل إغاثية ومساعدات عينية للأسر المتعففة', 'حملات تطوعية للنظافة والعناية بالبيئة في كاندي', 'زيارات تضامنية للمرضى والمحتاجين']
+        : ['Actions solidaires envers les familles démunies', 'Journées citoyennes de salubrité publique à Kandi', 'Visites de soutien et réconfort communautaire'],
+    },
+    {
+      id: 'conferences',
+      label: t('cat_conferences'),
+      filterKey: 'المحاضرات واللقاءات',
+      icon: MessageSquare,
+      title: t('domain_conferences_title'),
+      desc: t('domain_conferences_desc'),
+      points: language === 'ar'
+        ? ['محاضرات عامة يحاضر فيها أساتذة ومصلحون', 'ندوات تفاعلية لمعالجة تحديات الشباب المعاصرة', 'لقاءات مفتوحة لتعزيز التعايش والسلم الأهلي']
+        : ['Grandes conférences publiques avec des intervenants de référence', 'Colloques thématiques sur les défis contemporains', 'Débats ouverts promouvant la paix et le vivre-ensemble'],
+    },
+    {
+      id: 'events',
+      label: t('cat_events'),
+      filterKey: 'الفعاليات والمناسبات',
+      icon: Calendar,
+      title: t('domain_events_title'),
+      desc: t('domain_events_desc'),
+      points: language === 'ar'
+        ? ['حفل سنوي لتكريم المتميزين والمتفوقين', 'المشاركة الفاعلة في المناسبات الوطنية والمجتمعية', 'ملتقيات إقليمية للشباب المسلم']
+        : ['Cérémonie d\'excellence récompensant les jeunes méritants', 'Participation aux célébrations d\'intérêt général', 'Rassemblements régionaux de jeunesse'],
+    },
   ];
 
-  return (
-    <div className="py-12 bg-stone-50 min-h-screen space-y-12 text-right">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-        {/* Section Header */}
-        <div className="max-w-3xl space-y-3 border-b border-stone-200 pb-8">
-          <span className="text-xs font-bold text-[#16A34A] uppercase tracking-widest">
-            الأنشطة المدرسية واللاصفية
-          </span>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-stone-900 tracking-tight">
-            أنشطة مجمع العون المباشر
-          </h1>
-          <p className="text-base text-stone-600 leading-relaxed">
-            لأن التعليم بناء شامل للشخصية، نقدم برامج حيوية تشمل المسابقات القرآنية، نوادي الروبوت، دوريات كرة القدم والرحلات الثقافية الهادفة.
-          </p>
-        </div>
+  const displayedCategories =
+    selectedSubTab === 'all'
+      ? categories.filter((c) => c.id !== 'all')
+      : categories.filter((c) => c.id === selectedSubTab);
 
-        {/* Sub-navigation Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none border-b border-stone-200">
-          {subCategories.map((sub) => {
+  return (
+    <div className={`space-y-12 pb-20 ${isRTL ? 'text-right' : 'text-left'}`}>
+      {/* En-tête de page atmosphérique */}
+      <PageHeader
+        title={t('nav_activities')}
+        subtitle={
+          language === 'ar'
+            ? 'تتنوع مبادرات الجمعية لتشمل الجوانب الثقافية، التعليمية، الاجتماعية والشبابية لبناء جيل نافع لمجتمعه.'
+            : 'Découvrez l\'ensemble des programmes déployés par l\'A.J.M.C pour dynamiser la vie culturelle et sociale à Kandi.'
+        }
+        kicker="A.J.M.C — Kandi · Pôles d'Action & Initiatives"
+        icon={Layers}
+      >
+        {/* Onglets de sous-catégories intégrés à l'en-tête */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none pt-2">
+          {categories.map((sub) => {
             const isActive = selectedSubTab === sub.id;
             return (
               <button
                 key={sub.id}
                 onClick={() => setSelectedSubTab(sub.id)}
-                className={`px-4 py-2 text-xs font-bold rounded-lg whitespace-nowrap transition-colors cursor-pointer ${
+                className={`px-4 py-2 text-xs font-bold rounded-xl whitespace-nowrap transition-all cursor-pointer shadow-xs ${
                   isActive
-                    ? 'bg-[#16A34A] text-white shadow-xs'
-                    : 'bg-white text-stone-700 border border-stone-200 hover:bg-stone-100'
+                    ? 'bg-[#0F5132] text-white border border-emerald-500/60 shadow-lg shadow-emerald-950/40'
+                    : 'bg-emerald-950/70 text-emerald-200 border border-emerald-800/60 hover:bg-emerald-900/60 backdrop-blur-xs'
                 }`}
               >
-                {sub.label}
+                <span>{sub.label}</span>
               </button>
             );
           })}
         </div>
+      </PageHeader>
 
-        {/* 1. Activités Pédagogiques */}
-        {(selectedSubTab === 'all' || selectedSubTab === 'pedagogique') && (
-          <div className="bg-white rounded-2xl border border-stone-200 p-8 shadow-xs grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-5 rounded-xl overflow-hidden aspect-4/3 bg-stone-100 shadow-sm">
-              <img
-                src={SCHOOL_IMAGES.activityPedagogique}
-                alt="الأنشطة العلمية والمختبرات"
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="lg:col-span-7 space-y-4">
-              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#16A34A]">
-                <BookOpen className="w-4 h-4 text-[#16A34A]" />
-                <span>العلوم، التكنولوجيا واللغات</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900">
-                الأنشطة العلمية والتطبيقية
-              </h2>
-              <p className="text-sm text-stone-600 leading-relaxed">
-                نوفر بيئة تفاعلية لاكتساب المهارات الرقمية والبحث العلمي من خلال التجارب المعملية والنوادي التكنولوجية ومسابقات المناظرة اللغوية.
-              </p>
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-stone-700 pt-1">
-                <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#16A34A]" />
-                  <span>نادي البرمجة والحاسوب للمبتدئين والمتقدمين</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#16A34A]" />
-                  <span>أولمبياد الرياضيات والعلوم الطبيعية</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#16A34A]" />
-                  <span>نادي المناظرة باللغتين العربية والفرنسية</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#16A34A]" />
-                  <span>دروس التقوية والمتابعة الأكاديمية المجانية</span>
-                </li>
-              </ul>
-              <div className="pt-2">
-                <button
-                  onClick={() => onSelectTab('videos', 'الأنشطة التعليمية')}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
-                >
-                  <Youtube className="w-3.5 h-3.5 text-red-500" />
-                  <span>مشاهدة فيديوهات الأنشطة العلمية</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+        {/* Grille des activités avec surfaces chaleureuses */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {displayedCategories.map((item) => {
+            const Icon = item.icon || Layers;
+            return (
+              <div
+                key={item.id}
+                className="bg-white/95 rounded-3xl border border-stone-200/90 p-8 sm:p-10 shadow-sm hover:shadow-md hover:border-emerald-700/30 transition-all duration-300 flex flex-col justify-between space-y-6 backdrop-blur-xs"
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 text-[#0F5132] flex items-center justify-center shadow-xs">
+                      <Icon className="w-6 h-6" />
+                    </div>
+                    <span className="text-[11px] font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/60">
+                      {item.label}
+                    </span>
+                  </div>
 
-        {/* 2. Activités Culturelles */}
-        {(selectedSubTab === 'all' || selectedSubTab === 'culturelle') && (
-          <div className="bg-white rounded-2xl border border-stone-200 p-8 shadow-xs grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-5 lg:order-2 rounded-xl overflow-hidden aspect-4/3 bg-stone-100 shadow-sm">
-              <img
-                src={SCHOOL_IMAGES.activityCulturelle}
-                alt="المسابقات الثقافية والقرآنية"
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="lg:col-span-7 lg:order-1 space-y-4">
-              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#16A34A]">
-                <Music className="w-4 h-4 text-[#16A34A]" />
-                <span>القرآن الكريم، الفنون والخطابة</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900">
-                الأنشطة الثقافية والقرآنية
-              </h2>
-              <p className="text-sm text-stone-600 leading-relaxed">
-                يحتل حفظ القرآن الكريم وتعلم قواعد التجويد مكانة مركزية في مسار طلابنا، إلى جانب الخط العربي والمسرح التعليمي الهادف وفنون الإنشاد.
-              </p>
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-stone-700 pt-1">
-                <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#16A34A]" />
-                  <span>المسابقة الوطنية السنوية لحفظ وتجويد القرآن الكريم</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#16A34A]" />
-                  <span>ورش الخط العربي والزخرفة الإسلامية</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#16A34A]" />
-                  <span>فرقة المسرح المدرسي والاسكتشات التربوية</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#16A34A]" />
-                  <span>الأناشيد الهادفة وإلقاء الشعر العربي الفصيح</span>
-                </li>
-              </ul>
-              <div className="pt-2">
-                <button
-                  onClick={() => onSelectTab('videos', 'الأنشطة الثقافية')}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
-                >
-                  <Youtube className="w-3.5 h-3.5 text-red-500" />
-                  <span>مشاهدة مسابقات القرآن والخطابة</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+                  <h3 className="text-xl sm:text-2xl font-extrabold text-stone-900 leading-snug">
+                    {item.title}
+                  </h3>
 
-        {/* 3. Activités Sportives */}
-        {(selectedSubTab === 'all' || selectedSubTab === 'sportive') && (
-          <div className="bg-white rounded-2xl border border-stone-200 p-8 shadow-xs grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-5 rounded-xl overflow-hidden aspect-4/3 bg-stone-100 shadow-sm">
-              <img
-                src={SCHOOL_IMAGES.activitySportive}
-                alt="البطولات الرياضية وكرة القدم"
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="lg:col-span-7 space-y-4">
-              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700">
-                <Trophy className="w-4 h-4 text-blue-700" />
-                <span>الرياضة المدرسية واللياقة البدنية</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900">
-                الأنشطة والبطولات الرياضية
-              </h2>
-              <p className="text-sm text-stone-600 leading-relaxed">
-                العقل السليم في الجسم السليم؛ ينظم المجمع دوريات دورية في كرة القدم وألعاب القوى تزرع روح التآخي والتعاون والمنافسة الإيجابية.
-              </p>
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-stone-700 pt-1">
-                <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#16A34A]" />
-                  <span>دوري العون المباشر السنوي لكرة القدم بين الفروع</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#16A34A]" />
-                  <span>سباقات الجري والعدو الريفي السنوي</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#16A34A]" />
-                  <span>دوري كرة اليد وكرة السلة للبنين والبنات</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#16A34A]" />
-                  <span>اليوم الرياضي العائلي المفتوح</span>
-                </li>
-              </ul>
-              <div className="pt-2">
-                <button
-                  onClick={() => onSelectTab('videos', 'الأنشطة الرياضية')}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
-                >
-                  <Youtube className="w-3.5 h-3.5 text-red-500" />
-                  <span>مشاهدة أهداف ومباريات المجمع</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+                  <p className="text-sm text-stone-600 leading-relaxed font-medium">
+                    {item.desc}
+                  </p>
 
-        {/* 4. Sorties Scolaires */}
-        {(selectedSubTab === 'all' || selectedSubTab === 'sortie') && (
-          <div className="bg-white rounded-2xl border border-stone-200 p-8 shadow-xs grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-5 lg:order-2 rounded-xl overflow-hidden aspect-4/3 bg-stone-100 shadow-sm">
-              <img
-                src={SCHOOL_IMAGES.activitySortie}
-                alt="الرحلات المدرسية الميدانية"
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="lg:col-span-7 lg:order-1 space-y-4">
-              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-700">
-                <Compass className="w-4 h-4 text-amber-700" />
-                <span>الرحلات والاستكشاف الميداني</span>
+                  {/* Points clés */}
+                  {item.points && (
+                    <ul className="space-y-2.5 pt-2 border-t border-stone-100">
+                      {item.points.map((pt, idx) => (
+                        <li key={idx} className="flex items-start gap-2.5 text-xs text-stone-600">
+                          <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0 mt-0.5" />
+                          <span className="leading-relaxed">{pt}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                {/* Lien vers vidéos associées */}
+                {item.filterKey && (
+                  <div className="pt-4 border-t border-stone-100">
+                    <button
+                      onClick={() => onSelectTab('mediatheque', item.filterKey)}
+                      className="text-xs font-bold text-[#0F5132] hover:text-[#16A34A] transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Film className="w-3.5 h-3.5" />
+                      <span>
+                        {language === 'ar'
+                          ? `مشاهدة تغطيات ${item.label} على يوتيوب`
+                          : `Voir les enregistrements : ${item.label}`}
+                      </span>
+                      <ArrowIcon className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
               </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900">
-                الرحلات والزيارات الميدانية
-              </h2>
-              <p className="text-sm text-stone-600 leading-relaxed">
-                ترسيخاً لربط التعليم بالحياة الواقعية، ينظم المجمع رحلات تعليمية واستطلاعية للتعرف على معالم بنين التاريخية والطبيعية والاقتصادية.
-              </p>
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-stone-700 pt-1">
-                <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#16A34A]" />
-                  <span>زيارة المعالم والمتاحف التاريخية في مدينة ويداه</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#16A34A]" />
-                  <span>جولة استكشافية للقرية العائمة في جانفييه (Ganvié)</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#16A34A]" />
-                  <span>رحلات علمية للمحميات الطبيعية ومزارع الإنتاج</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-[#16A34A]" />
-                  <span>مخيمات كشفية وتربوية لتعزيز الاعتماد على النفس</span>
-                </li>
-              </ul>
-              <div className="pt-2">
-                <button
-                  onClick={() => onSelectTab('videos', 'الرحلات المدرسية')}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
-                >
-                  <Youtube className="w-3.5 h-3.5 text-red-500" />
-                  <span>مشاهدة تسجيلات وتقارير الرحلات</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

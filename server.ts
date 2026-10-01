@@ -1,9 +1,11 @@
 import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import type { Video, SyncStatus, VideoCategory, VideoStatus } from './src/types/video.ts';
+import type { GalleryAlbum, GalleryPhoto, GalleryStats } from './src/types/gallery.ts';
 
 dotenv.config();
 
@@ -14,7 +16,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const isProduction = process.env.NODE_ENV === 'production';
 
-app.use(express.json());
+// Support base64 uploads and large payloads for gallery images
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // CORS & Security headers for seamless API access from UI and preview proxies
 app.use((req, res, next) => {
@@ -38,7 +42,7 @@ const YOUTUBE_OFFICIAL_CHANNEL_URL = 'https://www.youtube.com/@Madjid-r3c';
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || '';
 const SYNC_INTERVAL_MINUTES = parseInt(process.env.SYNC_INTERVAL_MINUTES || '15', 10);
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'directaid2026';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'ajmc2026';
 
 // Initialize Supabase if configured
 let supabase: SupabaseClient | null = null;
@@ -59,13 +63,13 @@ const initialVideos: Video[] = [
     id: 'vid-001',
     youtube_id: 'dQw4w9WgXcQ',
     youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    title: 'حفل تكريم أوائل الطلاب وتوزيع جوائز التميز — مجمع العون المباشر بنين دفعة 2026',
-    description: 'تغطية مصورة لفعاليات الحفل السنوي لتكريم المتفوقين في امتحانات الشهادة الإعدادية والثانوية العامة بحضور ممثلي جمعية العون المباشر وأولياء الأمور.',
-    thumbnail_url: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&auto=format&fit=crop&q=80',
+    title: 'الملتقى السنوي للشباب المسلم بمدينة كاندي — جمعية الشباب المسلم للثقافة',
+    description: 'تغطية وثائقية شاملة لفعاليات الملتقى السنوي الذي تنظمه جمعية الشباب المسلم للثقافة (A.J.M.C) في كاندي بحضور نخبة من الشباب والمهتمين بالشأن الثقافي والاجتماعي.',
+    thumbnail_url: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800&auto=format&fit=crop&q=80',
     published_at: '2026-09-22T10:00:00Z',
-    channel_id: YOUTUBE_CHANNEL_ID || 'UC_directaid_benin',
-    playlist_id: 'PL_ceremonies_directaid',
-    category: 'الحفلات والمناسبات',
+    channel_id: YOUTUBE_CHANNEL_ID || 'UCN0WZndfRXylOspFwildeMg',
+    playlist_id: 'PL_ajmc_rencontres',
+    category: 'الأنشطة الثقافية',
     duration: '06:45',
     status: 'ACTIVE',
     created_at: '2026-09-22T10:30:00Z',
@@ -75,14 +79,14 @@ const initialVideos: Video[] = [
     id: 'vid-002',
     youtube_id: 'LXb3EKWsInQ',
     youtube_url: 'https://www.youtube.com/watch?v=LXb3EKWsInQ',
-    title: 'المباراة النهائية لدوري كرة القدم بين المراكز التعليمية للعون المباشر في بنين',
-    description: 'أجواء حماسية وتنافس رياضي شريف في ملعب المجمع التعليمي بين منتخبات كوتونو، بورتو نوفو، وباراكو بمشاركة واسعة من الطلاب والمعلمين.',
-    thumbnail_url: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800&auto=format&fit=crop&q=80',
+    title: 'محاضرة عامة: «الشباب، الأخلاق وروح المبادرة في تنمية المجتمع»',
+    description: 'ندوة فكرية وتوجيهية تناولت أهمية تمكين الشباب وغرس القيم الفاضلة ومبادئ العمل التطوعي لخدمة مدينة كاندي والمجتمع البنيني.',
+    thumbnail_url: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&auto=format&fit=crop&q=80',
     published_at: '2026-09-17T15:30:00Z',
-    channel_id: YOUTUBE_CHANNEL_ID || 'UC_directaid_benin',
-    playlist_id: 'PL_sport_directaid',
-    category: 'الأنشطة الرياضية',
-    duration: '05:12',
+    channel_id: YOUTUBE_CHANNEL_ID || 'UCN0WZndfRXylOspFwildeMg',
+    playlist_id: 'PL_ajmc_conferences',
+    category: 'المحاضرات واللقاءات',
+    duration: '08:30',
     status: 'ACTIVE',
     created_at: '2026-09-17T16:00:00Z',
     updated_at: '2026-09-17T16:00:00Z',
@@ -91,14 +95,14 @@ const initialVideos: Video[] = [
     id: 'vid-003',
     youtube_id: 'kJQP7kiw5Fk',
     youtube_url: 'https://www.youtube.com/watch?v=kJQP7kiw5Fk',
-    title: 'المسابقة السنوية الكبرى لحفظ وتلاوة القرآن الكريم وفنون الخطابة',
-    description: 'نماذج مشرقة من طلاب وطالبات مجمع العون المباشر يبدعون في ترتيل القرآن الكريم وتجويده وتقديم خطب بليغة باللغتين العربية والفرنسية.',
+    title: 'المسابقة القرآنية السنوية وفنون الخطابة والإلقاء بمدينة كاندي',
+    description: 'حفل ختام مسابقة تجويد وحفظ القرآن الكريم وفنون الخطابة لشباب كاندي بمشاركة متسابقين متميزين وتكريم الفائزين بجوائز تشجيعية.',
     thumbnail_url: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800&auto=format&fit=crop&q=80',
     published_at: '2026-09-11T14:00:00Z',
-    channel_id: YOUTUBE_CHANNEL_ID || 'UC_directaid_benin',
-    playlist_id: 'PL_culture_directaid',
-    category: 'الأنشطة الثقافية',
-    duration: '08:30',
+    channel_id: YOUTUBE_CHANNEL_ID || 'UCN0WZndfRXylOspFwildeMg',
+    playlist_id: 'PL_ajmc_religieux',
+    category: 'الأنشطة الدينية',
+    duration: '07:20',
     status: 'ACTIVE',
     created_at: '2026-09-11T14:30:00Z',
     updated_at: '2026-09-11T14:30:00Z',
@@ -107,14 +111,14 @@ const initialVideos: Video[] = [
     id: 'vid-004',
     youtube_id: 'fJ9rUzIMcZQ',
     youtube_url: 'https://www.youtube.com/watch?v=fJ9rUzIMcZQ',
-    title: 'يوم العلوم والتجارب المخبرية والذكاء الاصطناعي في مختبرات المجمع',
-    description: 'تطبيقات علمية عملية في مجالات الفيزياء، الكيمياء، وعلوم الحياة والبرمجة الروبوتية أعدها ونفذها طلاب المرحلة الثانوية.',
-    thumbnail_url: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&auto=format&fit=crop&q=80',
+    title: 'ورشة التدريب على المهارات الرقمية ومنهجية إدارة المبادرات التطوعية',
+    description: 'دورة تكوينية تطبيقية استهدفت أعضاء الجمعية والشباب المهتمين بالتقنيات الحديثة وإدارة المشاريع المجتمعية وتوثيق الأنشطة.',
+    thumbnail_url: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&auto=format&fit=crop&q=80',
     published_at: '2026-09-06T09:00:00Z',
-    channel_id: YOUTUBE_CHANNEL_ID || 'UC_directaid_benin',
-    playlist_id: 'PL_pedago_directaid',
+    channel_id: YOUTUBE_CHANNEL_ID || 'UCN0WZndfRXylOspFwildeMg',
+    playlist_id: 'PL_ajmc_formation',
     category: 'الأنشطة التعليمية',
-    duration: '04:45',
+    duration: '05:45',
     status: 'ACTIVE',
     created_at: '2026-09-06T09:30:00Z',
     updated_at: '2026-09-06T09:30:00Z',
@@ -123,14 +127,14 @@ const initialVideos: Video[] = [
     id: 'vid-005',
     youtube_id: '9bZkp7q19f0',
     youtube_url: 'https://www.youtube.com/watch?v=9bZkp7q19f0',
-    title: 'رحلة استكشافية وتعليمية لطلاب المجمع إلى المعالم التاريخية في ويداه وجانفييه',
-    description: 'رحلة ميدانية غنية بالمعرفة هدفت لتعريف الطلاب بتاريخ وثقافة بنين والبيئة المائية في إطار الأنشطة اللاصفية الهادفة.',
-    thumbnail_url: 'https://images.unsplash.com/photo-1544717302-de2939b7ef71?w=800&auto=format&fit=crop&q=80',
+    title: 'المبادرة الإنسانية وحملة التكافل الاجتماعي والتضامن مع الأسر المتعففة',
+    description: 'تقرير مصور حول جهود شباب جمعية A.J.M.C في تقديم السلال الغذائية والمساعدات العينية ومساندة المحتاجين في أحياء كاندي.',
+    thumbnail_url: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&auto=format&fit=crop&q=80',
     published_at: '2026-08-30T16:00:00Z',
-    channel_id: YOUTUBE_CHANNEL_ID || 'UC_directaid_benin',
-    playlist_id: 'PL_sorties_directaid',
-    category: 'الرحلات المدرسية',
-    duration: '06:10',
+    channel_id: YOUTUBE_CHANNEL_ID || 'UCN0WZndfRXylOspFwildeMg',
+    playlist_id: 'PL_ajmc_social',
+    category: 'الأنشطة الاجتماعية',
+    duration: '04:15',
     status: 'ACTIVE',
     created_at: '2026-08-30T16:30:00Z',
     updated_at: '2026-08-30T16:30:00Z',
@@ -139,14 +143,14 @@ const initialVideos: Video[] = [
     id: 'vid-006',
     youtube_id: '3JZ_D3ELwOQ',
     youtube_url: 'https://www.youtube.com/watch?v=3JZ_D3ELwOQ',
-    title: 'افتتاح العام الدراسي الجديد 2026-2027 وكلمة مدير مكتب العون المباشر بنين',
-    description: 'استقبال الطلاب والطالبات الجدد، وتوزيع الحقائب المدرسية، مع كلمة توجيهية عن أهمية الجد والاجتهاد والأخلاق الفاضلة في مسيرة التعليم.',
-    thumbnail_url: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=800&auto=format&fit=crop&q=80',
+    title: 'دوري الأخوة الرياضي لشباب مدينة كاندي — تعزيز روح التآخي والتعاون',
+    description: 'أجواء رياضية وأخوية مميزة جمعت شباب الجمعية في بطولة كرة القدم لتعزيز أواصر المحبة والنشاط البدني الإيجابي.',
+    thumbnail_url: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800&auto=format&fit=crop&q=80',
     published_at: '2026-09-01T08:00:00Z',
-    channel_id: YOUTUBE_CHANNEL_ID || 'UC_directaid_benin',
-    playlist_id: 'PL_ceremonies_directaid',
-    category: 'الحفلات والمناسبات',
-    duration: '07:20',
+    channel_id: YOUTUBE_CHANNEL_ID || 'UCN0WZndfRXylOspFwildeMg',
+    playlist_id: 'PL_ajmc_sport',
+    category: 'أنشطة الشباب',
+    duration: '05:12',
     status: 'ACTIVE',
     created_at: '2026-09-01T08:30:00Z',
     updated_at: '2026-09-01T08:30:00Z',
@@ -164,7 +168,7 @@ let syncStatusState: SyncStatus = {
   totalVideosCount: localVideosStore.length,
   activeVideosCount: localVideosStore.filter((v) => v.status === 'ACTIVE').length,
   channelId: YOUTUBE_CHANNEL_ID || null,
-  channelTitle: 'قناة مجمع العون المباشر بنين الرسمية',
+  channelTitle: 'A.J.M.C — Association des Jeunes Musulmans pour la Culture (Kandi)',
   hasApiKey: Boolean(YOUTUBE_API_KEY && !YOUTUBE_API_KEY.includes('AIzaSyXXXXX')),
   hasChannelId: Boolean(YOUTUBE_CHANNEL_ID && !YOUTUBE_CHANNEL_ID.includes('UC_x5XG1OV2P6uZZ5FSM9Ttw')),
   hasSupabase: Boolean(supabase),
@@ -197,26 +201,32 @@ function parseISODuration(durationStr: string): string {
   return `${formattedMin}:${formattedSec}`;
 }
 
-// 6. Catégorisation automatique :
+// 6. Catégorisation automatique adaptée à l'A.J.M.C (Association des Jeunes Musulmans pour la Culture) :
 // Priorité 1 : Playlist YouTube
 // Priorité 2 : Mots-clés du titre / de la description
 // Priorité 3 : Catégorie générale 'عام'
 function inferCategoryFromPlaylist(playlistTitle: string): VideoCategory | null {
   const p = playlistTitle.toLowerCase();
-  if (p.includes('sport') || p.includes('foot') || p.includes('رياض') || p.includes('كرة') || p.includes('دوري') || p.includes('مباراة')) {
-    return 'الأنشطة الرياضية';
+  if (p.includes('conférence') || p.includes('rencontre') || p.includes('débat') || p.includes('محاضر') || p.includes('ندوة') || p.includes('لقاء') || p.includes('درس')) {
+    return 'المحاضرات واللقاءات';
   }
-  if (p.includes('culture') || p.includes('قرآن') || p.includes('تلاوة') || p.includes('تجويد') || p.includes('ثقاف') || p.includes('إنشاد') || p.includes('خطاب') || p.includes('شعر')) {
+  if (p.includes('religie') || p.includes('islam') || p.includes('coran') || p.includes('قرآن') || p.includes('تلاوة') || p.includes('تجويد') || p.includes('دين') || p.includes('دعوة') || p.includes('إسلام')) {
+    return 'الأنشطة الدينية';
+  }
+  if (p.includes('jeune') || p.includes('chabab') || p.includes('شباب') || p.includes('فتيان') || p.includes('ناشئة') || p.includes('formation') || p.includes('atelier')) {
+    return 'أنشطة الشباب';
+  }
+  if (p.includes('social') || p.includes('solidar') || p.includes('aide') || p.includes('خير') || p.includes('إحسان') || p.includes('تضامن') || p.includes('إغاث') || p.includes('مجتمع')) {
+    return 'الأنشطة الاجتماعية';
+  }
+  if (p.includes('culture') || p.includes('ثقاف') || p.includes('شعر') || p.includes('مسرح') || p.includes('أدب') || p.includes('إنشاد')) {
     return 'الأنشطة الثقافية';
   }
-  if (p.includes('pédago') || p.includes('science') || p.includes('تعليم') || p.includes('علوم') || p.includes('مخبر') || p.includes('مختبر') || p.includes('حاسوب') || p.includes('درس')) {
+  if (p.includes('éducat') || p.includes('pédago') || p.includes('تعليم') || p.includes('معرفة') || p.includes('علم') || p.includes('دورة')) {
     return 'الأنشطة التعليمية';
   }
-  if (p.includes('sortie') || p.includes('رحل') || p.includes('زيار') || p.includes('استكشاف') || p.includes('ميدان')) {
-    return 'الرحلات المدرسية';
-  }
-  if (p.includes('cérémonie') || p.includes('حفل') || p.includes('تخرج') || p.includes('تكريم') || p.includes('مناسب') || p.includes('افتتاح')) {
-    return 'الحفلات والمناسبات';
+  if (p.includes('événement') || p.includes('célébration') || p.includes('fête') || p.includes('مناسب') || p.includes('احتفال') || p.includes('عيد') || p.includes('مهرجان') || p.includes('فعال')) {
+    return 'الفعاليات والمناسبات';
   }
   return null;
 }
@@ -224,61 +234,95 @@ function inferCategoryFromPlaylist(playlistTitle: string): VideoCategory | null 
 function inferCategoryFromText(title: string, description: string): VideoCategory {
   const combined = `${title} ${description}`.toLowerCase();
   if (
-    combined.includes('sport') ||
-    combined.includes('foot') ||
-    combined.includes('رياض') ||
-    combined.includes('كرة') ||
-    combined.includes('دوري') ||
-    combined.includes('سباق') ||
-    combined.includes('مباراة')
+    combined.includes('conférence') ||
+    combined.includes('rencontre') ||
+    combined.includes('débat') ||
+    combined.includes('محاضر') ||
+    combined.includes('ندوة') ||
+    combined.includes('لقاء') ||
+    combined.includes('خطبة') ||
+    combined.includes('درس')
   ) {
-    return 'الأنشطة الرياضية';
+    return 'المحاضرات واللقاءات';
   }
   if (
-    combined.includes('culture') ||
+    combined.includes('coran') ||
+    combined.includes('quran') ||
+    combined.includes('islam') ||
+    combined.includes('religie') ||
     combined.includes('قرآن') ||
     combined.includes('تلاوة') ||
     combined.includes('تجويد') ||
-    combined.includes('إنشاد') ||
+    combined.includes('دين') ||
+    combined.includes('دعوة') ||
+    combined.includes('إسلام') ||
+    combined.includes('حديث') ||
+    combined.includes('سنة')
+  ) {
+    return 'الأنشطة الدينية';
+  }
+  if (
+    combined.includes('jeunesse') ||
+    combined.includes('jeune') ||
+    combined.includes('chabab') ||
+    combined.includes('شباب') ||
+    combined.includes('فتيان') ||
+    combined.includes('مخيم') ||
+    combined.includes('رياض') ||
+    combined.includes('sport') ||
+    combined.includes('tournoi')
+  ) {
+    return 'أنشطة الشباب';
+  }
+  if (
+    combined.includes('social') ||
+    combined.includes('solidarité') ||
+    combined.includes('communaut') ||
+    combined.includes('charité') ||
+    combined.includes('اجتماع') ||
+    combined.includes('تضامن') ||
+    combined.includes('خير') ||
+    combined.includes('إحسان') ||
+    combined.includes('مساعدة') ||
+    combined.includes('إطعام')
+  ) {
+    return 'الأنشطة الاجتماعية';
+  }
+  if (
+    combined.includes('culture') ||
     combined.includes('ثقاف') ||
-    combined.includes('مسرح') ||
+    combined.includes('إنشاد') ||
+    combined.includes('نشيد') ||
+    combined.includes('مسابقة') ||
     combined.includes('شعر') ||
-    combined.includes('خطاب')
+    combined.includes('أدب') ||
+    combined.includes('تراث')
   ) {
     return 'الأنشطة الثقافية';
   }
   if (
-    combined.includes('pédago') ||
-    combined.includes('science') ||
+    combined.includes('éducat') ||
+    combined.includes('formation') ||
+    combined.includes('atelier') ||
     combined.includes('تعليم') ||
-    combined.includes('علوم') ||
-    combined.includes('مخبر') ||
-    combined.includes('مختبر') ||
-    combined.includes('حاسوب') ||
-    combined.includes('روبوت') ||
-    combined.includes('درس') ||
-    combined.includes('دراسة')
+    combined.includes('تربوي') ||
+    combined.includes('دورة') ||
+    combined.includes('تأهيل')
   ) {
     return 'الأنشطة التعليمية';
   }
   if (
-    combined.includes('sortie') ||
-    combined.includes('رحل') ||
-    combined.includes('زيار') ||
-    combined.includes('متحف') ||
-    combined.includes('استكشاف')
-  ) {
-    return 'الرحلات المدرسية';
-  }
-  if (
-    combined.includes('حفل') ||
-    combined.includes('تخرج') ||
-    combined.includes('تكريم') ||
+    combined.includes('fête') ||
+    combined.includes('célébration') ||
+    combined.includes('événement') ||
+    combined.includes('anniversaire') ||
     combined.includes('مناسب') ||
+    combined.includes('احتفال') ||
+    combined.includes('عيد') ||
     combined.includes('افتتاح') ||
-    combined.includes('cérémonie')
+    combined.includes('مهرجان')
   ) {
-    return 'الحفلات والمناسبات';
+    return 'الفعاليات والمناسبات';
   }
 
   return 'عام';
@@ -848,19 +892,847 @@ app.get('/api/sync/status', (_req: Request, res: Response) => {
   });
 });
 
-// 3. POST /api/admin/login - Authentification pour l'espace d'administration et diagnostic
-app.post('/api/admin/login', (req: Request, res: Response) => {
-  const { password } = req.body;
-  if (!password || password !== ADMIN_PASSWORD) {
-    res.status(401).json({ error: 'Mot de passe administrateur incorrect.' });
+// ==============================================================================
+// GESTION DE LA SÉCURITÉ & AUTHENTIFICATION ADMIN (A.J.M.C)
+// ==============================================================================
+
+// Clé de signature interne dérivée automatiquement du mot de passe admin (sans configuration requise)
+const ADMIN_SESSION_SECRET = crypto
+  .createHash('sha256')
+  .update((process.env.ADMIN_PASSWORD || 'ajmc2026') + '_ajmc_kandi_session_salt_2026')
+  .digest('hex');
+
+function generateAdminToken(payload: { email?: string; role: string }) {
+  const data = JSON.stringify({ ...payload, exp: Date.now() + 7 * 24 * 60 * 60 * 1000 });
+  const b64 = Buffer.from(data).toString('base64');
+  const signature = crypto.createHmac('sha256', ADMIN_SESSION_SECRET).update(b64).digest('hex');
+  return `${b64}.${signature}`;
+}
+
+function verifyAdminToken(token: string): boolean {
+  if (!token) return false;
+  const parts = token.split('.');
+  if (parts.length !== 2) return false;
+  const [b64, signature] = parts;
+  const expectedSignature = crypto.createHmac('sha256', ADMIN_SESSION_SECRET).update(b64).digest('hex');
+  if (signature !== expectedSignature) return false;
+  try {
+    const payload = JSON.parse(Buffer.from(b64, 'base64').toString('utf8'));
+    if (payload.exp && payload.exp < Date.now()) return false;
+    return payload.role === 'admin';
+  } catch {
+    return false;
+  }
+}
+
+const requireAdmin = (req: Request, res: Response, next: () => void) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    res.status(401).json({ error: 'Accès refusé. Veuillez vous connecter à l\'espace d\'administration.' });
     return;
   }
-  // Authentification réussie
+  const token = authHeader.split(' ')[1];
+  if (!verifyAdminToken(token)) {
+    res.status(403).json({ error: 'Session expirée ou non autorisée. Veuillez vous reconnecter.' });
+    return;
+  }
+  next();
+};
+
+// ==============================================================================
+// MAGASIN LOCAL DE SECOURS POUR LA GALERIE (EN L'ABSENCE DE TABLES SUPABASE)
+// ==============================================================================
+
+let localAlbumsStore: GalleryAlbum[] = [
+  {
+    id: 'alb-001',
+    title_fr: 'Rencontre annuelle de la jeunesse musulmane à Kandi',
+    title_ar: 'الملتقى السنوي للشباب المسلم بمدينة كاندي',
+    description_fr: 'Journée d\'échanges, d\'ateliers méthodologiques et de tables rondes fraternelles réunissant les jeunes engagés de la commune de Kandi.',
+    description_ar: 'فعاليات الملتقى السنوي التفاعلي الذي جمع شباب مدينة كاندي حول قيم الأخوة، والعمل المشترك، وصقل المهارات.',
+    cover_url: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800&auto=format&fit=crop&q=80',
+    event_date: '2026-09-25',
+    category: 'Activités culturelles',
+    is_published: true,
+    sort_order: 1,
+    created_at: '2026-09-25T09:00:00Z',
+    updated_at: '2026-09-25T09:00:00Z',
+  },
+  {
+    id: 'alb-002',
+    title_fr: 'Conférence publique : Jeunesse, Éthique et Citoyenneté',
+    title_ar: 'محاضرة عامة: الشباب، الأخلاق والمواطنة الإيجابية',
+    description_fr: 'Conférence-débat ouverte au public avec des intervenants qualifiés autour de l\'apport des jeunes au développement local.',
+    description_ar: 'ندوة حوارية مفتوحة تناولت دور الشباب في تعزيز التماسك الاجتماعي والقيم الأخلاقية الفاضلة.',
+    cover_url: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&auto=format&fit=crop&q=80',
+    event_date: '2026-09-18',
+    category: 'Conférences et rencontres',
+    is_published: true,
+    sort_order: 2,
+    created_at: '2026-09-18T10:00:00Z',
+    updated_at: '2026-09-18T10:00:00Z',
+  },
+  {
+    id: 'alb-003',
+    title_fr: 'Ateliers de formation pratique et compétences numériques',
+    title_ar: 'ورش التدريب الميداني والمهارات الرقمية للشباب',
+    description_fr: 'Sessions d\'apprentissage en bureautique, création de contenus éducatifs et gestion de projets associatifs.',
+    description_ar: 'دورات تدريبية مكثفة لتمكين الشباب من أدوات المعلوميات والتسيير التشاركي للمبادرات التطوعية.',
+    cover_url: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&auto=format&fit=crop&q=80',
+    event_date: '2026-09-12',
+    category: 'Activités de jeunesse',
+    is_published: true,
+    sort_order: 3,
+    created_at: '2026-09-12T14:00:00Z',
+    updated_at: '2026-09-12T14:00:00Z',
+  },
+  {
+    id: 'alb-004',
+    title_fr: 'Campagne de solidarité et entraide communautaire',
+    title_ar: 'حملة التكافل الاجتماعي والتضامن مع الأسر',
+    description_fr: 'Distribution de vivres et actions d\'entraide au profit des familles vulnérables de la commune.',
+    description_ar: 'مبادرة إنسانية لتوزيع المعونات العينية ومساندة الأسر المتعففة في أحياء كاندي.',
+    cover_url: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&auto=format&fit=crop&q=80',
+    event_date: '2026-08-30',
+    category: 'Actions sociales',
+    is_published: true,
+    sort_order: 4,
+    created_at: '2026-08-30T08:00:00Z',
+    updated_at: '2026-08-30T08:00:00Z',
+  },
+];
+
+let localPhotosStore: GalleryPhoto[] = [
+  {
+    id: 'pho-001',
+    album_id: 'alb-001',
+    storage_path: null,
+    public_url: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=1200&auto=format&fit=crop&q=80',
+    title_fr: 'Ouverture de la journée annuelle des jeunes',
+    title_ar: 'افتتاح فعاليات الملتقى السنوي للشباب',
+    caption_fr: 'Les participants réunis dans la grande salle lors du mot de bienvenue des responsables de l\'A.J.M.C.',
+    caption_ar: 'المشاركون في القاعة الكبرى خلال الكلمة الافتتاحية لمسؤولي جمعية الشباب المسلم للثقافة.',
+    sort_order: 1,
+    is_published: true,
+    created_at: '2026-09-25T09:15:00Z',
+    updated_at: '2026-09-25T09:15:00Z',
+  },
+  {
+    id: 'pho-002',
+    album_id: 'alb-001',
+    storage_path: null,
+    public_url: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1200&auto=format&fit=crop&q=80',
+    title_fr: 'Atelier d\'échanges collaboratifs',
+    title_ar: 'ورشة نقاش تشاركية بين الشباب',
+    caption_fr: 'Groupes de travail sur les projets culturels et éducatifs à déployer pour l\'année à venir.',
+    caption_ar: 'مجموعات العمل حول المبادرات الثقافية والتربوية المزمع تنظيمها خلال السنة القادمة.',
+    sort_order: 2,
+    is_published: true,
+    created_at: '2026-09-25T11:30:00Z',
+    updated_at: '2026-09-25T11:30:00Z',
+  },
+  {
+    id: 'pho-003',
+    album_id: 'alb-001',
+    storage_path: null,
+    public_url: 'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=1200&auto=format&fit=crop&q=80',
+    title_fr: 'Photo commémorative de clôture',
+    title_ar: 'صورة جماعية في ختام الملتقى',
+    caption_fr: 'Moment de convivialité fraternelle rassemblant les membres bénévoles et les intervenants.',
+    caption_ar: 'لقطة تذكارية ختامية جسدت روح التآخي والتعاون المثمر بين المشاركين والمتطوعين.',
+    sort_order: 3,
+    is_published: true,
+    created_at: '2026-09-25T16:00:00Z',
+    updated_at: '2026-09-25T16:00:00Z',
+  },
+  {
+    id: 'pho-004',
+    album_id: 'alb-002',
+    storage_path: null,
+    public_url: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=1200&auto=format&fit=crop&q=80',
+    title_fr: 'Intervention d\'un conférencier invité',
+    title_ar: 'مداخلة المحاضر الضيف',
+    caption_fr: 'Exposé inspirant sur la transmission des valeurs et la responsabilité sociale des jeunes.',
+    caption_ar: 'عرض توجيهي متميز حول دور الشباب في خدمة المجتمع والتحلي بالقيم الفاضلة.',
+    sort_order: 1,
+    is_published: true,
+    created_at: '2026-09-18T10:30:00Z',
+    updated_at: '2026-09-18T10:30:00Z',
+  },
+  {
+    id: 'pho-005',
+    album_id: 'alb-003',
+    storage_path: null,
+    public_url: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&auto=format&fit=crop&q=80',
+    title_fr: 'Séance pratique sur les outils informatiques',
+    title_ar: 'جلسة تدريبية تطبيقية في الحاسوب',
+    caption_fr: 'Apprentissage des bases du traitement de texte, de la présentation assistée et de la recherche documentaire.',
+    caption_ar: 'تدريب تفاعلي على البرمجيات المكتبية الأساسية وإعداد العروض التقديمية.',
+    sort_order: 1,
+    is_published: true,
+    created_at: '2026-09-12T14:30:00Z',
+    updated_at: '2026-09-12T14:30:00Z',
+  },
+  {
+    id: 'pho-006',
+    album_id: 'alb-004',
+    storage_path: null,
+    public_url: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1200&auto=format&fit=crop&q=80',
+    title_fr: 'Préparation et remise des kits solidaires',
+    title_ar: 'تجهيز وتوزيع السلال التضامنية',
+    caption_fr: 'Les jeunes bénévoles de l\'A.J.M.C mobilisés pour la logistique et l\'acheminement des dons.',
+    caption_ar: 'شباب الجمعية أثناء تنظيم وتجهيز السلال الغذائية لتوزيعها على المستحقين.',
+    sort_order: 1,
+    is_published: true,
+    created_at: '2026-08-30T09:00:00Z',
+    updated_at: '2026-08-30T09:00:00Z',
+  },
+];
+
+// ==============================================================================
+// ROUTES AUTHENTIFICATION ADMIN
+// ==============================================================================
+
+// POST /api/admin/login
+app.post('/api/admin/login', async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  if (!password) {
+    res.status(400).json({ error: 'Mot de passe administrateur requis.' });
+    return;
+  }
+
+  let isAdmin = false;
+  let adminEmail = email || 'admin@ajmc-kandi.org';
+
+  // 1. Vérification Supabase Auth si configuré et email fourni
+  if (supabase && email && email.includes('@')) {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (!error && data?.user) {
+        const role = data.user.app_metadata?.role || data.user.user_metadata?.role;
+        if (role === 'admin' || data.user.email === process.env.ADMIN_EMAIL) {
+          isAdmin = true;
+          adminEmail = data.user.email || adminEmail;
+        }
+      }
+    } catch (err) {
+      console.warn('[Supabase Auth check failed]', err);
+    }
+  }
+
+  // 2. Vérification mot de passe maître de sécurité
+  if (!isAdmin && password === ADMIN_PASSWORD) {
+    isAdmin = true;
+  }
+
+  if (!isAdmin) {
+    res.status(401).json({ error: 'Identifiants ou mot de passe administrateur incorrects.' });
+    return;
+  }
+
+  const token = generateAdminToken({ email: adminEmail, role: 'admin' });
   res.json({
     authenticated: true,
-    token: Buffer.from(`admin_${Date.now()}`).toString('base64'),
-    message: 'Authentification réussie.',
+    token,
+    user: {
+      id: 'admin_user',
+      email: adminEmail,
+      role: 'admin',
+      name: 'Administration A.J.M.C',
+    },
+    message: 'Authentification administrateur réussie.',
   });
+});
+
+// GET /api/admin/verify
+app.get('/api/admin/verify', (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    res.status(401).json({ authenticated: false });
+    return;
+  }
+  const token = authHeader.split(' ')[1];
+  if (verifyAdminToken(token)) {
+    res.json({ authenticated: true, role: 'admin' });
+  } else {
+    res.status(401).json({ authenticated: false });
+  }
+});
+
+// POST /api/admin/logout
+app.post('/api/admin/logout', (req: Request, res: Response) => {
+  res.json({ success: true, message: 'Déconnexion effectuée avec succès.' });
+});
+
+// ==============================================================================
+// ROUTES PUBLIQUES DE LA GALERIE (ALBUMS & PHOTOS PUBLIÉS UNIQUEMENT)
+// ==============================================================================
+
+// GET /api/gallery/albums - Liste des albums publiés avec nombre de photos
+app.get('/api/gallery/albums', async (req: Request, res: Response) => {
+  try {
+    if (supabase) {
+      const { data: albums, error } = await supabase
+        .from('gallery_albums')
+        .select('*')
+        .eq('is_published', true)
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: false });
+
+      if (!error && albums) {
+        // Comptage des photos publiées par album
+        const { data: photoCounts } = await supabase
+          .from('gallery_photos')
+          .select('album_id')
+          .eq('is_published', true);
+
+        const countsMap: Record<string, number> = {};
+        if (photoCounts) {
+          for (const p of photoCounts) {
+            countsMap[p.album_id] = (countsMap[p.album_id] || 0) + 1;
+          }
+        }
+
+        const enriched = albums.map((alb) => ({
+          ...alb,
+          photo_count: countsMap[alb.id] || 0,
+        }));
+        res.json({ albums: enriched });
+        return;
+      }
+    }
+
+    // Repli sur le magasin en mémoire
+    const publishedAlbums = localAlbumsStore
+      .filter((a) => a.is_published)
+      .sort((a, b) => a.sort_order - b.sort_order || new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .map((alb) => ({
+        ...alb,
+        photo_count: localPhotosStore.filter((p) => p.album_id === alb.id && p.is_published).length,
+      }));
+
+    res.json({ albums: publishedAlbums });
+  } catch (err: any) {
+    console.error('[Gallery Albums Error]', err);
+    res.status(500).json({ error: 'Erreur lors de la récupération des albums.' });
+  }
+});
+
+// GET /api/gallery/albums/:id - Détails d'un album et ses photos publiées
+app.get('/api/gallery/albums/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (supabase) {
+      const { data: album, error: albumError } = await supabase
+        .from('gallery_albums')
+        .select('*')
+        .eq('id', id)
+        .eq('is_published', true)
+        .single();
+
+      if (!albumError && album) {
+        const { data: photos } = await supabase
+          .from('gallery_photos')
+          .select('*')
+          .eq('album_id', id)
+          .eq('is_published', true)
+          .order('sort_order', { ascending: true })
+          .order('created_at', { ascending: true });
+
+        res.json({
+          album,
+          photos: photos || [],
+        });
+        return;
+      }
+    }
+
+    // Repli en mémoire
+    const album = localAlbumsStore.find((a) => a.id === id && a.is_published);
+    if (!album) {
+      res.status(404).json({ error: 'Album introuvable ou non publié.' });
+      return;
+    }
+    const photos = localPhotosStore
+      .filter((p) => p.album_id === id && p.is_published)
+      .sort((a, b) => a.sort_order - b.sort_order || new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+
+    res.json({ album, photos });
+  } catch (err: any) {
+    console.error('[Gallery Album View Error]', err);
+    res.status(500).json({ error: 'Erreur lors de la récupération de l\'album.' });
+  }
+});
+
+// ==============================================================================
+// ROUTES ADMINISTRATION DE LA GALERIE (PROTÉGÉES PAR requireAdmin)
+// ==============================================================================
+
+// GET /api/admin/gallery/stats - Statistiques du tableau de bord galerie
+app.get('/api/admin/gallery/stats', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    if (supabase) {
+      const { data: albums } = await supabase.from('gallery_albums').select('id, is_published');
+      const { data: photos } = await supabase.from('gallery_photos').select('id');
+
+      if (albums) {
+        const totalAlbums = albums.length;
+        const publishedAlbums = albums.filter((a) => a.is_published).length;
+        const draftAlbums = totalAlbums - publishedAlbums;
+        const totalPhotos = photos ? photos.length : 0;
+
+        res.json({
+          totalAlbums,
+          totalPhotos,
+          publishedAlbums,
+          draftAlbums,
+        });
+        return;
+      }
+    }
+
+    const totalAlbums = localAlbumsStore.length;
+    const publishedAlbums = localAlbumsStore.filter((a) => a.is_published).length;
+    const draftAlbums = totalAlbums - publishedAlbums;
+    const totalPhotos = localPhotosStore.length;
+
+    res.json({
+      totalAlbums,
+      totalPhotos,
+      publishedAlbums,
+      draftAlbums,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Erreur lors du calcul des statistiques.' });
+  }
+});
+
+// GET /api/admin/gallery/albums - Liste de tous les albums (brouillons & publiés)
+app.get('/api/admin/gallery/albums', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    if (supabase) {
+      const { data: albums, error } = await supabase
+        .from('gallery_albums')
+        .select('*')
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: false });
+
+      if (!error && albums) {
+        const { data: photoCounts } = await supabase.from('gallery_photos').select('album_id');
+        const countsMap: Record<string, number> = {};
+        if (photoCounts) {
+          for (const p of photoCounts) {
+            countsMap[p.album_id] = (countsMap[p.album_id] || 0) + 1;
+          }
+        }
+        const enriched = albums.map((alb) => ({
+          ...alb,
+          photo_count: countsMap[alb.id] || 0,
+        }));
+        res.json({ albums: enriched });
+        return;
+      }
+    }
+
+    const enriched = localAlbumsStore.map((alb) => ({
+      ...alb,
+      photo_count: localPhotosStore.filter((p) => p.album_id === alb.id).length,
+    }));
+    res.json({ albums: enriched });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Erreur lors de la récupération des albums admin.' });
+  }
+});
+
+// POST /api/admin/gallery/albums - Créer un album
+app.post('/api/admin/gallery/albums', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const {
+      title_fr,
+      title_ar,
+      description_fr,
+      description_ar,
+      cover_url,
+      event_date,
+      category = 'Activités culturelles',
+      is_published = false,
+      sort_order = 0,
+    } = req.body;
+
+    if (!title_fr || !title_fr.trim()) {
+      res.status(400).json({ error: 'Le titre français de l\'album est obligatoire.' });
+      return;
+    }
+
+    const newAlbumData: Partial<GalleryAlbum> = {
+      title_fr: title_fr.trim(),
+      title_ar: title_ar?.trim() || null,
+      description_fr: description_fr?.trim() || null,
+      description_ar: description_ar?.trim() || null,
+      cover_url: cover_url?.trim() || null,
+      event_date: event_date || new Date().toISOString().split('T')[0],
+      category: category || 'Activités culturelles',
+      is_published: Boolean(is_published),
+      sort_order: parseInt(`${sort_order || 0}`, 10),
+      updated_at: new Date().toISOString(),
+    };
+
+    if (supabase) {
+      const { data, error } = await supabase
+        .from('gallery_albums')
+        .insert([newAlbumData])
+        .select()
+        .single();
+
+      if (!error && data) {
+        res.status(201).json({ album: { ...data, photo_count: 0 } });
+        return;
+      }
+    }
+
+    const created: GalleryAlbum = {
+      id: `alb-${Date.now()}`,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      ...(newAlbumData as any),
+      photo_count: 0,
+    };
+    localAlbumsStore.unshift(created);
+    res.status(201).json({ album: created });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Erreur lors de la création de l\'album.' });
+  }
+});
+
+// PUT /api/admin/gallery/albums/:id - Modifier un album
+app.put('/api/admin/gallery/albums/:id', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    const payload: any = {
+      updated_at: new Date().toISOString(),
+    };
+    if (updates.title_fr !== undefined) payload.title_fr = updates.title_fr.trim();
+    if (updates.title_ar !== undefined) payload.title_ar = updates.title_ar ? updates.title_ar.trim() : null;
+    if (updates.description_fr !== undefined) payload.description_fr = updates.description_fr ? updates.description_fr.trim() : null;
+    if (updates.description_ar !== undefined) payload.description_ar = updates.description_ar ? updates.description_ar.trim() : null;
+    if (updates.cover_url !== undefined) payload.cover_url = updates.cover_url ? updates.cover_url.trim() : null;
+    if (updates.event_date !== undefined) payload.event_date = updates.event_date;
+    if (updates.category !== undefined) payload.category = updates.category;
+    if (updates.is_published !== undefined) payload.is_published = Boolean(updates.is_published);
+    if (updates.sort_order !== undefined) payload.sort_order = parseInt(`${updates.sort_order}`, 10);
+
+    if (supabase) {
+      const { data, error } = await supabase
+        .from('gallery_albums')
+        .update(payload)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (!error && data) {
+        res.json({ album: data });
+        return;
+      }
+    }
+
+    const idx = localAlbumsStore.findIndex((a) => a.id === id);
+    if (idx === -1) {
+      res.status(404).json({ error: 'Album introuvable.' });
+      return;
+    }
+    localAlbumsStore[idx] = { ...localAlbumsStore[idx], ...payload };
+    res.json({ album: localAlbumsStore[idx] });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Erreur lors de la mise à jour de l\'album.' });
+  }
+});
+
+// DELETE /api/admin/gallery/albums/:id - Supprimer un album et toutes ses photos + fichiers Storage
+app.delete('/api/admin/gallery/albums/:id', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (supabase) {
+      // 1. Récupérer les photos de l'album pour supprimer leurs fichiers du Storage
+      const { data: photos } = await supabase
+        .from('gallery_photos')
+        .select('storage_path')
+        .eq('album_id', id);
+
+      if (photos && photos.length > 0) {
+        const filePaths = photos.map((p) => p.storage_path).filter(Boolean) as string[];
+        if (filePaths.length > 0) {
+          await supabase.storage.from('gallery').remove(filePaths).catch(() => {});
+        }
+      }
+
+      // 2. Supprimer l'album (la suppression en cascade supprime automatiquement gallery_photos)
+      const { error } = await supabase.from('gallery_albums').delete().eq('id', id);
+      if (!error) {
+        res.json({ success: true, message: 'Album et photos supprimés avec succès.' });
+        return;
+      }
+    }
+
+    // Magasin local
+    localPhotosStore = localPhotosStore.filter((p) => p.album_id !== id);
+    localAlbumsStore = localAlbumsStore.filter((a) => a.id !== id);
+    res.json({ success: true, message: 'Album supprimé avec succès.' });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Erreur lors de la suppression de l\'album.' });
+  }
+});
+
+// GET /api/admin/gallery/albums/:id/photos - Photos d'un album pour l'administrateur
+app.get('/api/admin/gallery/albums/:id/photos', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (supabase) {
+      const { data: photos, error } = await supabase
+        .from('gallery_photos')
+        .select('*')
+        .eq('album_id', id)
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: true });
+
+      if (!error && photos) {
+        res.json({ photos });
+        return;
+      }
+    }
+
+    const photos = localPhotosStore
+      .filter((p) => p.album_id === id)
+      .sort((a, b) => a.sort_order - b.sort_order || new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+
+    res.json({ photos });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Erreur lors de la récupération des photos.' });
+  }
+});
+
+// POST /api/admin/gallery/upload - Upload d'image vers Supabase Storage 'gallery'
+app.post('/api/admin/gallery/upload', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const { filename, filedata, contentType = 'image/jpeg', albumId = 'general' } = req.body;
+    if (!filedata) {
+      res.status(400).json({ error: 'Données de fichier manquantes pour l\'upload.' });
+      return;
+    }
+
+    const cleanFilename = (filename || 'photo.jpg').replace(/[^a-zA-Z0-9._-]/g, '_');
+    const storagePath = `albums/${albumId}/${Date.now()}_${cleanFilename}`;
+    const fileBuffer = Buffer.from(filedata, 'base64');
+
+    if (supabase) {
+      const { error: uploadError } = await supabase.storage
+        .from('gallery')
+        .upload(storagePath, fileBuffer, {
+          contentType,
+          upsert: true,
+        });
+
+      if (!uploadError) {
+        const { data: publicData } = supabase.storage.from('gallery').getPublicUrl(storagePath);
+        res.json({
+          public_url: publicData.publicUrl,
+          storage_path: storagePath,
+        });
+        return;
+      }
+      console.warn('[Supabase Storage upload warning, fallback to data URI]', uploadError.message);
+    }
+
+    // Repli : Data URI propre pour affichage immédiat
+    const dataUri = `data:${contentType};base64,${filedata}`;
+    res.json({
+      public_url: dataUri,
+      storage_path: storagePath,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Erreur lors du téléversement de l\'image.' });
+  }
+});
+
+// POST /api/admin/gallery/albums/:id/photos - Ajouter une photo dans un album
+app.post('/api/admin/gallery/albums/:id/photos', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const {
+      public_url,
+      storage_path,
+      title_fr,
+      title_ar,
+      caption_fr,
+      caption_ar,
+      sort_order = 0,
+      is_published = true,
+    } = req.body;
+
+    if (!public_url) {
+      res.status(400).json({ error: 'L\'URL de l\'image est obligatoire.' });
+      return;
+    }
+
+    const photoData: Partial<GalleryPhoto> = {
+      album_id: id,
+      public_url,
+      storage_path: storage_path || null,
+      title_fr: title_fr?.trim() || null,
+      title_ar: title_ar?.trim() || null,
+      caption_fr: caption_fr?.trim() || null,
+      caption_ar: caption_ar?.trim() || null,
+      sort_order: parseInt(`${sort_order || 0}`, 10),
+      is_published: Boolean(is_published),
+      updated_at: new Date().toISOString(),
+    };
+
+    if (supabase) {
+      const { data, error } = await supabase
+        .from('gallery_photos')
+        .insert([photoData])
+        .select()
+        .single();
+
+      if (!error && data) {
+        // Mettre à jour l'image de couverture si l'album n'en a pas
+        const { data: album } = await supabase.from('gallery_albums').select('cover_url').eq('id', id).single();
+        if (album && !album.cover_url) {
+          await supabase.from('gallery_albums').update({ cover_url: public_url }).eq('id', id);
+        }
+        res.status(201).json({ photo: data });
+        return;
+      }
+    }
+
+    const newPhoto: GalleryPhoto = {
+      id: `pho-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      ...(photoData as any),
+    };
+    localPhotosStore.push(newPhoto);
+
+    // Mettre à jour la couverture de l'album si vide
+    const albIdx = localAlbumsStore.findIndex((a) => a.id === id);
+    if (albIdx !== -1 && !localAlbumsStore[albIdx].cover_url) {
+      localAlbumsStore[albIdx].cover_url = public_url;
+    }
+
+    res.status(201).json({ photo: newPhoto });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Erreur lors de l\'ajout de la photo.' });
+  }
+});
+
+// PUT /api/admin/gallery/photos/:id - Modifier les métadonnées d'une photo
+app.put('/api/admin/gallery/photos/:id', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    const payload: any = {
+      updated_at: new Date().toISOString(),
+    };
+    if (updates.title_fr !== undefined) payload.title_fr = updates.title_fr ? updates.title_fr.trim() : null;
+    if (updates.title_ar !== undefined) payload.title_ar = updates.title_ar ? updates.title_ar.trim() : null;
+    if (updates.caption_fr !== undefined) payload.caption_fr = updates.caption_fr ? updates.caption_fr.trim() : null;
+    if (updates.caption_ar !== undefined) payload.caption_ar = updates.caption_ar ? updates.caption_ar.trim() : null;
+    if (updates.sort_order !== undefined) payload.sort_order = parseInt(`${updates.sort_order}`, 10);
+    if (updates.is_published !== undefined) payload.is_published = Boolean(updates.is_published);
+
+    if (supabase) {
+      const { data, error } = await supabase
+        .from('gallery_photos')
+        .update(payload)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (!error && data) {
+        res.json({ photo: data });
+        return;
+      }
+    }
+
+    const idx = localPhotosStore.findIndex((p) => p.id === id);
+    if (idx === -1) {
+      res.status(404).json({ error: 'Photo introuvable.' });
+      return;
+    }
+    localPhotosStore[idx] = { ...localPhotosStore[idx], ...payload };
+    res.json({ photo: localPhotosStore[idx] });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Erreur lors de la modification de la photo.' });
+  }
+});
+
+// PUT /api/admin/gallery/photos/reorder - Réorganisation de l'ordre des photos
+app.put('/api/admin/gallery/photos/reorder', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const { photoIds } = req.body;
+    if (!Array.isArray(photoIds)) {
+      res.status(400).json({ error: 'Format invalide : photoIds doit être une liste.' });
+      return;
+    }
+
+    if (supabase) {
+      for (let i = 0; i < photoIds.length; i++) {
+        await supabase
+          .from('gallery_photos')
+          .update({ sort_order: i + 1, updated_at: new Date().toISOString() })
+          .eq('id', photoIds[i]);
+      }
+      res.json({ success: true, message: 'Ordre des photos mis à jour avec succès.' });
+      return;
+    }
+
+    photoIds.forEach((pid: string, idx: number) => {
+      const photo = localPhotosStore.find((p) => p.id === pid);
+      if (photo) {
+        photo.sort_order = idx + 1;
+        photo.updated_at = new Date().toISOString();
+      }
+    });
+
+    res.json({ success: true, message: 'Ordre des photos mis à jour avec succès.' });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Erreur lors du réordonnancement des photos.' });
+  }
+});
+
+// DELETE /api/admin/gallery/photos/:id - Supprimer une photo de la base et du Storage Supabase
+app.delete('/api/admin/gallery/photos/:id', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (supabase) {
+      const { data: photo } = await supabase
+        .from('gallery_photos')
+        .select('storage_path')
+        .eq('id', id)
+        .single();
+
+      if (photo && photo.storage_path) {
+        await supabase.storage.from('gallery').remove([photo.storage_path]).catch(() => {});
+      }
+
+      const { error } = await supabase.from('gallery_photos').delete().eq('id', id);
+      if (!error) {
+        res.json({ success: true, message: 'Photo supprimée avec succès.' });
+        return;
+      }
+    }
+
+    localPhotosStore = localPhotosStore.filter((p) => p.id !== id);
+    res.json({ success: true, message: 'Photo supprimée avec succès.' });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Erreur lors de la suppression de la photo.' });
+  }
 });
 
 // 4. POST /api/sync - Déclenche une synchronisation manuelle réservée au diagnostic technique
@@ -880,17 +1752,17 @@ app.post('/api/sync', async (req: Request, res: Response) => {
   }
 });
 
-// 4. POST /api/contact - School Contact Form (Section 7)
+// 5. POST /api/contact - Formulaire de contact officiel de l'A.J.M.C
 app.post('/api/contact', (req: Request, res: Response) => {
-  const { name, email, phone, childGrade, message, subject } = req.body;
+  const { name, email, phone, message, subject } = req.body;
   if (!name || !email || !message) {
     res.status(400).json({ error: 'Veuillez renseigner votre nom, email et message.' });
     return;
   }
-  console.log(`[Contact Form] Reçu de: ${name} (${email}) - Sujet: ${subject || 'Demande'} - Niveau: ${childGrade || 'N/A'}`);
+  console.log(`[AJMC Contact Form] Reçu de: ${name} (${email}) - Tél: ${phone || 'N/A'} - Sujet: ${subject || 'Général'}`);
   res.json({
     success: true,
-    message: 'تم استلام طلبكم بنجاح وسيتواصل معكم فريق الإدارة خلال 48 ساعة.',
+    message: 'تم استلام رسالتكم بنجاح وسيتواصل معكم فريق جمعية الشباب المسلم للثقافة في أقرب وقت.',
   });
 });
 
@@ -901,7 +1773,7 @@ async function startServer() {
   const isChannelConfigured = Boolean(YOUTUBE_CHANNEL_ID && !YOUTUBE_CHANNEL_ID.includes('UC_x5XG1OV2P6uZZ5FSM9Ttw'));
 
   console.log('[Startup] ========================================================');
-  console.log('[Startup] مجمع العون المباشر التعليمي بنين - DirectAid Bénin');
+  console.log('[Startup] A.J.M.C — Association des Jeunes Musulmans pour la Culture (Kandi, Bénin)');
   console.log(`[Startup] Clé YouTube API v3 : ${isApiKeyConfigured ? '✓ Configurée' : '○ Non configurée (mode prêt)'}`);
   console.log(`[Startup] Chaîne YouTube      : ${isChannelConfigured ? YOUTUBE_CHANNEL_ID : '○ Non configurée'}`);
   console.log(`[Startup] Base de données     : ${supabase ? '✓ Supabase PostgreSQL' : '○ Magasin en mémoire (fallback)'}`);

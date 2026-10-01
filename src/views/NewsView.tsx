@@ -1,163 +1,126 @@
 import React from 'react';
-import { Calendar, Clock, ArrowLeft, User, BookOpen, Bell, Sparkles } from 'lucide-react';
+import { Calendar, Tag, ArrowRight, ArrowLeft, Bell, Newspaper, CheckCircle2 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext.tsx';
+import { PageHeader } from '../components/PageHeader.tsx';
 
-interface NewsItem {
+interface NewsArticle {
   id: string;
-  title: string;
-  category: string;
-  date: string;
-  readTime: string;
-  excerpt: string;
-  author: string;
-  image: string;
+  category: { fr: string; ar: string };
+  date: { fr: string; ar: string };
+  title: { fr: string; ar: string };
+  excerpt: { fr: string; ar: string };
 }
 
-const NEWS_LIST: NewsItem[] = [
+const NEWS_DATA: NewsArticle[] = [
   {
     id: 'n1',
-    title: 'مبادرة البيئة والتشجير: طلاب المجمع يدشنون الحديقة المدرسية ومشروع إعادة التدوير',
-    category: 'الحياة المدرسية',
-    date: '24 سبتمبر 2026',
-    readTime: '3 دقائق',
-    author: 'لجنة الأنشطة البيئية',
-    excerpt: 'افتتح طلاب المرحلة المتوسطة والثانوية المساحة الخضراء الجديدة داخل المجمع التعليمي، وتضمنت المبادرة غرس أشجار مثمرة وتوزيع حاويات لفرز النفايات لتعزيز السلوك البيئي الإيجابي.',
-    image: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&auto=format&fit=crop&q=80',
+    category: { fr: 'Activité culturelle', ar: 'نشاط ثقافي' },
+    date: { fr: '25 Septembre 2026', ar: '25 سبتمبر 2026' },
+    title: {
+      fr: 'Succès de la rencontre annuelle de la jeunesse musulmane à Kandi',
+      ar: 'نجاح متميز للملتقى السنوي للشباب المسلم بمدينة كاندي',
+    },
+    excerpt: {
+      fr: 'Une journée riche en échanges fraternels, conférences thématiques et ateliers collaboratifs autour de la transmission des valeurs et du rôle des jeunes dans la cité.',
+      ar: 'يوم حافل بالنقاشات المثمرة والمحاضرات التوجيهية وورش العمل التفاعلية حول دور الشباب في خدمة المجتمع والتمسك بالقيم الفاضلة.',
+    },
   },
   {
     id: 'n2',
-    title: 'أسبوع اللغات الحية: مسابقات الخطابة والمناظرات باللغتين العربية والفرنسية',
-    category: 'التعليم واللغات',
-    date: '18 سبتمبر 2026',
-    readTime: '4 دقائق',
-    author: 'قسم اللغات والآداب',
-    excerpt: 'تألق طلاب المجمع في تقديم مناظرات فكرية حول دور التعليم في التنمية، مع عروض مسرحية وخطب فصيحة عكست المستوى المتقدم للبرنامج التعليمي ثنائي اللغة.',
-    image: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?w=800&auto=format&fit=crop&q=80',
+    category: { fr: 'Action sociale & Solidarité', ar: 'عمل اجتماعي' },
+    date: { fr: '18 Septembre 2026', ar: '18 سبتمبر 2026' },
+    title: {
+      fr: 'Mobilisation solidaire pour soutenir les familles vulnérables de la commune',
+      ar: 'حملة تضامنية لدعم الأسر المتعففة ومساندتها في بلدية كاندي',
+    },
+    excerpt: {
+      fr: 'Grâce à la générosité des sympathisants et à l\'implication bénévole des membres de l\'A.J.M.C, des kits alimentaires et des soutiens de première nécessité ont été distribués.',
+      ar: 'بفضل تكاتف الأعضاء ودعم المحسنين، قامت الجمعية بتوزيع معونات عينية ومساعدات أساسية لتعزيز أواصر التكافل والتراحم الاجتماعي.',
+    },
   },
   {
     id: 'n3',
-    title: 'إنجاز تعليمي رائد: نسبة نجاح 100% لطلاب المجمع في امتحانات الشهادة الرسمية',
-    category: 'النتائج والتميز',
-    date: '10 سبتمبر 2026',
-    readTime: 'دقيقتان',
-    author: 'إدارة الشؤون التعليمية',
-    excerpt: 'حقق مجمع العون المباشر بنين المركز الأول على مستوى المنطقة في نسب النجاح وعدد التقديرات المتميزة (جيد جداً وممتاز) في شهادتي التعليم المتوسط والثانوية العامة.',
-    image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&auto=format&fit=crop&q=80',
+    category: { fr: 'Éducation & Formation', ar: 'تعليم وتأهيل' },
+    date: { fr: '10 Septembre 2026', ar: '10 سبتمبر 2026' },
+    title: {
+      fr: 'Lancement des ateliers de formation pratique et d\'initiation informatique',
+      ar: 'انطلاق دورات التدريب الميداني والمهارات الرقمية للناشئة والشباب',
+    },
+    excerpt: {
+      fr: 'Des sessions gratuites destinées à familiariser les élèves et jeunes de Kandi avec les outils numériques essentiels, la méthodologie de recherche et l\'expression écrite.',
+      ar: 'سلسلة ورش مجانية لتمكين تلاميذ وشباب كاندي من أساسيات المعلوميات، مناهج البحث العلمي وإتقان مهارات التواصل.',
+    },
+  },
+  {
+    id: 'n4',
+    category: { fr: 'Compétition & Savoir', ar: 'مسابقات ومعارف' },
+    date: { fr: '28 Août 2026', ar: '28 أغسطس 2026' },
+    title: {
+      fr: 'Clôture solennelle du concours annuel de mémorisation du Saint Coran',
+      ar: 'الحفل الختامي لتكريم الفائزين في مسابقة حفظ القرآن الكريم وتجويده',
+    },
+    excerpt: {
+      fr: 'Une célébration fraternelle en présence des parents, dignitaires locaux et sympathisants pour récompenser les lauréats et encourager l\'attachement aux valeurs morales.',
+      ar: 'أجواء إيمانية مبهجة بحضور أولياء الأمور ووجهاء المنطقة لتكريم حفظة كتاب الله وتحفيز الأجيال الصاعدة على التمسك بالأخلاق الكريمة.',
+    },
   },
 ];
 
-const CALENDAR_EVENTS = [
-  { date: '03 أكتوبر 2026', title: 'اللقاء الدوري بين أولياء الأمور والإدارة وهيئة التدريس', time: '05:00 م - 07:30 م', location: 'قاعة المجمع الكبرى' },
-  { date: '14 أكتوبر 2026', title: 'اليوم الرياضي والتضامني السنوي لجمعية العون المباشر', time: '01:30 م - 05:30 م', location: 'الملاعب الرياضية' },
-  { date: '19-30 أكتوبر', title: 'عطلة منتصف الفصل الدراسي الأول', time: 'طيلة الفترة', location: 'إجازة مدرسية' },
-  { date: '12 نوفمبر 2026', title: 'يوم الأبواب المفتوحة للراغبين في التسجيل والاطلاع على المجمع', time: '09:00 ص - 01:00 م', location: 'الحرم التعليمي' },
-  { date: '11 ديسمبر 2026', title: 'الحفل الختامي وتكريم الفائزين في مسابقة القرآن الكريم السنوية', time: '06:00 م - 08:30 م', location: 'مسجد ومدرج المجمع' },
-];
-
 export const NewsView: React.FC = () => {
-  return (
-    <div className="py-12 bg-stone-50 min-h-screen space-y-16 text-right">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        {/* Section Header */}
-        <div className="max-w-3xl space-y-3 border-b border-stone-200 pb-8">
-          <span className="text-xs font-bold text-[#16A34A] uppercase tracking-widest">
-            الأخبار والتقويم المدرسي
-          </span>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-stone-900 tracking-tight">
-            أخبار مجمع العون المباشر
-          </h1>
-          <p className="text-base text-stone-600 leading-relaxed">
-            تابعوا آخر المستجدات والأنشطة التربوية والفعاليات والتقويم الفصلي للمجمع في جمهورية بنين.
-          </p>
-        </div>
+  const { t, isRTL, language } = useLanguage();
+  const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
 
-        {/* Lead Feature & Articles Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {NEWS_LIST.map((item, idx) => (
+  return (
+    <div className={`space-y-12 pb-20 ${isRTL ? 'text-right' : 'text-left'}`}>
+      {/* En-tête atmosphérique */}
+      <PageHeader
+        title={t('nav_news')}
+        subtitle={
+          language === 'ar'
+            ? 'متابعة حية وشاملة لكافة فعاليات، مبادرات ومحطات جمعية الشباب المسلم للثقافة في كاندي.'
+            : 'Suivez le fil des actions, rencontres et communiqués officiels de l\'A.J.M.C à Kandi.'
+        }
+        kicker="A.J.M.C — Kandi · Vie Associative & Communiqués"
+        icon={Newspaper}
+      />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+        {/* Grille des articles avec fond chaleureux */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {NEWS_DATA.map((article) => (
             <article
-              key={item.id}
-              className={`bg-white rounded-xl border border-stone-200 overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col ${
-                idx === 0 ? 'lg:col-span-2' : ''
-              }`}
+              key={article.id}
+              className="bg-white/95 rounded-3xl border border-stone-200/90 p-8 shadow-sm hover:shadow-md hover:border-emerald-700/30 transition-all duration-300 flex flex-col justify-between space-y-5 backdrop-blur-xs"
             >
-              <div className={`overflow-hidden bg-stone-100 ${idx === 0 ? 'aspect-16/9' : 'aspect-4/3'}`}>
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                />
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-xs text-stone-500">
+                  <span className="font-bold text-[#0F5132] bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/60">
+                    {article.category[language]}
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-stone-400" />
+                    <span>{article.date[language]}</span>
+                  </div>
+                </div>
+
+                <h3 className="text-xl font-bold text-stone-900 leading-snug">
+                  {article.title[language]}
+                </h3>
+
+                <p className="text-xs sm:text-sm text-stone-600 leading-relaxed font-medium">
+                  {article.excerpt[language]}
+                </p>
               </div>
 
-              <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
-                <div className="space-y-3">
-                  {/* Zero-pill metadata */}
-                  <div className="flex items-center gap-2 text-xs text-stone-500">
-                    <span className="font-bold text-[#16A34A]">{item.category}</span>
-                    <span aria-hidden="true">·</span>
-                    <span>{item.date}</span>
-                    <span aria-hidden="true">·</span>
-                    <span>{item.readTime}</span>
-                  </div>
-
-                  <h2 className="text-xl sm:text-2xl font-bold text-stone-900 leading-snug">
-                    {item.title}
-                  </h2>
-
-                  <p className="text-sm text-stone-600 leading-relaxed">
-                    {item.excerpt}
-                  </p>
-                </div>
-
-                <div className="pt-4 border-t border-stone-100 flex items-center justify-between text-xs text-stone-500">
-                  <span className="font-semibold text-stone-600">{item.author}</span>
-                  <span className="font-bold text-[#16A34A] inline-flex items-center gap-1">
-                    قراءة التفاصيل <ArrowLeft className="w-3.5 h-3.5" />
-                  </span>
-                </div>
+              <div className="pt-4 border-t border-stone-100 flex items-center justify-between text-xs text-stone-500">
+                <span className="font-semibold text-emerald-800">A.J.M.C — Kandi</span>
+                <span className="text-emerald-700 font-bold inline-flex items-center gap-1">
+                  <span>{language === 'ar' ? 'تقرير ميداني' : 'Actualité associative'}</span>
+                  <ArrowIcon className="w-3 h-3" />
+                </span>
               </div>
             </article>
           ))}
-        </div>
-
-        {/* School Calendar Table */}
-        <div className="bg-white rounded-2xl border border-stone-200 p-8 shadow-xs space-y-6">
-          <div className="flex items-center justify-between border-b border-stone-200 pb-4">
-            <div className="flex items-center gap-2.5">
-              <Calendar className="w-5 h-5 text-[#16A34A]" />
-              <h2 className="text-xl sm:text-2xl font-bold text-stone-900">
-                أجندة الفعاليات والتقويم الفصلي 2026-2027
-              </h2>
-            </div>
-            <span className="text-xs text-stone-500 hidden sm:inline">
-              تحديث دوري من الإدارة التعليمية
-            </span>
-          </div>
-
-          <div className="divide-y divide-stone-100">
-            {CALENDAR_EVENTS.map((event, i) => (
-              <div
-                key={i}
-                className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-stone-50 px-3 rounded-lg transition-colors text-right"
-              >
-                <div className="space-y-1 sm:max-w-md">
-                  <h3 className="font-bold text-sm text-stone-900">
-                    {event.title}
-                  </h3>
-                  <div className="flex items-center gap-2 text-xs text-stone-500">
-                    <Clock className="w-3.5 h-3.5 text-stone-400" />
-                    <span>{event.time}</span>
-                    <span aria-hidden="true">·</span>
-                    <span>{event.location}</span>
-                  </div>
-                </div>
-
-                <div className="shrink-0">
-                  <span className="font-mono text-xs font-bold px-3 py-1 bg-emerald-50 text-[#16A34A] rounded-md border border-emerald-200">
-                    {event.date}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </div>

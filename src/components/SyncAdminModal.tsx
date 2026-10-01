@@ -30,7 +30,7 @@ export const SyncAdminModal: React.FC<SyncAdminModalProps> = ({
   isSyncing,
 }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    return sessionStorage.getItem('directaid_admin_auth') === 'true';
+    return sessionStorage.getItem('ajmc_admin_auth') === 'true';
   });
   const [password, setPassword] = useState('');
   const [authError, setAuthError] = useState<string | null>(null);
@@ -52,7 +52,7 @@ export const SyncAdminModal: React.FC<SyncAdminModalProps> = ({
       const data = await res.json();
       if (res.ok && data.authenticated) {
         setIsAuthenticated(true);
-        sessionStorage.setItem('directaid_admin_auth', 'true');
+        sessionStorage.setItem('ajmc_admin_auth', 'true');
         setPassword('');
       } else {
         setAuthError(data.error || 'Mot de passe incorrect.');
@@ -66,7 +66,7 @@ export const SyncAdminModal: React.FC<SyncAdminModalProps> = ({
 
   const handleLogout = () => {
     setIsAuthenticated(false);
-    sessionStorage.removeItem('directaid_admin_auth');
+    sessionStorage.removeItem('ajmc_admin_auth');
   };
 
   return (
@@ -77,7 +77,7 @@ export const SyncAdminModal: React.FC<SyncAdminModalProps> = ({
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-emerald-400" />
             <h2 className="font-bold text-base">
-              {isAuthenticated ? 'لوحة تحكم المزامنة والتشخيص الإداري' : 'فضاء الإدارة — تسجيل الدخول'}
+              {isAuthenticated ? 'لوحة تحكم المزامنة والتشخيص — A.J.M.C' : 'فضاء الإدارة — A.J.M.C كاندي'}
             </h2>
           </div>
           <div className="flex items-center gap-3">
@@ -107,13 +107,13 @@ export const SyncAdminModal: React.FC<SyncAdminModalProps> = ({
           <div className="p-8 space-y-6">
             <div className="text-center space-y-2">
               <div className="w-12 h-12 rounded-full bg-stone-100 text-stone-700 flex items-center justify-center mx-auto">
-                <Lock className="w-6 h-6 text-[#16A34A]" />
+                <Lock className="w-6 h-6 text-[#0F5132]" />
               </div>
               <h3 className="font-bold text-stone-900 text-base">
                 الوصول محمي بكلمة مرور الإدارة
               </h3>
               <p className="text-xs text-stone-500 max-w-sm mx-auto">
-                هذه الواجهة مخصصة لمسؤولي مجمع العون المباشر لمراقبة وتشخيص حالة المزامنة مع يوتيوب وسوبابيس.
+                هذه الواجهة مخصصة لمسؤولي جمعية الشباب المسلم للثقافة (A.J.M.C — كاندي) لمراقبة وتشخيص حالة المزامنة مع يوتيوب وسوبابيس.
               </p>
             </div>
 
