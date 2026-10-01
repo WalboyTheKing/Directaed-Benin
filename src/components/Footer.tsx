@@ -144,13 +144,28 @@ export const Footer: React.FC<FooterProps> = ({ onSelectTab }) => {
           </div>
         </div>
 
-        {/* Barre inférieure avec copyright */}
+        {/* Barre inférieure avec copyright et lien d'accès administration */}
         <div className="mt-12 pt-8 border-t border-stone-800 flex flex-col sm:flex-row sm:items-center sm:justify-between text-xs text-stone-500 gap-4">
           <p>{t('footer_rights')}</p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <span className="text-stone-400">A.J.M.C — Kandi</span>
             <span>·</span>
             <span className="text-stone-500">{t('org_country')}</span>
+            <span>·</span>
+            <a
+              href="/admin"
+              onClick={(e) => {
+                e.preventDefault();
+                window.history.pushState({}, '', '/admin');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="inline-flex items-center gap-1.5 text-stone-500 hover:text-emerald-400 transition-colors cursor-pointer"
+              title="Accès Administration"
+            >
+              <Lock className="w-3 h-3 text-stone-500 hover:text-emerald-400" />
+              <span>{language === 'ar' ? 'الإدارة' : 'Admin'}</span>
+            </a>
           </div>
         </div>
       </div>

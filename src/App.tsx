@@ -35,13 +35,17 @@ export default function App() {
   const [isLoadingVideos, setIsLoadingVideos] = useState<boolean>(true);
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
 
-  // Écouteur des changements d'URL du navigateur (popstate / pushState)
+  // Écouteur des changements d'URL du navigateur (popstate / hashchange)
   useEffect(() => {
     const handleLocationChange = () => {
       setPathname(window.location.pathname);
     };
     window.addEventListener('popstate', handleLocationChange);
-    return () => window.removeEventListener('popstate', handleLocationChange);
+    window.addEventListener('hashchange', handleLocationChange);
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+      window.removeEventListener('hashchange', handleLocationChange);
+    };
   }, []);
 
   const navigate = (newPath: string) => {
@@ -144,7 +148,13 @@ export default function App() {
   // ==========================================================================
   // ROUTING CONDITIONNEL : ESPACE D'ADMINISTRATION PRIVÉ (/admin)
   // ==========================================================================
-  const isAdminRoute = pathname.startsWith('/admin');
+  const isAdminRoute =
+    pathname.startsWith('/admin') ||
+    (typeof window !== 'undefined' && (
+      window.location.hash.startsWith('#/admin') ||
+      window.location.hash === '#admin' ||
+      window.location.search.includes('admin=true')
+    ));
 
   if (isAdminRoute) {
     if (!adminToken) {
