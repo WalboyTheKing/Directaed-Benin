@@ -1,133 +1,45 @@
+
 import type { Video, SyncStatus } from '../types/video.ts';
 
-export const initialVideos: Video[] = [
-  {
-    id: 'vid-001',
-    youtube_id: 'dQw4w9WgXcQ',
-    youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    title: 'الملتقى السنوي للشباب المسلم بمدينة كاندي — جمعية الشباب المسلم للثقافة',
-    description: 'تغطية وثائقية شاملة لفعاليات الملتقى السنوي الذي تنظمه جمعية الشباب المسلم للثقافة (A.J.M.C) في كاندي بحضور نخبة من الشباب والمهتمين بالشأن الثقافي والاجتماعي.',
-    thumbnail_url: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800&auto=format&fit=crop&q=80',
-    published_at: '2026-09-22T10:00:00Z',
-    channel_id: 'UCN0WZndfRXylOspFwildeMg',
-    playlist_id: 'PL_ajmc_rencontres',
-    category: 'الأنشطة الثقافية',
-    duration: '06:45',
-    status: 'ACTIVE',
-    created_at: '2026-09-22T10:30:00Z',
-    updated_at: '2026-09-22T10:30:00Z',
-  },
-  {
-    id: 'vid-002',
-    youtube_id: 'LXb3EKWsInQ',
-    youtube_url: 'https://www.youtube.com/watch?v=LXb3EKWsInQ',
-    title: 'محاضرة عامة: «الشباب، الأخلاق وروح المبادرة في تنمية المجتمع»',
-    description: 'ندوة فكرية وتوجيهية تناولت أهمية تمكين الشباب وغرس القيم الفاضلة ومبادئ العمل التطوعي لخدمة مدينة كاندي والمجتمع البنيني.',
-    thumbnail_url: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&auto=format&fit=crop&q=80',
-    published_at: '2026-09-17T15:30:00Z',
-    channel_id: 'UCN0WZndfRXylOspFwildeMg',
-    playlist_id: 'PL_ajmc_conferences',
-    category: 'المحاضرات واللقاءات',
-    duration: '08:30',
-    status: 'ACTIVE',
-    created_at: '2026-09-17T16:00:00Z',
-    updated_at: '2026-09-17T16:00:00Z',
-  },
-  {
-    id: 'vid-003',
-    youtube_id: 'kJQP7kiw5Fk',
-    youtube_url: 'https://www.youtube.com/watch?v=kJQP7kiw5Fk',
-    title: 'المسابقة القرآنية السنوية وفنون الخطابة والإلقاء بمدينة كاندي',
-    description: 'حفل ختام مسابقة تجويد وحفظ القرآن الكريم وفنون الخطابة لشباب كاندي بمشاركة متسابقين متميزين وتكريم الفائزين بجوائز تشجيعية.',
-    thumbnail_url: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800&auto=format&fit=crop&q=80',
-    published_at: '2026-09-11T14:00:00Z',
-    channel_id: 'UCN0WZndfRXylOspFwildeMg',
-    playlist_id: 'PL_ajmc_religieux',
-    category: 'الأنشطة الدينية',
-    duration: '07:20',
-    status: 'ACTIVE',
-    created_at: '2026-09-11T14:30:00Z',
-    updated_at: '2026-09-11T14:30:00Z',
-  },
-  {
-    id: 'vid-004',
-    youtube_id: 'fJ9rUzIMcZQ',
-    youtube_url: 'https://www.youtube.com/watch?v=fJ9rUzIMcZQ',
-    title: 'ورشة التدريب على المهارات الرقمية ومنهجية إدارة المبادرات التطوعية',
-    description: 'دورة تكوينية تطبيقية استهدفت أعضاء الجمعية والشباب المهتمين بالتقنيات الحديثة وإدارة المشاريع المجتمعية وتوثيق الأنشطة.',
-    thumbnail_url: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&auto=format&fit=crop&q=80',
-    published_at: '2026-09-06T09:00:00Z',
-    channel_id: 'UCN0WZndfRXylOspFwildeMg',
-    playlist_id: 'PL_ajmc_formation',
-    category: 'الأنشطة التعليمية',
-    duration: '05:45',
-    status: 'ACTIVE',
-    created_at: '2026-09-06T09:30:00Z',
-    updated_at: '2026-09-06T09:30:00Z',
-  },
-  {
-    id: 'vid-005',
-    youtube_id: '9bZkp7q19f0',
-    youtube_url: 'https://www.youtube.com/watch?v=9bZkp7q19f0',
-    title: 'المبادرة الإنسانية وحملة التكافل الاجتماعي والتضامن مع الأسر المتعففة',
-    description: 'تقرير مصور حول جهود شباب جمعية A.J.M.C في تقديم السلال الغذائية والمساعدات العينية ومساندة المحتاجين في أحياء كاندي.',
-    thumbnail_url: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&auto=format&fit=crop&q=80',
-    published_at: '2026-08-30T16:00:00Z',
-    channel_id: 'UCN0WZndfRXylOspFwildeMg',
-    playlist_id: 'PL_ajmc_social',
-    category: 'الأنشطة الاجتماعية',
-    duration: '04:15',
-    status: 'ACTIVE',
-    created_at: '2026-08-30T16:30:00Z',
-    updated_at: '2026-08-30T16:30:00Z',
-  },
-  {
-    id: 'vid-006',
-    youtube_id: '3JZ_D3ELwOQ',
-    youtube_url: 'https://www.youtube.com/watch?v=3JZ_D3ELwOQ',
-    title: 'دوري الأخوة الرياضي لشباب مدينة كاندي — تعزيز روح التآخي والتعاون',
-    description: 'أجواء رياضية وأخوية مميزة جمعت شباب الجمعية في بطولة كرة القدم لتعزيز أواصر المحبة والنشاط البدني الإيجابي.',
-    thumbnail_url: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800&auto=format&fit=crop&q=80',
-    published_at: '2026-09-01T08:00:00Z',
-    channel_id: 'UCN0WZndfRXylOspFwildeMg',
-    playlist_id: 'PL_ajmc_sport',
-    category: 'أنشطة الشباب',
-    duration: '05:12',
-    status: 'ACTIVE',
-    created_at: '2026-09-01T08:30:00Z',
-    updated_at: '2026-09-01T08:30:00Z',
-  },
-];
+/**
+ * Aucune vidéo de démonstration ne doit être affichée en production.
+ * Les vraies vidéos doivent être chargées depuis GET /api/videos.
+ */
+export const initialVideos: Video[] = [];
 
+/**
+ * État initial neutre.
+ * Le statut réel de synchronisation doit provenir du backend
+ * via GET /api/sync/status.
+ */
 export const initialSyncStatus: SyncStatus = {
-  lastSyncAt: new Date().toISOString(),
-  nextScheduledSyncAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+  lastSyncAt: null,
+  nextScheduledSyncAt: null,
   syncIntervalMinutes: 15,
   isSyncing: false,
-  totalVideosCount: initialVideos.length,
-  activeVideosCount: initialVideos.filter((v) => v.status === 'ACTIVE').length,
-  channelId: 'UCN0WZndfRXylOspFwildeMg',
-  channelTitle: 'A.J.M.C — Association des Jeunes Musulmans pour la Culture (Kandi)',
-  hasApiKey: true,
-  hasChannelId: true,
+  totalVideosCount: 0,
+  activeVideosCount: 0,
+  channelId: '',
+  channelTitle: '',
+  hasApiKey: false,
+  hasChannelId: false,
   hasSupabase: false,
-  databaseProvider: 'in_memory_store',
-  lastSyncResult: {
-    success: true,
-    addedCount: 0,
-    updatedCount: 0,
-    message: 'النظام جاهز والمزامنة التلقائية مع يوتيوب تعمل بكفاءة.',
-    timestamp: new Date().toISOString(),
-  },
+  databaseProvider: 'unknown',
+  lastSyncResult: null,
   error: null,
 };
 
+/**
+ * Catégories disponibles.
+ * Les nombres doivent être calculés à partir des vidéos réellement
+ * reçues depuis le backend, et non définis ici.
+ */
 export const initialCategories = [
-  { name: 'الكل', count: initialVideos.length },
-  { name: 'الأنشطة الثقافية', count: 1 },
-  { name: 'المحاضرات واللقاءات', count: 1 },
-  { name: 'الأنشطة الدينية', count: 1 },
-  { name: 'الأنشطة التعليمية', count: 1 },
-  { name: 'الأنشطة الاجتماعية', count: 1 },
-  { name: 'أنشطة الشباب', count: 1 },
+  { name: 'الكل', count: 0 },
+  { name: 'الأنشطة الثقافية', count: 0 },
+  { name: 'المحاضرات واللقاءات', count: 0 },
+  { name: 'الأنشطة الدينية', count: 0 },
+  { name: 'الأنشطة التعليمية', count: 0 },
+  { name: 'الأنشطة الاجتماعية', count: 0 },
+  { name: 'أنشطة الشباب', count: 0 },
 ];
