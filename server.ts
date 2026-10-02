@@ -57,105 +57,8 @@ if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY && !SUPABASE_URL.includes('your-pr
   }
 }
 
-// In-Memory persistent store for fallback or local demonstration
-const initialVideos: Video[] = [
-  {
-    id: 'vid-001',
-    youtube_id: 'dQw4w9WgXcQ',
-    youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    title: 'الملتقى السنوي للشباب المسلم بمدينة كاندي — جمعية الشباب المسلم للثقافة',
-    description: 'تغطية وثائقية شاملة لفعاليات الملتقى السنوي الذي تنظمه جمعية الشباب المسلم للثقافة (A.J.M.C) في كاندي بحضور نخبة من الشباب والمهتمين بالشأن الثقافي والاجتماعي.',
-    thumbnail_url: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800&auto=format&fit=crop&q=80',
-    published_at: '2026-09-22T10:00:00Z',
-    channel_id: YOUTUBE_CHANNEL_ID || 'UCN0WZndfRXylOspFwildeMg',
-    playlist_id: 'PL_ajmc_rencontres',
-    category: 'الأنشطة الثقافية',
-    duration: '06:45',
-    status: 'ACTIVE',
-    created_at: '2026-09-22T10:30:00Z',
-    updated_at: '2026-09-22T10:30:00Z',
-  },
-  {
-    id: 'vid-002',
-    youtube_id: 'LXb3EKWsInQ',
-    youtube_url: 'https://www.youtube.com/watch?v=LXb3EKWsInQ',
-    title: 'محاضرة عامة: «الشباب، الأخلاق وروح المبادرة في تنمية المجتمع»',
-    description: 'ندوة فكرية وتوجيهية تناولت أهمية تمكين الشباب وغرس القيم الفاضلة ومبادئ العمل التطوعي لخدمة مدينة كاندي والمجتمع البنيني.',
-    thumbnail_url: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&auto=format&fit=crop&q=80',
-    published_at: '2026-09-17T15:30:00Z',
-    channel_id: YOUTUBE_CHANNEL_ID || 'UCN0WZndfRXylOspFwildeMg',
-    playlist_id: 'PL_ajmc_conferences',
-    category: 'المحاضرات واللقاءات',
-    duration: '08:30',
-    status: 'ACTIVE',
-    created_at: '2026-09-17T16:00:00Z',
-    updated_at: '2026-09-17T16:00:00Z',
-  },
-  {
-    id: 'vid-003',
-    youtube_id: 'kJQP7kiw5Fk',
-    youtube_url: 'https://www.youtube.com/watch?v=kJQP7kiw5Fk',
-    title: 'المسابقة القرآنية السنوية وفنون الخطابة والإلقاء بمدينة كاندي',
-    description: 'حفل ختام مسابقة تجويد وحفظ القرآن الكريم وفنون الخطابة لشباب كاندي بمشاركة متسابقين متميزين وتكريم الفائزين بجوائز تشجيعية.',
-    thumbnail_url: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800&auto=format&fit=crop&q=80',
-    published_at: '2026-09-11T14:00:00Z',
-    channel_id: YOUTUBE_CHANNEL_ID || 'UCN0WZndfRXylOspFwildeMg',
-    playlist_id: 'PL_ajmc_religieux',
-    category: 'الأنشطة الدينية',
-    duration: '07:20',
-    status: 'ACTIVE',
-    created_at: '2026-09-11T14:30:00Z',
-    updated_at: '2026-09-11T14:30:00Z',
-  },
-  {
-    id: 'vid-004',
-    youtube_id: 'fJ9rUzIMcZQ',
-    youtube_url: 'https://www.youtube.com/watch?v=fJ9rUzIMcZQ',
-    title: 'ورشة التدريب على المهارات الرقمية ومنهجية إدارة المبادرات التطوعية',
-    description: 'دورة تكوينية تطبيقية استهدفت أعضاء الجمعية والشباب المهتمين بالتقنيات الحديثة وإدارة المشاريع المجتمعية وتوثيق الأنشطة.',
-    thumbnail_url: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&auto=format&fit=crop&q=80',
-    published_at: '2026-09-06T09:00:00Z',
-    channel_id: YOUTUBE_CHANNEL_ID || 'UCN0WZndfRXylOspFwildeMg',
-    playlist_id: 'PL_ajmc_formation',
-    category: 'الأنشطة التعليمية',
-    duration: '05:45',
-    status: 'ACTIVE',
-    created_at: '2026-09-06T09:30:00Z',
-    updated_at: '2026-09-06T09:30:00Z',
-  },
-  {
-    id: 'vid-005',
-    youtube_id: '9bZkp7q19f0',
-    youtube_url: 'https://www.youtube.com/watch?v=9bZkp7q19f0',
-    title: 'المبادرة الإنسانية وحملة التكافل الاجتماعي والتضامن مع الأسر المتعففة',
-    description: 'تقرير مصور حول جهود شباب جمعية A.J.M.C في تقديم السلال الغذائية والمساعدات العينية ومساندة المحتاجين في أحياء كاندي.',
-    thumbnail_url: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&auto=format&fit=crop&q=80',
-    published_at: '2026-08-30T16:00:00Z',
-    channel_id: YOUTUBE_CHANNEL_ID || 'UCN0WZndfRXylOspFwildeMg',
-    playlist_id: 'PL_ajmc_social',
-    category: 'الأنشطة الاجتماعية',
-    duration: '04:15',
-    status: 'ACTIVE',
-    created_at: '2026-08-30T16:30:00Z',
-    updated_at: '2026-08-30T16:30:00Z',
-  },
-  {
-    id: 'vid-006',
-    youtube_id: '3JZ_D3ELwOQ',
-    youtube_url: 'https://www.youtube.com/watch?v=3JZ_D3ELwOQ',
-    title: 'دوري الأخوة الرياضي لشباب مدينة كاندي — تعزيز روح التآخي والتعاون',
-    description: 'أجواء رياضية وأخوية مميزة جمعت شباب الجمعية في بطولة كرة القدم لتعزيز أواصر المحبة والنشاط البدني الإيجابي.',
-    thumbnail_url: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800&auto=format&fit=crop&q=80',
-    published_at: '2026-09-01T08:00:00Z',
-    channel_id: YOUTUBE_CHANNEL_ID || 'UCN0WZndfRXylOspFwildeMg',
-    playlist_id: 'PL_ajmc_sport',
-    category: 'أنشطة الشباب',
-    duration: '05:12',
-    status: 'ACTIVE',
-    created_at: '2026-09-01T08:30:00Z',
-    updated_at: '2026-09-01T08:30:00Z',
-  },
-];
+// Magasin en mémoire (uniquement pour les vidéos réelles synchronisées ou cache local)
+const initialVideos: Video[] = [];
 
 let localVideosStore: Video[] = [...initialVideos];
 
@@ -477,17 +380,39 @@ async function syncYouTubeVideos(): Promise<{
       }
 
       // 3. Récupération des vidéos récentes depuis la playlist d'uploads de la chaîne (1 quota unit)
+      let rawItems: any[] = [];
       const playlistItemsRes = await fetch(
         `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,status&playlistId=${uploadsPlaylistId}&maxResults=50&key=${YOUTUBE_API_KEY}`
       );
 
       if (!playlistItemsRes.ok) {
-        const errText = await playlistItemsRes.text();
-        throw new Error(`Erreur YouTube API playlistItems (${playlistItemsRes.status}): ${errText}`);
+        if (playlistItemsRes.status === 404) {
+          console.warn(`[YouTube Sync] Playlist uploads (${uploadsPlaylistId}) 404. Tentative de repli via search.list pour la chaîne...`);
+          try {
+            const searchRes = await fetch(
+              `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${resolvedChannelId}&order=date&type=video&maxResults=50&key=${YOUTUBE_API_KEY}`
+            );
+            if (searchRes.ok) {
+              const searchData = (await searchRes.json()) as any;
+              rawItems = (searchData.items || []).map((it: any) => ({
+                snippet: {
+                  ...it.snippet,
+                  resourceId: { videoId: it.id?.videoId },
+                },
+                status: { privacyStatus: 'public' },
+              }));
+            }
+          } catch (sErr) {
+            console.warn('[YouTube Sync] Erreur repli search:', sErr);
+          }
+        } else {
+          const errText = await playlistItemsRes.text();
+          throw new Error(`Erreur YouTube API playlistItems (${playlistItemsRes.status}): ${errText}`);
+        }
+      } else {
+        const playlistItemsData = (await playlistItemsRes.json()) as any;
+        rawItems = playlistItemsData.items || [];
       }
-
-      const playlistItemsData = (await playlistItemsRes.json()) as any;
-      const rawItems = playlistItemsData.items || [];
 
       if (rawItems.length === 0) {
         syncStatusState.isSyncing = false;
@@ -641,6 +566,38 @@ async function syncYouTubeVideos(): Promise<{
             addedCount++;
           }
         }
+      }
+
+      // Réconciliation des vidéos supprimées de YouTube :
+      // Toute vidéo active en base qui n'est plus retournée par YouTube est marquée comme UNAVAILABLE
+      if (supabase && seenVideoIds.size > 0) {
+        try {
+          const { data: dbActiveVideos } = await supabase
+            .from('videos')
+            .select('youtube_id')
+            .eq('status', 'ACTIVE');
+
+          if (dbActiveVideos && dbActiveVideos.length > 0) {
+            for (const row of dbActiveVideos) {
+              if (!seenVideoIds.has(row.youtube_id)) {
+                console.log(`[YouTube Sync] Vidéo ${row.youtube_id} supprimée de YouTube -> passage en UNAVAILABLE`);
+                await supabase
+                  .from('videos')
+                  .update({ status: 'UNAVAILABLE', updated_at: new Date().toISOString() })
+                  .eq('youtube_id', row.youtube_id);
+              }
+            }
+          }
+        } catch (rErr) {
+          console.warn('[YouTube Sync] Erreur réconciliation Supabase:', rErr);
+        }
+      } else if (!supabase && seenVideoIds.size > 0) {
+        localVideosStore = localVideosStore.map((v) => {
+          if (!seenVideoIds.has(v.youtube_id)) {
+            return { ...v, status: 'UNAVAILABLE' as const, updated_at: new Date().toISOString() };
+          }
+          return v;
+        });
       }
 
       // Comptage direct et fiable
@@ -858,7 +815,7 @@ app.get('/api/videos', async (req: Request, res: Response) => {
 });
 
 // 2. GET /api/sync/status - Public safe status without secrets (Section 7)
-app.get('/api/sync/status', (_req: Request, res: Response) => {
+app.get('/api/sync/status', async (_req: Request, res: Response) => {
   const isChannelConfigured = Boolean(
     YOUTUBE_CHANNEL_ID && !YOUTUBE_CHANNEL_ID.includes('UC_x5XG1OV2P6uZZ5FSM9Ttw')
   );
@@ -866,12 +823,27 @@ app.get('/api/sync/status', (_req: Request, res: Response) => {
     YOUTUBE_API_KEY && !YOUTUBE_API_KEY.includes('AIzaSyXXXXX')
   );
 
+  let totalVideos = localVideosStore.length;
+  let activeVideos = localVideosStore.filter((v) => v.status === 'ACTIVE').length;
+
+  if (supabase) {
+    try {
+      const { data: dbVideos, error } = await supabase.from('videos').select('id, status');
+      if (!error && dbVideos) {
+        totalVideos = dbVideos.length;
+        activeVideos = dbVideos.filter((v: any) => v.status === 'ACTIVE').length;
+      }
+    } catch {
+      // repli sur comptage en mémoire
+    }
+  }
+
   res.json({
     // Propriétés demandées en section 7
     status: isApiKeyConfigured && isChannelConfigured ? 'connected' : 'ready',
     lastSync: syncStatusState.lastSyncAt,
     nextSync: syncStatusState.nextScheduledSyncAt,
-    videosFound: syncStatusState.totalVideosCount,
+    videosFound: totalVideos,
     channelConfigured: isChannelConfigured,
 
     // Propriétés enrichies pour l'interface de surveillance
@@ -879,8 +851,8 @@ app.get('/api/sync/status', (_req: Request, res: Response) => {
     nextScheduledSyncAt: syncStatusState.nextScheduledSyncAt,
     syncIntervalMinutes: syncStatusState.syncIntervalMinutes,
     isSyncing: syncStatusState.isSyncing,
-    totalVideosCount: syncStatusState.totalVideosCount,
-    activeVideosCount: syncStatusState.activeVideosCount,
+    totalVideosCount: totalVideos,
+    activeVideosCount: activeVideos,
     channelId: syncStatusState.channelId,
     channelTitle: syncStatusState.channelTitle,
     hasApiKey: isApiKeyConfigured,

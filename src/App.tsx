@@ -12,6 +12,7 @@ import { ContactView } from './views/ContactView.tsx';
 import { AdminLayout } from './views/admin/AdminLayout.tsx';
 import { AdminLogin } from './views/admin/AdminLogin.tsx';
 import { AdminGalleryDashboard } from './views/admin/AdminGalleryDashboard.tsx';
+import { AdminYouTubeSync } from './views/admin/AdminYouTubeSync.tsx';
 import type { Video, VideoCategory, SyncStatus, VideosResponse } from './types/video.ts';
 import { initialSyncStatus, initialCategories } from './data/initialVideos.ts';
 
@@ -156,6 +157,13 @@ export default function App() {
       window.location.search.includes('admin=true')
     ));
 
+  // Onglet actif dans l'administration (Galerie ou YouTube Sync)
+  const [adminTab, setAdminTab] = useState<'gallery' | 'youtube'>(() => {
+    return typeof window !== 'undefined' && window.location.pathname.includes('youtube')
+      ? 'youtube'
+      : 'gallery';
+  });
+
   if (isAdminRoute) {
     if (!adminToken) {
       // Utilisateur non connecté : formulaire de connexion admin protégé
@@ -167,13 +175,22 @@ export default function App() {
       );
     }
 
-    // Administrateur connecté et vérifié : Tableau de bord de la galerie
+    // Administrateur connecté et vérifié : Galerie ou Synchronisation YouTube
     return (
       <AdminLayout
+        activeTab={adminTab}
+        onSelectTab={(tab) => {
+          setAdminTab(tab);
+          navigate(tab === 'youtube' ? '/admin/youtube-sync' : '/admin/gallery');
+        }}
         onLogout={handleLogout}
         onGoToPublicSite={() => navigate('/')}
       >
-        <AdminGalleryDashboard adminToken={adminToken} />
+        {adminTab === 'youtube' ? (
+          <AdminYouTubeSync adminToken={adminToken} />
+        ) : (
+          <AdminGalleryDashboard adminToken={adminToken} />
+        )}
       </AdminLayout>
     );
   }

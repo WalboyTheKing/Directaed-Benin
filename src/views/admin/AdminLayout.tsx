@@ -1,17 +1,21 @@
 import React from 'react';
-import { LogOut, ExternalLink, ShieldCheck, FolderKanban, Camera } from 'lucide-react';
+import { LogOut, ExternalLink, ShieldCheck, Camera, Youtube } from 'lucide-react';
 import { AJMCLogo } from '../../components/AJMCLogo.tsx';
 import { LanguageSelector } from '../../components/LanguageSelector.tsx';
 import { useLanguage } from '../../context/LanguageContext.tsx';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
+  activeTab: 'gallery' | 'youtube';
+  onSelectTab: (tab: 'gallery' | 'youtube') => void;
   onLogout: () => void;
   onGoToPublicSite: () => void;
 }
 
 export const AdminLayout: React.FC<AdminLayoutProps> = ({
   children,
+  activeTab,
+  onSelectTab,
   onLogout,
   onGoToPublicSite,
 }) => {
@@ -67,11 +71,30 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
 
         {/* Sous-barre d'onglets d'administration */}
         <div className="bg-stone-850 border-t border-stone-800 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto flex items-center gap-4 text-xs font-bold">
-            <div className="py-2.5 px-3 border-b-2 border-emerald-500 text-emerald-400 flex items-center gap-2">
-              <Camera className="w-3.5 h-3.5" />
-              <span>{language === 'ar' ? 'إدارة معرض الصور والألبومات' : 'Gestion de la Galerie & Albums'}</span>
-            </div>
+          <div className="max-w-7xl mx-auto flex items-center gap-2 sm:gap-4 text-xs font-bold">
+            <button
+              onClick={() => onSelectTab('gallery')}
+              className={`py-3 px-3.5 border-b-2 flex items-center gap-2 transition-colors cursor-pointer ${
+                activeTab === 'gallery'
+                  ? 'border-emerald-500 text-emerald-400 font-extrabold'
+                  : 'border-transparent text-stone-400 hover:text-stone-200'
+              }`}
+            >
+              <Camera className="w-4 h-4" />
+              <span>{language === 'ar' ? 'معرض الصور والألبومات' : 'Galerie Photos & Albums'}</span>
+            </button>
+
+            <button
+              onClick={() => onSelectTab('youtube')}
+              className={`py-3 px-3.5 border-b-2 flex items-center gap-2 transition-colors cursor-pointer ${
+                activeTab === 'youtube'
+                  ? 'border-emerald-500 text-emerald-400 font-extrabold'
+                  : 'border-transparent text-stone-400 hover:text-stone-200'
+              }`}
+            >
+              <Youtube className="w-4 h-4 text-red-500" />
+              <span>{language === 'ar' ? 'مزامنة يوتيوب والتشخيص' : 'Synchronisation YouTube & Diagnostic'}</span>
+            </button>
           </div>
         </div>
       </header>

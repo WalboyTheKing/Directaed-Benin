@@ -24,7 +24,7 @@ export const initialSyncStatus: SyncStatus = {
   hasApiKey: false,
   hasChannelId: false,
   hasSupabase: false,
-  databaseProvider: 'unknown',
+  databaseProvider: 'supabase',
   lastSyncResult: null,
   error: null,
 };
