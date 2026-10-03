@@ -84,13 +84,13 @@ export const NewsView: React.FC = () => {
         icon={Newspaper}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-10">
         {/* Grille des articles avec fond chaleureux */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
           {NEWS_DATA.map((article) => (
             <article
               key={article.id}
-              className="bg-white/95 rounded-3xl border border-stone-200/90 p-8 shadow-sm hover:shadow-md hover:border-emerald-700/30 transition-all duration-300 flex flex-col justify-between space-y-5 backdrop-blur-xs"
+              className="bg-white/95 rounded-3xl border border-stone-200/90 p-5 sm:p-8 shadow-sm hover:shadow-md hover:border-emerald-700/30 transition-all duration-300 flex flex-col justify-between space-y-4 sm:space-y-5 backdrop-blur-xs"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-xs text-stone-500">

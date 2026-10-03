@@ -40,12 +40,12 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
       </div>
 
       {/* Contenu de l'en-tête */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20 space-y-4">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-14 lg:py-18 space-y-3 sm:space-y-4">
         {/* Kicker & Badge */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-700/50 text-[11px] font-bold tracking-wider uppercase text-emerald-300 backdrop-blur-xs">
-            {Icon ? <Icon className="w-3.5 h-3.5 text-emerald-400" /> : <span className="w-2 h-2 rounded-full bg-emerald-400" />}
-            <span>{kicker}</span>
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-700/50 text-[10px] sm:text-[11px] font-bold tracking-wider uppercase text-emerald-300 backdrop-blur-xs max-w-full">
+            {Icon ? <Icon className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> : <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />}
+            <span className="truncate">{kicker}</span>
           </div>
           {badge && (
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30">
@@ -55,19 +55,19 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
         </div>
 
         {/* Titre Principal */}
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-snug sm:leading-tight">
           {title}
         </h1>
 
         {/* Sous-titre */}
         {subtitle && (
-          <p className="text-sm sm:text-base text-stone-200 leading-relaxed max-w-3xl drop-shadow-xs font-medium">
+          <p className="text-xs sm:text-sm md:text-base text-stone-200 leading-relaxed max-w-3xl drop-shadow-xs font-medium">
             {subtitle}
           </p>
         )}
 
         {/* Éléments optionnels (onglets, boutons, filtres) */}
-        {children && <div className="pt-4">{children}</div>}
+        {children && <div className="pt-2 sm:pt-4">{children}</div>}
       </div>
     </div>
   );

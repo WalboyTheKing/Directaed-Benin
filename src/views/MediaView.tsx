@@ -217,14 +217,14 @@ export const MediaView: React.FC<MediaViewProps> = ({
               </div>
 
               {/* Filtres de catégories */}
-              <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-stone-100">
+              <div className="flex items-center gap-2 pt-2 border-t border-stone-100 overflow-x-auto pb-1 sm:flex-wrap max-w-full">
                 {categoryFilters.map((cat) => {
                   const isSelected = selectedCategory === cat.key;
                   return (
                     <button
                       key={cat.key}
                       onClick={() => onSelectCategory(cat.key)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                         isSelected
                           ? 'bg-[#0F5132] text-white shadow-xs'
                           : 'bg-stone-50 text-stone-600 hover:bg-stone-100 hover:text-stone-900 border border-stone-200/60'

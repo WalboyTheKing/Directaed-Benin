@@ -131,15 +131,15 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectTab }) => {
         icon={FolderKanban}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-12">
         {/* Grille des catégories de projets avec fond chaleureux */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
           {PROJECTS_DATA.map((cat) => {
             const Icon = cat.icon;
             return (
               <div
                 key={cat.id}
-                className="bg-white/95 rounded-3xl border border-stone-200/90 p-8 sm:p-10 shadow-sm hover:shadow-md hover:border-emerald-700/30 transition-all duration-300 flex flex-col justify-between space-y-6 backdrop-blur-xs"
+                className="bg-white/95 rounded-3xl border border-stone-200/90 p-5 sm:p-8 md:p-10 shadow-sm hover:shadow-md hover:border-emerald-700/30 transition-all duration-300 flex flex-col justify-between space-y-5 sm:space-y-6 backdrop-blur-xs"
               >
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">

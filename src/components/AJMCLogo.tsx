@@ -11,18 +11,18 @@ export const AJMCLogo: React.FC<AJMCLogoProps> = ({ variant = 'color', compact =
   const isWhite = variant === 'white';
 
   return (
-    <div className={`flex items-center gap-3 select-none ${isRTL ? 'flex-row-reverse text-right' : 'flex-row text-left'}`}>
+    <div className={`flex items-center gap-2.5 sm:gap-3 select-none min-w-0 ${isRTL ? 'text-right' : 'text-left'}`}>
       {/* Emblème héraldique élégant de l'AJMC */}
       <div className="relative shrink-0 flex items-center justify-center">
         <div
-          className={`w-11 h-11 rounded-2xl flex items-center justify-center shadow-sm transition-transform group-hover:scale-105 ${
+          className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-xs transition-transform group-hover:scale-105 ${
             isWhite
               ? 'bg-emerald-800/80 border border-emerald-600/50 text-emerald-300'
               : 'bg-linear-to-br from-[#0F5132] via-[#16A34A] to-emerald-700 border border-emerald-600/40 text-white shadow-emerald-900/10'
           }`}
         >
           {/* Logo vectoriel stylisé : Dôme / Rayonnement / Étoile culturelle */}
-          <svg viewBox="0 0 40 40" className="w-7 h-7 fill-current" aria-hidden="true">
+          <svg viewBox="0 0 40 40" className="w-5 h-5 sm:w-7 sm:h-7 fill-current" aria-hidden="true">
             {/* Croissant stylisé et motif culturel */}
             <path
               d="M20 5C11.716 5 5 11.716 5 20C5 28.284 11.716 35 20 35C22.42 35 24.697 34.426 26.717 33.407C21.848 31.956 18.28 27.472 18.28 22.143C18.28 16.033 22.754 11.002 28.604 10.093C26.136 6.945 22.308 5 20 5Z"
@@ -39,17 +39,17 @@ export const AJMCLogo: React.FC<AJMCLogoProps> = ({ variant = 'color', compact =
 
       {/* Texte institutionnel */}
       {!compact && (
-        <div className="flex flex-col leading-tight">
-          <div className="flex items-center gap-1.5">
+        <div className="flex flex-col leading-tight min-w-0">
+          <div className="flex items-center gap-1.5 flex-nowrap">
             <span
-              className={`font-black tracking-tight text-base sm:text-lg ${
+              className={`font-black tracking-tight text-sm sm:text-base md:text-lg whitespace-nowrap ${
                 isWhite ? 'text-white' : 'text-stone-900'
               }`}
             >
               A.J.M.C
             </span>
             <span
-              className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider ${
+              className={`text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap ${
                 isWhite
                   ? 'bg-emerald-900/70 text-emerald-300 border border-emerald-700/60'
                   : 'bg-emerald-50 text-[#0F5132] border border-emerald-200'
@@ -60,7 +60,7 @@ export const AJMCLogo: React.FC<AJMCLogoProps> = ({ variant = 'color', compact =
           </div>
 
           <span
-            className={`text-xs font-semibold truncate ${
+            className={`text-[10px] sm:text-xs font-semibold truncate max-w-[130px] xs:max-w-[180px] sm:max-w-xs md:max-w-none ${
               isWhite ? 'text-stone-300' : 'text-stone-600'
             }`}
           >

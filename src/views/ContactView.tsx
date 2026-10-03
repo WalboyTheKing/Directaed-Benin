@@ -73,10 +73,10 @@ export const ContactView: React.FC = () => {
         icon={Mail}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
           {/* Carte Coordonnées officielles */}
-          <div className="lg:col-span-5 bg-gradient-to-b from-[#061f14] to-[#04160e] text-white p-8 sm:p-10 rounded-3xl shadow-xl border border-emerald-800/40 space-y-8 backdrop-blur-xs">
+          <div className="lg:col-span-5 bg-gradient-to-b from-[#061f14] to-[#04160e] text-white p-5 sm:p-8 md:p-10 rounded-3xl shadow-xl border border-emerald-800/40 space-y-6 sm:space-y-8 backdrop-blur-xs">
             <div>
               <div className="inline-flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400" />
@@ -155,7 +155,7 @@ export const ContactView: React.FC = () => {
           </div>
 
           {/* Formulaire de contact */}
-          <div className="lg:col-span-7 bg-white/95 rounded-3xl border border-stone-200/90 p-8 sm:p-10 shadow-sm backdrop-blur-xs space-y-6">
+          <div className="lg:col-span-7 bg-white/95 rounded-3xl border border-stone-200/90 p-5 sm:p-8 md:p-10 shadow-sm backdrop-blur-xs space-y-6">
             <div>
               <h2 className="text-xl sm:text-2xl font-extrabold text-stone-900">
                 {language === 'ar' ? 'أرسل لنا رسالة مباشرة' : 'Envoyer un message'}

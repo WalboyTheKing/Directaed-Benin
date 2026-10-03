@@ -33,15 +33,15 @@ export const AboutView: React.FC<AboutViewProps> = ({ onSelectTab }) => {
         icon={Users}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-12">
         {/* Section 1 : Qui sommes-nous ? */}
-        <div className="bg-white/95 rounded-3xl border border-stone-200/90 p-8 sm:p-12 shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-8 items-center backdrop-blur-xs">
+        <div className="bg-white/95 rounded-3xl border border-stone-200/90 p-5 sm:p-8 md:p-12 shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center backdrop-blur-xs">
           <div className="lg:col-span-8 space-y-4">
             <div className="inline-flex items-center gap-2 text-xs font-bold text-[#0F5132] uppercase tracking-wider">
               <span className="w-2 h-2 rounded-full bg-[#16A34A]" />
               <span>{language === 'ar' ? 'التعريف بالجمعية' : 'Présentation institutionnelle'}</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900 leading-snug">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-stone-900 leading-snug">
               {t('about_who_title')}
             </h2>
             <p className="text-sm sm:text-base text-stone-600 leading-relaxed font-medium">
@@ -52,9 +52,9 @@ export const AboutView: React.FC<AboutViewProps> = ({ onSelectTab }) => {
             </p>
           </div>
 
-          <div className="lg:col-span-4 bg-gradient-to-br from-emerald-950/5 to-amber-900/5 rounded-2xl p-6 border border-emerald-900/10 space-y-4 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-emerald-700/10 text-[#0F5132] flex items-center justify-center mx-auto shadow-xs">
-              <Users className="w-8 h-8" />
+          <div className="lg:col-span-4 bg-gradient-to-br from-emerald-950/5 to-amber-900/5 rounded-2xl p-5 sm:p-6 border border-emerald-900/10 space-y-4 text-center">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-emerald-700/10 text-[#0F5132] flex items-center justify-center mx-auto shadow-xs">
+              <Users className="w-7 h-7 sm:w-8 sm:h-8" />
             </div>
             <div>
               <h3 className="font-bold text-base text-stone-900">
@@ -77,36 +77,36 @@ export const AboutView: React.FC<AboutViewProps> = ({ onSelectTab }) => {
         </div>
 
         {/* Section 2 : Mission & Vision */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
           {/* Mission */}
-          <div className="bg-white/95 p-8 sm:p-10 rounded-3xl border border-stone-200/90 shadow-sm space-y-4 hover:border-emerald-700/30 transition-colors">
-            <div className="w-12 h-12 rounded-xl bg-emerald-50 text-[#0F5132] flex items-center justify-center shadow-xs">
-              <Target className="w-6 h-6" />
+          <div className="bg-white/95 p-5 sm:p-8 md:p-10 rounded-3xl border border-stone-200/90 shadow-sm space-y-3 sm:space-y-4 hover:border-emerald-700/30 transition-colors">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-emerald-50 text-[#0F5132] flex items-center justify-center shadow-xs">
+              <Target className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
-            <h3 className="text-xl font-bold text-stone-900">
+            <h3 className="text-lg sm:text-xl font-bold text-stone-900">
               {t('about_mission_title')}
             </h3>
-            <p className="text-sm text-stone-600 leading-relaxed">
+            <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
               {t('about_mission_desc')}
             </p>
           </div>
 
           {/* Vision */}
-          <div className="bg-white/95 p-8 sm:p-10 rounded-3xl border border-stone-200/90 shadow-sm space-y-4 hover:border-emerald-700/30 transition-colors">
-            <div className="w-12 h-12 rounded-xl bg-emerald-50 text-[#0F5132] flex items-center justify-center shadow-xs">
-              <Compass className="w-6 h-6" />
+          <div className="bg-white/95 p-5 sm:p-8 md:p-10 rounded-3xl border border-stone-200/90 shadow-sm space-y-3 sm:space-y-4 hover:border-emerald-700/30 transition-colors">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-emerald-50 text-[#0F5132] flex items-center justify-center shadow-xs">
+              <Compass className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
-            <h3 className="text-xl font-bold text-stone-900">
+            <h3 className="text-lg sm:text-xl font-bold text-stone-900">
               {t('about_vision_title')}
             </h3>
-            <p className="text-sm text-stone-600 leading-relaxed">
+            <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
               {t('about_vision_desc')}
             </p>
           </div>
         </div>
 
         {/* Section 3 : Nos Valeurs */}
-        <div className="bg-white/95 rounded-3xl border border-stone-200/90 p-8 sm:p-12 shadow-sm space-y-8">
+        <div className="bg-white/95 rounded-3xl border border-stone-200/90 p-5 sm:p-8 md:p-12 shadow-sm space-y-6 sm:space-y-8">
           <div className="max-w-2xl space-y-2">
             <div className="inline-flex items-center gap-2 text-xs font-bold text-[#0F5132] uppercase tracking-wider">
               <span className="w-2 h-2 rounded-full bg-[#16A34A]" />

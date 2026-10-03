@@ -36,7 +36,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
 
   return (
-    <div className={`space-y-20 pb-20 ${isRTL ? 'text-right' : 'text-left'}`}>
+    <div className={`space-y-12 sm:space-y-16 lg:space-y-20 pb-16 sm:pb-20 ${isRTL ? 'text-right' : 'text-left'}`}>
       {/* 1. HERO SECTION AVEC FOND VISUEL MAJESTUEUX & AMBIANCE ÉMERAUDE */}
       <section className="relative bg-[#061e14] text-stone-100 overflow-hidden border-b border-emerald-950/80">
         {/* Arrière-plan photographique et lumineux authentique */}
@@ -55,60 +55,60 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="absolute -bottom-24 left-1/4 w-[36rem] h-[36rem] bg-emerald-500/18 rounded-full blur-3xl" />
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 lg:py-32">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 lg:py-28">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             {/* Colonne Principale : Titres, Message & CTA */}
-            <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-700/60 text-xs font-bold tracking-widest uppercase text-emerald-300 backdrop-blur-xs">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>{t('org_name')} · {t('org_location')}</span>
+            <div className="lg:col-span-7 space-y-4 sm:space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-700/60 text-[10px] sm:text-xs font-bold tracking-wider uppercase text-emerald-300 backdrop-blur-xs max-w-full">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                <span className="truncate">{t('org_name')} · {t('org_location')}</span>
               </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-snug sm:leading-tight">
                 {t('hero_title_line1')} <br />
                 <span className="italic font-normal text-emerald-300 drop-shadow-md">{t('hero_title_line2')}</span>
               </h1>
 
-              <p className="text-base sm:text-lg text-stone-200 leading-relaxed max-w-2xl font-medium drop-shadow-xs">
+              <p className="text-sm sm:text-base md:text-lg text-stone-200 leading-relaxed max-w-2xl font-medium drop-shadow-xs">
                 {t('hero_desc')}
               </p>
 
               {/* Deux CTA distincts avec espacement net */}
-              <div className="pt-3 flex flex-wrap items-center gap-4 sm:gap-5">
+              <div className="pt-2 sm:pt-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
                 <button
                   onClick={() => onSelectTab('a-propos')}
-                  className="px-7 py-3.5 bg-[#0F5132] hover:bg-[#16A34A] text-white rounded-xl text-sm font-bold shadow-xl shadow-emerald-950/50 hover:shadow-emerald-700/30 transition-all cursor-pointer inline-flex items-center gap-2 transform hover:-translate-y-0.5"
+                  className="px-6 py-3.5 bg-[#0F5132] hover:bg-[#16A34A] text-white rounded-xl text-xs sm:text-sm font-bold shadow-xl shadow-emerald-950/50 hover:shadow-emerald-700/30 transition-all cursor-pointer inline-flex items-center justify-center gap-2 transform hover:-translate-y-0.5"
                 >
                   <span>{t('hero_btn_about')}</span>
-                  <ArrowIcon className="w-4 h-4" />
+                  <ArrowIcon className="w-4 h-4 shrink-0" />
                 </button>
 
                 <button
                   onClick={() => onSelectTab('activites')}
-                  className="px-6 py-3.5 bg-emerald-950/70 hover:bg-emerald-900/80 text-emerald-100 rounded-xl text-sm font-semibold border border-emerald-700/50 backdrop-blur-md transition-all cursor-pointer inline-flex items-center gap-2"
+                  className="px-6 py-3.5 bg-emerald-950/70 hover:bg-emerald-900/80 text-emerald-100 rounded-xl text-xs sm:text-sm font-semibold border border-emerald-700/50 backdrop-blur-md transition-all cursor-pointer inline-flex items-center justify-center gap-2"
                 >
                   <span>{t('hero_btn_activities')}</span>
                 </button>
               </div>
 
               {/* Repères d'impact associatif */}
-              <div className="pt-6 border-t border-emerald-900/50 grid grid-cols-3 gap-4 max-w-lg text-stone-300">
-                <div>
-                  <div className="text-xl sm:text-2xl font-black text-white">6</div>
-                  <div className="text-[11px] text-emerald-300/90 font-medium">
-                    {language === 'ar' ? 'مجالات عمل رئيسية' : 'Pôles d\'activités'}
+              <div className="pt-4 sm:pt-6 border-t border-emerald-900/50 grid grid-cols-3 gap-2 sm:gap-4 max-w-lg text-stone-300">
+                <div className="p-2 sm:p-0">
+                  <div className="text-lg sm:text-2xl font-black text-white">6</div>
+                  <div className="text-[10px] sm:text-xs text-emerald-300/90 font-medium leading-tight">
+                    {language === 'ar' ? 'مجالات رئيسية' : 'Pôles d\'activités'}
                   </div>
                 </div>
-                <div>
-                  <div className="text-xl sm:text-2xl font-black text-white">100%</div>
-                  <div className="text-[11px] text-emerald-300/90 font-medium">
-                    {language === 'ar' ? 'مبادرات تطوعية' : 'Engagement bénévole'}
+                <div className="p-2 sm:p-0">
+                  <div className="text-lg sm:text-2xl font-black text-white">100%</div>
+                  <div className="text-[10px] sm:text-xs text-emerald-300/90 font-medium leading-tight">
+                    {language === 'ar' ? 'تطوع وعطاء' : 'Bénévolat'}
                   </div>
                 </div>
-                <div>
-                  <div className="text-xl sm:text-2xl font-black text-white">Kandi</div>
-                  <div className="text-[11px] text-emerald-300/90 font-medium">
-                    {language === 'ar' ? 'الجمهورية البنينية' : 'République du Bénin'}
+                <div className="p-2 sm:p-0">
+                  <div className="text-lg sm:text-2xl font-black text-white">Kandi</div>
+                  <div className="text-[10px] sm:text-xs text-emerald-300/90 font-medium leading-tight">
+                    {language === 'ar' ? 'بنين' : 'Bénin'}
                   </div>
                 </div>
               </div>
@@ -186,7 +186,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
       {/* 2. PRÉSENTATION COURTE : QUI SOMMES-NOUS ? */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-3xl border border-stone-200 p-8 sm:p-12 shadow-sm space-y-6">
+        <div className="bg-white rounded-3xl border border-stone-200 p-5 sm:p-8 md:p-12 shadow-sm space-y-6">
           <div className="max-w-3xl space-y-2">
             <span className="text-xs font-bold text-[#0F5132] tracking-wider uppercase">
               {t('about_summary_title')}
@@ -513,7 +513,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
       {/* 6. APPEL À PARTICIPATION */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative rounded-3xl bg-linear-to-r from-[#0F5132] via-[#16A34A] to-emerald-800 text-white p-8 sm:p-12 overflow-hidden shadow-xl">
+        <div className="relative rounded-3xl bg-linear-to-r from-[#0F5132] via-[#16A34A] to-emerald-800 text-white p-6 sm:p-10 lg:p-12 overflow-hidden shadow-xl">
           <div className="relative z-10 max-w-2xl space-y-4">
             <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight">
               {t('call_action_title')}

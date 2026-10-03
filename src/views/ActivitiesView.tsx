@@ -81,7 +81,7 @@ export const ActivitiesView: React.FC<ActivitiesViewProps> = ({
       desc: t('domain_youth_desc'),
       points: language === 'ar'
         ? ['دوريات رياضية لتعزيز الأخوة والروح الرياضية', 'خرجات ترفيهية ومخيمات شبابية هادفة', 'حلقات نقاش وتبادل تجارب ملهمة']
-        : ['Tournois sportifs et cohésion fraternelle', 'Sorties de découverte et retraites شباب', 'Espaces d\'échange et mentorat entre jeunes'],
+        : ['Tournois sportifs et cohésion fraternelle', 'Sorties de découverte et séjours éducatifs', 'Espaces d\'échange et mentorat entre jeunes'],
     },
     {
       id: 'social',
