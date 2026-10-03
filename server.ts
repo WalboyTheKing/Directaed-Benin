@@ -1,9 +1,9 @@
-import express, { Request, Response } from 'express';
+import express, { type Request, type Response } from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { Video, SyncStatus, VideoCategory, VideoStatus } from './src/types/video.ts';
 import type { GalleryAlbum, GalleryPhoto, GalleryStats } from './src/types/gallery.ts';
 
