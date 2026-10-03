@@ -119,8 +119,8 @@ export const AdminYouTubeSync: React.FC<AdminYouTubeSyncProps> = ({ adminToken }
           </h2>
           <p className="text-xs sm:text-sm text-stone-500 max-w-2xl">
             {language === 'ar'
-              ? 'تتم مزامنة فيديوهات القناة تلقائياً كل 15 دقيقة مع قاعدة بيانات Supabase دون تدخل يدوي.'
-              : 'Les vidéos publiées sur la chaîne officielle sont automatiquement synchronisées vers Supabase toutes les 15 minutes.'}
+              ? 'تتم مزامنة فيديوهات القناة تلقائياً يومياً عبر Vercel Cron مع إمكانية المزامنة اليدوية الفورية في أي وقت.'
+              : 'Les vidéos de la chaîne officielle sont synchronisées automatiquement une fois par jour (Vercel Cron) avec possibilité de synchronisation manuelle à tout moment.'}
           </p>
         </div>
 
@@ -210,10 +210,12 @@ export const AdminYouTubeSync: React.FC<AdminYouTubeSyncProps> = ({ adminToken }
             <Clock className="w-4 h-4 text-stone-600" />
           </div>
           <div className="text-base font-extrabold text-stone-900">
-            Toutes les {syncStatus?.syncIntervalMinutes || 15} min
+            {syncStatus?.syncIntervalMinutes && syncStatus.syncIntervalMinutes < 1440
+              ? `Toutes les ${syncStatus.syncIntervalMinutes} min`
+              : (language === 'ar' ? 'يومية (مرة يومياً)' : 'Quotidienne (1x / jour)')}
           </div>
           <div className="text-[11px] text-stone-500">
-            Prochain scan :
+            {language === 'ar' ? 'Vercel Cron (خطة Hobby)' : 'Vercel Cron (Plan Hobby)'}
           </div>
           <div className="text-[11px] font-mono text-stone-700" dir="ltr">
             {syncStatus?.nextScheduledSyncAt

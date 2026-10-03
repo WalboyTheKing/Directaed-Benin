@@ -15,7 +15,7 @@ export const initialVideos: Video[] = [];
 export const initialSyncStatus: SyncStatus = {
   lastSyncAt: null,
   nextScheduledSyncAt: null,
-  syncIntervalMinutes: 15,
+  syncIntervalMinutes: 1440,
   isSyncing: false,
   totalVideosCount: 0,
   activeVideosCount: 0,

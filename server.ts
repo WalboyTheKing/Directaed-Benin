@@ -41,7 +41,7 @@ const YOUTUBE_CHANNEL_ID = process.env.YOUTUBE_CHANNEL_ID || 'UCN0WZndfRXylOspFw
 const YOUTUBE_OFFICIAL_CHANNEL_URL = 'https://www.youtube.com/@Madjid-r3c';
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || '';
-const SYNC_INTERVAL_MINUTES = parseInt(process.env.SYNC_INTERVAL_MINUTES || '15', 10);
+const SYNC_INTERVAL_MINUTES = parseInt(process.env.SYNC_INTERVAL_MINUTES || '1440', 10);
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'ajmc2026';
 
 // Initialize Supabase if configured
@@ -61,6 +61,11 @@ if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY && !SUPABASE_URL.includes('your-pr
 const initialVideos: Video[] = [];
 
 let localVideosStore: Video[] = [...initialVideos];
+
+// Cooldown et protections anti-hammering pour les auto-synchronisations déclenchées par les visites
+let lastAutoSyncAttemptMs = 0;
+const AUTO_SYNC_COOLDOWN_MS = 60 * 60 * 1000; // 1 heure minimum entre deux synchronisations automatiques d'arrière-plan
+const EMPTY_RETRY_COOLDOWN_MS = 10 * 60 * 1000; // 10 minutes minimum avant de retenter si la base était vide ou en échec
 
 // Sync status tracker
 let syncStatusState: SyncStatus = {
@@ -741,6 +746,7 @@ async function syncYouTubeVideos(): Promise<{
   } catch (err: any) {
     console.error('[YouTube Sync] Échec de la synchronisation (données préservées):', err.message);
     syncStatusState.isSyncing = false;
+    syncStatusState.lastSyncAt = new Date().toISOString();
     syncStatusState.error = err.message || 'Erreur inattendue lors de la synchronisation';
     syncStatusState.lastSyncResult = {
       success: false,
@@ -790,19 +796,24 @@ app.get('/api/videos', async (req: Request, res: Response) => {
 
       let { data, error } = await query;
 
-      // Si Supabase est vide alors que les clés sont configurées, déclencher la synchro YouTube immédiatement
-      // OU si le dernier sync date de plus de SYNC_INTERVAL_MINUTES
+      // Protection contre les appels trop fréquents et synchronisations simultanées
+      const now = Date.now();
       const lastSyncMs = syncStatusState.lastSyncAt ? Date.parse(syncStatusState.lastSyncAt) : 0;
-      const isStale = (Date.now() - lastSyncMs) > (SYNC_INTERVAL_MINUTES * 60 * 1000);
+      const isStale = (now - lastSyncMs) > (SYNC_INTERVAL_MINUTES * 60 * 1000);
+      const isBaseEmpty = !data || data.length === 0;
 
-      if (hasConfiguredKeys && !syncStatusState.isSyncing && ((!data || data.length === 0) || isStale)) {
-        if (!data || data.length === 0) {
-          console.log('[Auto-Sync] Base vide : synchronisation immédiate de la chaîne YouTube...');
+      const canTriggerEmpty = isBaseEmpty && (now - lastAutoSyncAttemptMs) > EMPTY_RETRY_COOLDOWN_MS;
+      const canTriggerStale = isStale && (now - lastAutoSyncAttemptMs) > AUTO_SYNC_COOLDOWN_MS;
+
+      if (hasConfiguredKeys && !syncStatusState.isSyncing && (canTriggerEmpty || canTriggerStale)) {
+        lastAutoSyncAttemptMs = now;
+        if (isBaseEmpty) {
+          console.log('[Auto-Sync] Base vide : synchronisation initiale sécurisée de la chaîne YouTube...');
           await syncYouTubeVideos();
           const retryRes = await query;
           data = retryRes.data;
         } else {
-          console.log('[Auto-Sync] Synchronisation périodique d\'arrière-plan déclenchée...');
+          console.log('[Auto-Sync] Synchronisation périodique d\'arrière-plan sécurisée déclenchée...');
           syncYouTubeVideos().catch((err) => console.warn('[Auto-Sync Background]', err));
         }
       }
@@ -814,7 +825,9 @@ app.get('/api/videos', async (req: Request, res: Response) => {
         allVideos = (data as Video[]) || [];
       }
     } else {
-      if (hasConfiguredKeys && localVideosStore.length === 0 && !syncStatusState.isSyncing) {
+      const now = Date.now();
+      if (hasConfiguredKeys && localVideosStore.length === 0 && !syncStatusState.isSyncing && (now - lastAutoSyncAttemptMs) > EMPTY_RETRY_COOLDOWN_MS) {
+        lastAutoSyncAttemptMs = now;
         await syncYouTubeVideos();
       }
       allVideos = hasConfiguredKeys
@@ -1814,7 +1827,7 @@ async function startServer() {
   console.log(`[Startup] Clé YouTube API v3 : ${isApiKeyConfigured ? '✓ Configurée' : '○ Non configurée (mode prêt)'}`);
   console.log(`[Startup] Chaîne YouTube      : ${isChannelConfigured ? YOUTUBE_CHANNEL_ID : '○ Non configurée'}`);
   console.log(`[Startup] Base de données     : ${supabase ? '✓ Supabase PostgreSQL' : '○ Magasin en mémoire (fallback)'}`);
-  console.log(`[Startup] Périodicité sync    : ${SYNC_INTERVAL_MINUTES} minutes`);
+  console.log(`[Startup] Périodicité sync    : ${SYNC_INTERVAL_MINUTES >= 1440 ? 'Quotidienne (Vercel Cron 1x/jour - Plan Hobby)' : `${SYNC_INTERVAL_MINUTES} minutes`}`);
   console.log('[Startup] ========================================================');
 
   // 2. Lancer la première synchronisation au démarrage (Section 4)
@@ -1846,7 +1859,7 @@ async function startServer() {
 
   app.listen(Number(PORT), '0.0.0.0', () => {
     console.log(`[Server] Serveur démarré sur http://0.0.0.0:${PORT}`);
-    console.log(`[Server] Synchronisation YouTube planifiée toutes les ${SYNC_INTERVAL_MINUTES} minutes.`);
+    console.log(`[Server] Synchronisation YouTube planifiée : ${SYNC_INTERVAL_MINUTES >= 1440 ? 'Quotidienne (1x/jour - Vercel Cron Hobby)' : `toutes les ${SYNC_INTERVAL_MINUTES} min`}.`);
   });
 }
 
