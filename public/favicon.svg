@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="ajmc-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+  </defs>
+  <rect width="100" height="100" rx="24" fill="url(#ajmc-grad)"/>
+  <circle cx="50" cy="50" r="38" stroke="#fef08a" stroke-width="2.5" fill="none" opacity="0.8" />
+  <!-- Crescent & Star -->
+  <path d="M 58 32 A 20 20 0 1 0 58 68 A 16 16 0 1 1 58 32 Z" fill="#ffffff"/>
+  <polygon points="63,44 65,49 70,49 66,52 68,57 63,54 58,57 60,52 56,49 61,49" fill="#fef08a"/>
+  <!-- Text AJMC -->
+  <text x="50" y="86" font-family="system-ui, sans-serif" font-size="14" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="1">AJMC</text>
+</svg>
