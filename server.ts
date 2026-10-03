@@ -379,66 +379,99 @@ async function syncYouTubeVideos(): Promise<{
         console.warn('[YouTube Sync] Avertissement lors de la récupération des playlists:', pErr);
       }
 
-      // 3. Récupération des vidéos récentes depuis la playlist d'uploads de la chaîne (1 quota unit)
+      // 3. Récupération des vidéos récentes depuis la playlist d'uploads de la chaîne avec pagination complète (Section 3 & 4)
       let rawItems: any[] = [];
-      const playlistItemsRes = await fetch(
-        `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,status&playlistId=${uploadsPlaylistId}&maxResults=50&key=${YOUTUBE_API_KEY}`
-      );
+      let pageToken: string | undefined = undefined;
+      let pagesTraversed = 0;
+      let playlistFetchSuccessful = false;
+      const MAX_PAGES = 10; // Jusqu'à 500 vidéos maximum
 
-      if (!playlistItemsRes.ok) {
-        if (playlistItemsRes.status === 404) {
-          console.warn(`[YouTube Sync] Playlist uploads (${uploadsPlaylistId}) 404. Tentative de repli via search.list pour la chaîne...`);
-          try {
-            const searchRes = await fetch(
-              `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${resolvedChannelId}&order=date&type=video&maxResults=50&key=${YOUTUBE_API_KEY}`
-            );
-            if (searchRes.ok) {
-              const searchData = (await searchRes.json()) as any;
-              rawItems = (searchData.items || []).map((it: any) => ({
-                snippet: {
-                  ...it.snippet,
-                  resourceId: { videoId: it.id?.videoId },
-                },
-                status: { privacyStatus: 'public' },
-              }));
+      do {
+        pagesTraversed++;
+        const pageParam = pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : '';
+        const playlistUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,status&playlistId=${uploadsPlaylistId}&maxResults=50${pageParam}&key=${YOUTUBE_API_KEY}`;
+        const playlistItemsRes = await fetch(playlistUrl);
+
+        if (!playlistItemsRes.ok) {
+          if (playlistItemsRes.status === 404 && pagesTraversed === 1) {
+            console.warn(`[YouTube Sync] Playlist uploads (${uploadsPlaylistId}) 404 : la chaîne n'a pas encore de vidéo publique indexée dans sa playlist d'uploads.`);
+            // Tentative de recherche par search.list
+            try {
+              const searchRes = await fetch(
+                `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${resolvedChannelId}&order=date&type=video&maxResults=50&key=${YOUTUBE_API_KEY}`
+              );
+              if (searchRes.ok) {
+                const searchData = (await searchRes.json()) as any;
+                rawItems = (searchData.items || []).map((it: any) => ({
+                  snippet: {
+                    ...it.snippet,
+                    resourceId: { videoId: it.id?.videoId },
+                  },
+                  status: { privacyStatus: 'public' },
+                }));
+                playlistFetchSuccessful = true;
+              }
+            } catch (sErr) {
+              console.warn('[YouTube Sync] Erreur lors de la tentative de recherche de secours:', sErr);
             }
-          } catch (sErr) {
-            console.warn('[YouTube Sync] Erreur repli search:', sErr);
+          } else {
+            const errText = await playlistItemsRes.text();
+            console.error(`[YouTube Sync] Erreur YouTube API playlistItems page ${pagesTraversed} (${playlistItemsRes.status}):`, errText);
+            throw new Error(`Erreur YouTube API playlistItems (${playlistItemsRes.status}): ${errText}`);
           }
-        } else {
-          const errText = await playlistItemsRes.text();
-          throw new Error(`Erreur YouTube API playlistItems (${playlistItemsRes.status}): ${errText}`);
+          break;
         }
-      } else {
+
         const playlistItemsData = (await playlistItemsRes.json()) as any;
-        rawItems = playlistItemsData.items || [];
-      }
+        playlistFetchSuccessful = true;
+        const pageItems = playlistItemsData.items || [];
+        rawItems.push(...pageItems);
+        pageToken = playlistItemsData.nextPageToken;
+      } while (pageToken && pagesTraversed < MAX_PAGES);
 
       if (rawItems.length === 0) {
         syncStatusState.isSyncing = false;
         syncStatusState.lastSyncAt = new Date().toISOString();
         syncStatusState.nextScheduledSyncAt = new Date(Date.now() + SYNC_INTERVAL_MINUTES * 60 * 1000).toISOString();
+        console.log('[YouTube Sync] ==================== DIAGNOSTIC SYNCHRONISATION ====================');
+        console.log(`[YouTube Sync] ID de chaîne utilisé          : ${resolvedChannelId}`);
+        console.log(`[YouTube Sync] ID de playlist Uploads obtenu   : ${uploadsPlaylistId}`);
+        console.log(`[YouTube Sync] Pages parcourues               : ${pagesTraversed}`);
+        console.log(`[YouTube Sync] Éléments reçus de YouTube       : 0 (aucune vidéo publique trouvée)`);
+        console.log('[YouTube Sync] ===================================================================');
         return {
           success: true,
           addedCount: 0,
           updatedCount: 0,
-          message: 'Aucune vidéo trouvée sur la chaîne YouTube spécifiée.',
+          message: 'Aucune vidéo publique trouvée sur la chaîne YouTube spécifiée.',
         };
       }
 
-      const videoIds = rawItems.map((i: any) => i.snippet?.resourceId?.videoId).filter(Boolean);
+      const allVideoIds = rawItems.map((i: any) => i.snippet?.resourceId?.videoId).filter(Boolean);
 
-      // 4. Batch query pour durées et statuts de confidentialité (1 quota unit)
-      const detailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,status&id=${videoIds.join(',')}&key=${YOUTUBE_API_KEY}`;
-      const detailsRes = await fetch(detailsUrl);
-      const detailsData = detailsRes.ok ? await detailsRes.json() : { items: [] };
+      // 4. Batch query par paquets de 50 pour durées et statuts de confidentialité (1 quota unit par paquet)
       const detailsMap = new Map<string, any>();
-      for (const d of detailsData.items || []) {
-        detailsMap.set(d.id, d);
+      for (let i = 0; i < allVideoIds.length; i += 50) {
+        const chunk = allVideoIds.slice(i, i + 50);
+        const detailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,status&id=${chunk.join(',')}&key=${YOUTUBE_API_KEY}`;
+        try {
+          const detailsRes = await fetch(detailsUrl);
+          if (detailsRes.ok) {
+            const detailsData = await detailsRes.json();
+            for (const d of detailsData.items || []) {
+              detailsMap.set(d.id, d);
+            }
+          }
+        } catch (dErr) {
+          console.warn('[YouTube Sync] Avertissement lors de la récupération des détails d\'un paquet:', dErr);
+        }
       }
 
       let addedCount = 0;
       let updatedCount = 0;
+      let ignoredCount = 0;
+      let validVideosCount = 0;
+      let supabaseErrorsCount = 0;
       const seenVideoIds = new Set<string>();
 
       for (const item of rawItems) {
@@ -452,14 +485,21 @@ async function syncYouTubeVideos(): Promise<{
         const rawDuration = details?.contentDetails?.duration || 'PT0M';
         const formattedDuration = parseISODuration(rawDuration);
 
-        // Détection statut de confidentialité / disponibilité (Section 11)
+        // Détection statut de confidentialité / disponibilité (Section 4 & 11)
         const privacyStatus = details?.status?.privacyStatus || item.status?.privacyStatus || 'public';
         const isEmbeddable = details?.status?.embeddable !== false;
+
         let videoStatus: VideoStatus = 'ACTIVE';
         if (privacyStatus === 'private') {
           videoStatus = 'PRIVATE';
+          ignoredCount++;
+          console.log(`[YouTube Sync] Vidéo ignorée (Privée) : ${videoId} — "${snippet.title}"`);
         } else if (!isEmbeddable) {
           videoStatus = 'UNAVAILABLE';
+          ignoredCount++;
+          console.log(`[YouTube Sync] Vidéo ignorée (Non intégrable) : ${videoId} — "${snippet.title}"`);
+        } else {
+          validVideosCount++;
         }
 
         // Catégorisation automatique selon la hiérarchie définie (Section 6)
@@ -467,6 +507,7 @@ async function syncYouTubeVideos(): Promise<{
         const category = determineCategory(snippet.title, snippet.description, associatedPlaylistTitle);
 
         const thumbnailUrl =
+          snippet.thumbnails?.maxres?.url ||
           snippet.thumbnails?.high?.url ||
           snippet.thumbnails?.medium?.url ||
           snippet.thumbnails?.default?.url ||
@@ -520,11 +561,11 @@ async function syncYouTubeVideos(): Promise<{
 
             if (updateErr) {
               console.error('[Supabase Update Error]', updateErr);
+              supabaseErrorsCount++;
             } else {
               updatedCount++;
             }
           } else {
-            // Insertion sans forcer de champ id non-UUID
             const { error: insertErr } = await supabase
               .from('videos')
               .insert({
@@ -534,7 +575,7 @@ async function syncYouTubeVideos(): Promise<{
 
             if (insertErr) {
               console.error('[Supabase Insert Error]', insertErr);
-              // Si la table avait été créée sans auto-id UUID
+              supabaseErrorsCount++;
               if (insertErr.message?.includes('id') || insertErr.code === '23502') {
                 await supabase.from('videos').insert({
                   ...dbPayload,
@@ -568,37 +609,52 @@ async function syncYouTubeVideos(): Promise<{
         }
       }
 
-      // Réconciliation des vidéos supprimées de YouTube :
-      // Toute vidéo active en base qui n'est plus retournée par YouTube est marquée comme UNAVAILABLE
-      if (supabase && seenVideoIds.size > 0) {
-        try {
-          const { data: dbActiveVideos } = await supabase
-            .from('videos')
-            .select('youtube_id')
-            .eq('status', 'ACTIVE');
+      // 5. Réconciliation prudente des vidéos supprimées de YouTube (Section 8) :
+      // On ne marque UNAVAILABLE que si la synchronisation a réussi son parcours complet
+      if (playlistFetchSuccessful && seenVideoIds.size > 0) {
+        if (supabase) {
+          try {
+            const { data: dbActiveVideos } = await supabase
+              .from('videos')
+              .select('youtube_id')
+              .eq('status', 'ACTIVE');
 
-          if (dbActiveVideos && dbActiveVideos.length > 0) {
-            for (const row of dbActiveVideos) {
-              if (!seenVideoIds.has(row.youtube_id)) {
-                console.log(`[YouTube Sync] Vidéo ${row.youtube_id} supprimée de YouTube -> passage en UNAVAILABLE`);
-                await supabase
-                  .from('videos')
-                  .update({ status: 'UNAVAILABLE', updated_at: new Date().toISOString() })
-                  .eq('youtube_id', row.youtube_id);
+            if (dbActiveVideos && dbActiveVideos.length > 0) {
+              for (const row of dbActiveVideos) {
+                if (!seenVideoIds.has(row.youtube_id)) {
+                  console.log(`[YouTube Sync] Vidéo ${row.youtube_id} non présente sur la chaîne YouTube -> passage en UNAVAILABLE`);
+                  await supabase
+                    .from('videos')
+                    .update({ status: 'UNAVAILABLE', updated_at: new Date().toISOString() })
+                    .eq('youtube_id', row.youtube_id);
+                }
               }
             }
+          } catch (rErr) {
+            console.warn('[YouTube Sync] Erreur réconciliation Supabase:', rErr);
           }
-        } catch (rErr) {
-          console.warn('[YouTube Sync] Erreur réconciliation Supabase:', rErr);
+        } else {
+          localVideosStore = localVideosStore.map((v) => {
+            if (!seenVideoIds.has(v.youtube_id)) {
+              return { ...v, status: 'UNAVAILABLE' as const, updated_at: new Date().toISOString() };
+            }
+            return v;
+          });
         }
-      } else if (!supabase && seenVideoIds.size > 0) {
-        localVideosStore = localVideosStore.map((v) => {
-          if (!seenVideoIds.has(v.youtube_id)) {
-            return { ...v, status: 'UNAVAILABLE' as const, updated_at: new Date().toISOString() };
-          }
-          return v;
-        });
       }
+
+      // Diagnostic journalisé sans exposer de secrets (Section 4)
+      console.log('[YouTube Sync] ==================== DIAGNOSTIC SYNCHRONISATION ====================');
+      console.log(`[YouTube Sync] ID de chaîne utilisé          : ${resolvedChannelId}`);
+      console.log(`[YouTube Sync] ID de playlist Uploads obtenu   : ${uploadsPlaylistId}`);
+      console.log(`[YouTube Sync] Nombre de pages parcourues     : ${pagesTraversed}`);
+      console.log(`[YouTube Sync] Éléments reçus de YouTube       : ${rawItems.length}`);
+      console.log(`[YouTube Sync] Vidéos valides pour le site     : ${validVideosCount}`);
+      console.log(`[YouTube Sync] Vidéos ignorées (privées/etc.)  : ${ignoredCount}`);
+      console.log(`[YouTube Sync] Nouvelles vidéos insérées       : ${addedCount}`);
+      console.log(`[YouTube Sync] Vidéos mises à jour             : ${updatedCount}`);
+      console.log(`[YouTube Sync] Erreurs Supabase                : ${supabaseErrorsCount}`);
+      console.log('[YouTube Sync] ===================================================================');
 
       // Comptage direct et fiable
       let totalCount = 0;
@@ -735,11 +791,20 @@ app.get('/api/videos', async (req: Request, res: Response) => {
       let { data, error } = await query;
 
       // Si Supabase est vide alors que les clés sont configurées, déclencher la synchro YouTube immédiatement
-      if ((!data || data.length === 0) && hasConfiguredKeys && !syncStatusState.isSyncing) {
-        console.log('[Auto-Sync] Première visite ou base vide : synchronisation immédiate de la chaîne YouTube...');
-        await syncYouTubeVideos();
-        const retryRes = await query;
-        data = retryRes.data;
+      // OU si le dernier sync date de plus de SYNC_INTERVAL_MINUTES
+      const lastSyncMs = syncStatusState.lastSyncAt ? Date.parse(syncStatusState.lastSyncAt) : 0;
+      const isStale = (Date.now() - lastSyncMs) > (SYNC_INTERVAL_MINUTES * 60 * 1000);
+
+      if (hasConfiguredKeys && !syncStatusState.isSyncing && ((!data || data.length === 0) || isStale)) {
+        if (!data || data.length === 0) {
+          console.log('[Auto-Sync] Base vide : synchronisation immédiate de la chaîne YouTube...');
+          await syncYouTubeVideos();
+          const retryRes = await query;
+          data = retryRes.data;
+        } else {
+          console.log('[Auto-Sync] Synchronisation périodique d\'arrière-plan déclenchée...');
+          syncYouTubeVideos().catch((err) => console.warn('[Auto-Sync Background]', err));
+        }
       }
 
       if (error) {
@@ -1707,8 +1772,8 @@ app.delete('/api/admin/gallery/photos/:id', requireAdmin, async (req: Request, r
   }
 });
 
-// 4. POST /api/sync - Déclenche une synchronisation manuelle réservée au diagnostic technique
-app.post('/api/sync', async (req: Request, res: Response) => {
+// 4. POST & GET /api/sync - Déclenche une synchronisation (supporte Vercel Cron qui envoie GET et Dashboard qui envoie POST)
+app.all(['/api/sync', '/api/sync/trigger'], async (req: Request, res: Response) => {
   try {
     const result = await syncYouTubeVideos();
     res.json({

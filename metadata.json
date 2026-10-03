@@ -1,5 +1,5 @@
 {
-  "name": "Complexe Scolaire DirectAid Bénin - Site Officiel & Vidéos YouTube",
+  "name": "Association des Jeunes Musulmans pour la Culture (A.J.M.C.) - Site Officiel & Vidéos YouTube",
   "description": "Site officiel du Complexe Scolaire & Éducatif DirectAid Bénin (العون المباشر - بنين) avec synchronisation automatique des vidéos de la chaîne YouTube vers Supabase.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
