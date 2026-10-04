@@ -410,10 +410,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="flex items-center gap-3">
             <button
               onClick={() => onSelectTab('mediatheque')}
-              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#0F5132] hover:text-[#16A34A] transition-colors cursor-pointer"
+              className="group inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#0F5132] hover:text-[#16A34A] transition-colors cursor-pointer"
             >
               <span>{t('media_section_btn')}</span>
-              <ArrowIcon className="w-4 h-4" />
+              <ArrowIcon className="w-4 h-4 transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
             </button>
           </div>
         </div>
@@ -432,81 +432,103 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 ? 'تابعوا أنشطتنا وندواتنا عبر القناة الرسمية للجمعية على يوتيوب.'
                 : 'Retrouvez prochainement les enregistrements vidéo de nos conférences et événements sur notre chaîne.'}
             </p>
+            <div className="pt-2">
+              <button
+                onClick={() => onSelectTab('mediatheque')}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#0F5132] hover:bg-[#16A34A] text-white rounded-xl text-xs sm:text-sm font-bold shadow-sm hover:shadow-md transition-all cursor-pointer group"
+              >
+                <span>{t('media_section_btn')}</span>
+                <ArrowIcon className="w-4 h-4 transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
+              </button>
+            </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {latestVideos.slice(0, 3).map((video) => (
-              <div
-                key={video.id}
-                onClick={() => onSelectVideo(video)}
-                className="group bg-white rounded-2xl overflow-hidden border border-stone-200 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer hover:-translate-y-1"
+          <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {latestVideos.slice(0, 3).map((video) => (
+                <div
+                  key={video.id}
+                  onClick={() => onSelectVideo(video)}
+                  className="group bg-white rounded-2xl overflow-hidden border border-stone-200 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer hover:-translate-y-1"
+                >
+                  <div className="relative aspect-video bg-stone-900 overflow-hidden">
+                    <img
+                      src={video.thumbnail_url}
+                      alt={video.title}
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-stone-950/20 group-hover:bg-stone-950/40 transition-colors" />
+
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-full bg-red-600/95 text-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
+                        <Play className="w-5 h-5 fill-white translate-x-0.5" />
+                      </div>
+                    </div>
+
+                    {video.duration && (
+                      <div className={`absolute bottom-2.5 ${isRTL ? 'right-2.5' : 'left-2.5'} px-2 py-0.5 rounded bg-black/80 text-white text-[11px] font-mono font-medium flex items-center gap-1`}>
+                        <Clock className="w-3 h-3 text-stone-300" />
+                        <span>{video.duration}</span>
+                      </div>
+                    )}
+
+                    {video.category && (
+                      <div className={`absolute top-2.5 ${isRTL ? 'left-2.5' : 'right-2.5'}`}>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/90 text-stone-800 backdrop-blur-xs shadow-xs">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                          {video.category}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-xs text-stone-500">
+                        {video.category && (
+                          <>
+                            <span className="font-semibold text-emerald-700">{video.category}</span>
+                            <span>·</span>
+                          </>
+                        )}
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          {new Date(video.published_at).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'fr-FR', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          })}
+                        </span>
+                      </div>
+
+                      <h3 className="font-bold text-base text-stone-900 group-hover:text-[#0F5132] transition-colors line-clamp-2 leading-snug">
+                        {video.title}
+                      </h3>
+                    </div>
+
+                    <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-stone-500">
+                      <span className="text-emerald-700 font-bold group-hover:underline flex items-center gap-1">
+                        <span>{t('media_watch_btn')}</span>
+                        <ArrowIcon className="w-3 h-3" />
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Bouton centré bien visible pour accéder à toutes les vidéos */}
+            <div className="mt-8 sm:mt-10 flex justify-center">
+              <button
+                onClick={() => onSelectTab('mediatheque')}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3.5 sm:py-4 bg-[#0F5132] hover:bg-[#16A34A] active:bg-[#0c3f27] text-white rounded-xl sm:rounded-2xl text-sm sm:text-base font-bold shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer active:scale-98 group"
               >
-                <div className="relative aspect-video bg-stone-900 overflow-hidden">
-                  <img
-                    src={video.thumbnail_url}
-                    alt={video.title}
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-stone-950/20 group-hover:bg-stone-950/40 transition-colors" />
-
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-12 h-12 rounded-full bg-red-600/95 text-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
-                      <Play className="w-5 h-5 fill-white translate-x-0.5" />
-                    </div>
-                  </div>
-
-                  {video.duration && (
-                    <div className={`absolute bottom-2.5 ${isRTL ? 'right-2.5' : 'left-2.5'} px-2 py-0.5 rounded bg-black/80 text-white text-[11px] font-mono font-medium flex items-center gap-1`}>
-                      <Clock className="w-3 h-3 text-stone-300" />
-                      <span>{video.duration}</span>
-                    </div>
-                  )}
-
-                  {video.category && (
-                    <div className={`absolute top-2.5 ${isRTL ? 'left-2.5' : 'right-2.5'}`}>
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/90 text-stone-800 backdrop-blur-xs shadow-xs">
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                        {video.category}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-xs text-stone-500">
-                      {video.category && (
-                        <>
-                          <span className="font-semibold text-emerald-700">{video.category}</span>
-                          <span>·</span>
-                        </>
-                      )}
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {new Date(video.published_at).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'fr-FR', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric',
-                        })}
-                      </span>
-                    </div>
-
-                    <h3 className="font-bold text-base text-stone-900 group-hover:text-[#0F5132] transition-colors line-clamp-2 leading-snug">
-                      {video.title}
-                    </h3>
-                  </div>
-
-                  <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-stone-500">
-                    <span className="text-emerald-700 font-bold group-hover:underline flex items-center gap-1">
-                      <span>{t('media_watch_btn')}</span>
-                      <ArrowIcon className="w-3 h-3" />
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
+                <span>{t('media_section_btn')}</span>
+                <ArrowIcon className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:translate-x-1.5 rtl:group-hover:-translate-x-1.5" />
+              </button>
+            </div>
           </div>
         )}
       </section>

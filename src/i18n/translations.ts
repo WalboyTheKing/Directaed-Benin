@@ -174,7 +174,7 @@ export const translations: Record<Language, Translations> = {
     // Section Vidéos & Médiathèque
     media_section_title: 'Dernières vidéos et reportages',
     media_section_subtitle: 'Suivez les temps forts, conférences et réalisations de l\'A.J.M.C publiés sur notre chaîne YouTube.',
-    media_section_btn: 'Accéder à la médiathèque',
+    media_section_btn: 'Voir toutes les vidéos',
     media_empty: 'Les enregistrements et reportages vidéo seront bientôt disponibles.',
     media_watch_btn: 'Regarder la vidéo',
     media_search_placeholder: 'Rechercher une conférence, une activité ou un reportage...',
@@ -298,7 +298,7 @@ export const translations: Record<Language, Translations> = {
     // Section Vidéos & Médiathèque
     media_section_title: 'أحدث التغطيات المرئية والمحاضرات',
     media_section_subtitle: 'تابعوا تسجيلات المحاضرات والملتقيات والأنشطة الميدانية عبر قناتنا الرسمية على يوتيوب.',
-    media_section_btn: 'زيارة المكتبة الإعلامية',
+    media_section_btn: 'عرض جميع الفيديوهات',
     media_empty: 'التقارير والمقاطع المرئية ستكون متاحة قريباً.',
     media_watch_btn: 'شاهد الآن',
     media_search_placeholder: 'ابحث في المحاضرات والأنشطة والندوات...',
