@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Plus,
+  Upload,
   Search,
   Camera,
   FolderKanban,
@@ -22,6 +23,7 @@ import { GALLERY_CATEGORIES } from '../../types/gallery.ts';
 import { useLanguage } from '../../context/LanguageContext.tsx';
 import { AlbumModal } from './AlbumModal.tsx';
 import { AdminAlbumPhotos } from './AdminAlbumPhotos.tsx';
+import { MultiPhotoUploadModal } from './MultiPhotoUploadModal.tsx';
 
 interface AdminGalleryDashboardProps {
   adminToken: string;
@@ -45,6 +47,7 @@ export const AdminGalleryDashboard: React.FC<AdminGalleryDashboardProps> = ({ ad
 
   // Modals et vues enfants
   const [isAlbumModalOpen, setIsAlbumModalOpen] = useState(false);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [editingAlbum, setEditingAlbum] = useState<GalleryAlbum | null>(null);
   const [managingAlbum, setManagingAlbum] = useState<GalleryAlbum | null>(null);
 
@@ -304,17 +307,28 @@ export const AdminGalleryDashboard: React.FC<AdminGalleryDashboardProps> = ({ ad
             />
           </div>
 
-          {/* Bouton Nouvel Album */}
-          <button
-            onClick={() => {
-              setEditingAlbum(null);
-              setIsAlbumModalOpen(true);
-            }}
-            className="px-5 py-2.5 bg-[#0F5132] hover:bg-[#16A34A] text-white font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            <span>{language === 'ar' ? 'ألبوم جديد' : 'Nouvel album'}</span>
-          </button>
+          {/* Boutons d'action : Ajouter des photos & Nouvel Album */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsUploadModalOpen(true)}
+              className="px-4 py-2.5 bg-emerald-50 hover:bg-emerald-100 text-[#0F5132] border border-emerald-300 font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-2"
+              title={language === 'ar' ? 'رفع صور جديدة إلى ألبوم' : 'Ajouter des photos à un album'}
+            >
+              <Upload className="w-4 h-4" />
+              <span>{language === 'ar' ? 'إضافة صور' : 'Ajouter des photos'}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setEditingAlbum(null);
+                setIsAlbumModalOpen(true);
+              }}
+              className="px-5 py-2.5 bg-[#0F5132] hover:bg-[#16A34A] text-white font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              <span>{language === 'ar' ? 'ألبوم جديد' : 'Nouvel album'}</span>
+            </button>
+          </div>
         </div>
 
         {/* Filtres par Catégorie et Statut */}
@@ -518,6 +532,22 @@ export const AdminGalleryDashboard: React.FC<AdminGalleryDashboardProps> = ({ ad
         album={editingAlbum}
         onSave={handleSaveAlbum}
         adminToken={adminToken}
+      />
+
+      {/* Modal de téléversement groupé de photos */}
+      <MultiPhotoUploadModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        adminToken={adminToken}
+        albums={albums}
+        onUploadSuccess={async (_albumId, count) => {
+          setSuccessMsg(
+            language === 'ar'
+              ? `تم رفع ${count} صورة بنجاح.`
+              : `${count} photo(s) ajoutée(s) avec succès.`
+          );
+          await fetchData();
+        }}
       />
     </div>
   );

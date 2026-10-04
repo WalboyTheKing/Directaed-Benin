@@ -18,17 +18,13 @@ import {
 import type { GalleryAlbum, GalleryPhoto } from '../../types/gallery.ts';
 import { useLanguage } from '../../context/LanguageContext.tsx';
 import { PhotoEditModal } from './PhotoEditModal.tsx';
+import { MultiPhotoUploadModal } from './MultiPhotoUploadModal.tsx';
 
 interface AdminAlbumPhotosProps {
   album: GalleryAlbum;
   adminToken: string;
   onBack: () => void;
   onRefreshAlbum: () => void;
-}
-
-interface QueuedFile {
-  file: File;
-  previewUrl: string;
 }
 
 export const AdminAlbumPhotos: React.FC<AdminAlbumPhotosProps> = ({
@@ -42,9 +38,7 @@ export const AdminAlbumPhotos: React.FC<AdminAlbumPhotosProps> = ({
 
   const [photos, setPhotos] = useState<GalleryPhoto[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [selectedQueue, setSelectedQueue] = useState<QueuedFile[]>([]);
-  const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number }>({ current: 0, total: 0 });
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
   const [editingPhoto, setEditingPhoto] = useState<GalleryPhoto | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -72,127 +66,6 @@ export const AdminAlbumPhotos: React.FC<AdminAlbumPhotosProps> = ({
   useEffect(() => {
     fetchPhotos();
   }, [fetchPhotos]);
-
-  // Sélection de plusieurs images en une seule fois
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    const newQueue: QueuedFile[] = [];
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      if (file.type.startsWith('image/')) {
-        newQueue.push({
-          file,
-          previewUrl: URL.createObjectURL(file),
-        });
-      }
-    }
-
-    setSelectedQueue((prev) => [...prev, ...newQueue]);
-    // Reset file input
-    e.target.value = '';
-  };
-
-  // Retirer une photo de la file avant l'upload
-  const handleRemoveFromQueue = (index: number) => {
-    setSelectedQueue((prev) => {
-      const updated = [...prev];
-      URL.revokeObjectURL(updated[index].previewUrl);
-      updated.splice(index, 1);
-      return updated;
-    });
-  };
-
-  // Téléversement groupé des images sélectionnées
-  const handleUploadQueue = async () => {
-    if (selectedQueue.length === 0) return;
-
-    try {
-      setIsUploading(true);
-      setErrorMsg(null);
-      setSuccessMsg(null);
-      setUploadProgress({ current: 0, total: selectedQueue.length });
-
-      let successCount = 0;
-
-      for (let i = 0; i < selectedQueue.length; i++) {
-        const item = selectedQueue[i];
-        setUploadProgress({ current: i + 1, total: selectedQueue.length });
-
-        // Convertir en base64
-        const base64Data = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => {
-            const result = reader.result as string;
-            resolve(result.split(',')[1]);
-          };
-          reader.onerror = reject;
-          reader.readAsDataURL(item.file);
-        });
-
-        // 1. Upload vers Supabase Storage 'gallery'
-        const uploadRes = await fetch('/api/admin/gallery/upload', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${adminToken}`,
-          },
-          body: JSON.stringify({
-            filename: item.file.name,
-            filedata: base64Data,
-            contentType: item.file.type || 'image/jpeg',
-            albumId: album.id,
-          }),
-        });
-
-        const uploadData = await uploadRes.json();
-        if (!uploadRes.ok || !uploadData.public_url) {
-          throw new Error(uploadData.error || `Erreur lors de l'upload de ${item.file.name}`);
-        }
-
-        // 2. Créer l'enregistrement photo dans la base de données
-        const photoRes = await fetch(`/api/admin/gallery/albums/${album.id}/photos`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${adminToken}`,
-          },
-          body: JSON.stringify({
-            public_url: uploadData.public_url,
-            storage_path: uploadData.storage_path,
-            title_fr: item.file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
-            title_ar: null,
-            caption_fr: null,
-            caption_ar: null,
-            sort_order: photos.length + i + 1,
-            is_published: true,
-          }),
-        });
-
-        if (photoRes.ok) {
-          successCount++;
-        }
-      }
-
-      // Nettoyer la file d'attente
-      selectedQueue.forEach((item) => URL.revokeObjectURL(item.previewUrl));
-      setSelectedQueue([]);
-
-      setSuccessMsg(
-        language === 'ar'
-          ? `تم رفع ${successCount} صورة بنجاح وإضافتها إلى الألبوم.`
-          : `${successCount} photo(s) ajoutée(s) avec succès à l'album.`
-      );
-
-      await fetchPhotos();
-      onRefreshAlbum();
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Une erreur est survenue lors de l\'envoi des photos.');
-    } finally {
-      setIsUploading(false);
-    }
-  };
 
   // Suppression d'une photo avec confirmation
   const handleDeletePhoto = async (photo: GalleryPhoto) => {
@@ -312,17 +185,14 @@ export const AdminAlbumPhotos: React.FC<AdminAlbumPhotosProps> = ({
 
         {/* Bouton d'ajout de photos */}
         <div>
-          <label className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0F5132] hover:bg-[#16A34A] text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs">
+          <button
+            type="button"
+            onClick={() => setIsUploadModalOpen(true)}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0F5132] hover:bg-[#16A34A] text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
+          >
             <Plus className="w-4 h-4" />
             <span>{language === 'ar' ? 'إضافة صور جديدة' : 'Ajouter des photos'}</span>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleFileSelect}
-              className="hidden"
-            />
-          </label>
+          </button>
         </div>
       </div>
 
@@ -347,84 +217,6 @@ export const AdminAlbumPhotos: React.FC<AdminAlbumPhotosProps> = ({
       )}
 
       {/* ============================================================== */}
-      {/* FILE D'ATTENTE AVANT VALIDATION & TÉLÉVERSEMENT                */}
-      {/* ============================================================== */}
-      {selectedQueue.length > 0 && (
-        <div className="bg-emerald-900/5 border-2 border-dashed border-emerald-600/40 rounded-3xl p-6 space-y-4 animate-fade-in">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h3 className="font-extrabold text-sm text-stone-900">
-                {language === 'ar' ? 'الصور المحددة للرفع' : 'Photos sélectionnées en attente d\'upload'}
-              </h3>
-              <p className="text-xs text-stone-500">
-                {language === 'ar'
-                  ? `تم اختيار ${selectedQueue.length} صورة. يمكنك معاينتها أو إلغاء أي منها قبل التأكيد.`
-                  : `${selectedQueue.length} photo(s) prête(s). Vous pouvez retirer une photo avant de lancer l'upload.`}
-              </p>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  selectedQueue.forEach((item) => URL.revokeObjectURL(item.previewUrl));
-                  setSelectedQueue([]);
-                }}
-                disabled={isUploading}
-                className="px-3.5 py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 bg-white border border-stone-200 rounded-xl transition-colors cursor-pointer"
-              >
-                {language === 'ar' ? 'إلغاء التحديد' : 'Annuler tout'}
-              </button>
-
-              <button
-                type="button"
-                onClick={handleUploadQueue}
-                disabled={isUploading}
-                className="px-5 py-2 bg-[#0F5132] hover:bg-[#16A34A] text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-xs disabled:opacity-50 flex items-center gap-2"
-              >
-                {isUploading ? (
-                  <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <Upload className="w-3.5 h-3.5" />
-                )}
-                <span>
-                  {isUploading
-                    ? language === 'ar'
-                      ? `جاري الرفع (${uploadProgress.current}/${uploadProgress.total})...`
-                      : `Envoi (${uploadProgress.current}/${uploadProgress.total})...`
-                    : language === 'ar'
-                    ? `تأكيد ورفع ${selectedQueue.length} صورة`
-                    : `Téléverser ${selectedQueue.length} photo(s)`}
-                </span>
-              </button>
-            </div>
-          </div>
-
-          {/* Grille des aperçus avant validation */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
-            {selectedQueue.map((item, idx) => (
-              <div key={idx} className="relative aspect-square rounded-xl overflow-hidden bg-stone-100 border border-stone-200 group">
-                <img src={item.previewUrl} alt="Aperçu" className="w-full h-full object-cover" />
-                {!isUploading && (
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveFromQueue(idx)}
-                    className="absolute top-1.5 right-1.5 p-1 bg-black/70 hover:bg-red-600 text-white rounded-full transition-colors cursor-pointer"
-                    title={language === 'ar' ? 'إلغاء الصورة' : 'Retirer'}
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                )}
-                <div className="absolute bottom-0 inset-x-0 bg-stone-900/80 p-1 text-[9px] text-stone-300 truncate text-center">
-                  {item.file.name}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================== */}
       {/* GRILLE DES PHOTOS DE L'ALBUM                                   */}
       {/* ============================================================== */}
       {isLoading ? (
@@ -441,9 +233,19 @@ export const AdminAlbumPhotos: React.FC<AdminAlbumPhotosProps> = ({
           </h3>
           <p className="text-xs text-stone-500 max-w-sm mx-auto">
             {language === 'ar'
-              ? 'انقر على زر "إضافة صور جديدة" أعلاه لاختيار ورفع صور هذا الألبوم.'
-              : 'Cliquez sur "Ajouter des photos" pour importer des photographies vers Supabase Storage.'}
+              ? 'انقر على زر "إضافة صور جديدة" لاختيار ورفع عدة صور في عملية واحدة.'
+              : 'Cliquez sur "Ajouter des photos" pour téléverser plusieurs images en une seule opération.'}
           </p>
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={() => setIsUploadModalOpen(true)}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0F5132] hover:bg-[#16A34A] text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>{language === 'ar' ? 'إضافة صور الآن' : 'Ajouter des photos à l\'album'}</span>
+            </button>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
@@ -573,6 +375,24 @@ export const AdminAlbumPhotos: React.FC<AdminAlbumPhotosProps> = ({
         onClose={() => setEditingPhoto(null)}
         photo={editingPhoto}
         onSave={handleSavePhotoUpdates}
+      />
+
+      {/* Modal de téléversement groupé de photos */}
+      <MultiPhotoUploadModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        adminToken={adminToken}
+        albums={[album]}
+        targetAlbum={album}
+        onUploadSuccess={async (_albumId, count) => {
+          setSuccessMsg(
+            language === 'ar'
+              ? `تمت إضافة ${count} صورة بنجاح إلى هذا الألبوم.`
+              : `${count} photo(s) ajoutée(s) avec succès à l'album.`
+          );
+          await fetchPhotos();
+          onRefreshAlbum();
+        }}
       />
     </div>
   );
